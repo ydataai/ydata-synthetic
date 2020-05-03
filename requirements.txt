@@ -1,0 +1,4 @@
+pandas==1.0.3
+numpy==1.17.4
+
+tensorflow==2.1.0
