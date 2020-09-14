@@ -1,14 +1,10 @@
-from abc import ABC
-from abc import abstractmethod
-
 import os
-from easydict import EasyDict as edict
 from tensorflow.python import keras
 
-class Model(ABC):
+class Model():
     def __init__(
             self,
-            model_parameters: edict = None,
+            model_parameters
     ):
         self._model_parameters = model_parameters
         [self.batch_size, self.lr, self.noise_dim,
@@ -18,8 +14,7 @@ class Model(ABC):
     def __call__(self, inputs, **kwargs):
         return self.model(inputs=inputs, **kwargs)
 
-    @abstractmethod
-    def define_gan(self) -> keras.Model:
+    def define_gan(self):
         raise NotImplementedError
 
     @property
@@ -31,14 +26,13 @@ class Model(ABC):
         return self._model
 
     @property
-    def model_parameters(self) -> edict:
+    def model_parameters(self):
         return self._model_parameters
 
     @property
-    def model_name(self) -> str:
+    def model_name(self):
         return self.__class__.__name__
 
-    @abstractmethod
     def train(self, data, train_arguments):
         raise NotImplementedError
 
