@@ -8,3 +8,4 @@ example Jupyter Notebook is included, to show how to use the different architect
 ##### In this repo you can find the following GAN architectures:
 - [GAN](https://arxiv.org/abs/1406.2661)
 - [CGAN (Conditional GAN)](https://arxiv.org/abs/1411.1784)
+- [WGAN (Wasserstein GAN)](https://arxiv.org/abs/1701.07875)
