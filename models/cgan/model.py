@@ -1,4 +1,5 @@
 import os
+from os import path
 import numpy as np
 
 import tensorflow as tf
@@ -19,7 +20,7 @@ class CGAN():
         self.discriminator = Discriminator(self.batch_size, num_classes). \
             build_model(input_shape=(self.data_dim,), dim=layers_dim)
 
-        optimizer = Adam(lr, 0.5)
+        optimizer = Adam(lr, beta_1=0.5)
 
         # Build and compile the discriminator
         self.discriminator.compile(loss='binary_crossentropy',
@@ -73,7 +74,7 @@ class CGAN():
             noise = tf.random.normal((self.batch_size, self.noise_dim))
 
             # Generate a batch of new records
-            gen_records = self.generator.predict([noise, label])
+            gen_records = self.generator([noise, label], training=True)
 
             # Train the discriminator
             d_loss_real = self.discriminator.train_on_batch([batch_x, label], valid)
@@ -94,7 +95,9 @@ class CGAN():
             if epoch % sample_interval == 0:
                 # Test here data generation step
                 # save model checkpoints
-                model_checkpoint_base_name = data_dir + cache_prefix + '_{}_model_weights_step_{}.h5'
+                if path.exists('./cache') is False:
+                    os.mkdir('./cache')
+                model_checkpoint_base_name = './cache/' + cache_prefix + '_{}_model_weights_step_{}.h5'
                 self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
                 self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
 
@@ -154,6 +157,8 @@ class Discriminator():
         x = Dense(dim, activation='relu')(x)
         x = Dense(1, activation='sigmoid')(x)
         return Model(inputs=[events, label], outputs=x)
+
+
 
 
 
