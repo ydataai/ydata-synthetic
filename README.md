@@ -19,6 +19,12 @@ It consists in a set of different GANs architectures developed ussing Tensorflow
 pip install ydata-synthetic
 ```
 
+##Examples
+Here you can find usage examples of the package and models to synthesize tabular data.
+
+**Credit Fraud dataset** 
+
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/gan_example.ipynb)
 
 # Project Resources
 - Synthetic GitHub: https://github.com/ydataai/ydata-synthetic
