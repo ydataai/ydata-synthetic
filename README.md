@@ -1,3 +1,5 @@
+Join us on [![slack](https://img.shields.io/badge/slack-brightgreen.svg?logo=slack)](https://join.slack.com/t/syntheticdatahq/shared_invite/zt-i4ey2f36-0JLkHnYTiLxMe2jKvT0FQw)
+
 # What is Synthetic Data?
 Synthetic data is artificially generated data that is not collected from real world events. It replicates the statistical components of real data without containing any identifiable information, ensuring individuals' privacy.
 
