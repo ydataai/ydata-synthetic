@@ -19,7 +19,7 @@ It consists in a set of different GANs architectures developed ussing Tensorflow
 pip install ydata-synthetic
 ```
 
-##Examples
+## Examples
 Here you can find usage examples of the package and models to synthesize tabular data.
 
 **Credit Fraud dataset** 
