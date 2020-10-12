@@ -1,4 +1,4 @@
-Join us on [![slack](https://img.shields.io/badge/slack-brightgreen.svg?logo=slack)](https://join.slack.com/t/syntheticdatahq/shared_invite/zt-i4ey2f36-0JLkHnYTiLxMe2jKvT0FQw)
+Join us on [![slack](https://img.shields.io/badge/slack-brightgreen.svg?logo=slack)](http://slack.ydata.ai/)
 
 # What is Synthetic Data?
 Synthetic data is artificially generated data that is not collected from real world events. It replicates the statistical components of real data without containing any identifiable information, ensuring individuals' privacy.
@@ -28,7 +28,7 @@ Here you can find usage examples of the package and models to synthesize tabular
 
 # Project Resources
 - Synthetic GitHub: https://github.com/ydataai/ydata-synthetic
-- Synthetic Data Community Slack: [click here to join](https://join.slack.com/t/syntheticdatahq/shared_invite/zt-i4ey2f36-0JLkHnYTiLxMe2jKvT0FQw)
+- Synthetic Data Community Slack: [click here to join](http://slack.ydata.ai/)
 
 ### In this repo you can find the following GAN architectures:
 - [GAN](https://arxiv.org/abs/1406.2661)
