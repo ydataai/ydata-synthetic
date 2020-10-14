@@ -1,5 +1,4 @@
 from models import CGAN
-from preprocessing.credit_fraud import *
 
 from sklearn import cluster
 
