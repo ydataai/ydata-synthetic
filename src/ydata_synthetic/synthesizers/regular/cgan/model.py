@@ -160,7 +160,7 @@ class Discriminator():
 
 if __name__ == '__main__':
     import pandas as pd
-    from preprocessing.credit_fraud import transformations
+    from src.ydata_synthetic.preprocessing import transformations
     import sklearn.cluster as cluster
 
     data = pd.read_csv('/home/fabiana/PycharmProjects/YData/gan-playground/examples/data/creditcard.csv')
