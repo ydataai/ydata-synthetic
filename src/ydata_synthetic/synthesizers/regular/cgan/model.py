@@ -2,6 +2,8 @@ import os
 from os import path
 import numpy as np
 
+from ydata_synthetic.synthesizers import gan
+
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Dense, Dropout, Flatten, Embedding, multiply
 from tensorflow.keras import Model
@@ -10,9 +12,9 @@ from tensorflow.keras.optimizers import Adam
 
 class CGAN():
 
-    def __init__(self, gan_args):
+    def __init__(self, model_parameters):
         [self.batch_size, lr, self.noise_dim,
-         self.data_dim, num_classes, self.classes, layers_dim] = gan_args
+         self.data_dim, num_classes, self.classes, layers_dim] = model_parameters
 
         self.generator = Generator(self.batch_size, num_classes). \
             build_model(input_shape=(self.noise_dim,), dim=layers_dim, data_dim=self.data_dim)
