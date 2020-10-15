@@ -1,5 +1,7 @@
-from models import CGAN
+from ydata_synthetic.synthesizers import CGAN
+from ydata_synthetic.preprocessing.credit_fraud import transformations
 
+import pandas as pd
 from sklearn import cluster
 
 #Read the original data and have it preprocessed
