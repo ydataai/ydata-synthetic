@@ -41,8 +41,8 @@ class WGAN(gan.Model):
         self.critic = Critic(self.batch_size). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
 
-        optimizer = Adam(self.lr, beta_1=0.5, beta_2=0.9)
-        self.critic_optimizer = Adam(self.lr, beta_1=0.5, beta_2=0.9)
+        optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        self.critic_optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
 
         # Build and compile the critic
         self.critic.compile(loss=self.wasserstein_loss,
@@ -111,7 +111,7 @@ class WGAN(gan.Model):
             # Plot the progress
             print("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100 * d_loss[1], g_loss))
 
-            # If at save interval => save generated events
+            #If at save interval => save generated events
             if epoch % sample_interval == 0:
                 # Test here data generation step
                 # save model checkpoints

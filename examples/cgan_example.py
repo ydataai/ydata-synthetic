@@ -2,6 +2,7 @@ from ydata_synthetic.synthesizers import CGAN
 from ydata_synthetic.preprocessing.credit_fraud import transformations
 
 import pandas as pd
+import numpy as np
 from sklearn import cluster
 
 #Read the original data and have it preprocessed
@@ -45,6 +46,8 @@ batch_size = 128
 log_step = 100
 epochs = 200+1
 learning_rate = 5e-4
+beta_1 = 0.5
+beta_2 = 0.9
 models_dir = './cache'
 
 train_sample = fraud_w_classes.copy().reset_index(drop=True)
@@ -54,7 +57,7 @@ data_cols = [ i for i in train_sample.columns if i not in label_cols ]
 train_sample[ data_cols ] = train_sample[ data_cols ] / 10 # scale to random noise size, one less thing to learn
 train_no_label = train_sample[ data_cols ]
 
-gan_args = [batch_size, learning_rate, noise_dim, train_sample.shape[1], 2, (0, 1), dim]
+gan_args = [batch_size, learning_rate, beta_1, beta_2, noise_dim, train_sample.shape[1], 2, (0, 1), dim]
 train_args = ['', label_cols[0], epochs, log_step, '']
 
 #Init the Conditional GAN providing the index of the label column as one of the arguments

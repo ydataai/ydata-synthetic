@@ -7,7 +7,7 @@ class Model():
             model_parameters
     ):
         self._model_parameters = model_parameters
-        [self.batch_size, self.lr, self.noise_dim,
+        [self.batch_size, self.lr, self.beta_1, self.beta_2, self.noise_dim,
          self.data_dim, self.layers_dim] = model_parameters
         self.define_gan()
 
