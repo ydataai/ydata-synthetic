@@ -21,7 +21,7 @@ class VanilllaGAN(gan.Model):
         self.discriminator = Discriminator(self.batch_size).\
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
 
-        optimizer = Adam(self.lr, 0.5)
+        optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
 
         # Build and compile the discriminator
         self.discriminator.compile(loss='binary_crossentropy',

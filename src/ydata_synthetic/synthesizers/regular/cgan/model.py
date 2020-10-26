@@ -13,7 +13,7 @@ from tensorflow.keras.optimizers import Adam
 class CGAN():
 
     def __init__(self, model_parameters):
-        [self.batch_size, lr, self.noise_dim,
+        [self.batch_size, lr,self.beta_1, self.beta_2, self.noise_dim,
          self.data_dim, num_classes, self.classes, layers_dim] = model_parameters
 
         self.generator = Generator(self.batch_size, num_classes). \
@@ -22,7 +22,7 @@ class CGAN():
         self.discriminator = Discriminator(self.batch_size, num_classes). \
             build_model(input_shape=(self.data_dim,), dim=layers_dim)
 
-        optimizer = Adam(lr, beta_1=0.5)
+        optimizer = Adam(lr, beta_1=self.beta_1, beta_2=self.beta_2)
 
         # Build and compile the discriminator
         self.discriminator.compile(loss='binary_crossentropy',
