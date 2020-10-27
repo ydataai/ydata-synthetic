@@ -81,8 +81,8 @@ class WGAN(gan.Model):
         [cache_prefix, epochs, sample_interval] = train_arguments
 
         # Adversarial ground truths
-        valid = -np.ones((self.batch_size, 1))
-        fake = np.ones((self.batch_size, 1))
+        valid = np.ones((self.batch_size, 1))
+        fake = -np.ones((self.batch_size, 1))
 
         for epoch in range(epochs):
 
@@ -100,6 +100,12 @@ class WGAN(gan.Model):
                 d_loss_real = self.critic.train_on_batch(batch_data, valid)
                 d_loss_fake = self.critic.train_on_batch(gen_data, fake)
                 d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
+
+                # Critic weight clipping
+                for l in self.critic.layers:
+                    weights = l.get_weights()
+                    weights = [np.clip(w, -self.clip_value, self.clip_value) for w in weights]
+                    l.set_weights(weights)
 
             # ---------------------
             #  Train Generator
@@ -120,10 +126,6 @@ class WGAN(gan.Model):
                 model_checkpoint_base_name = './cache/' + cache_prefix + '_{}_model_weights_step_{}.h5'
                 self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
                 self.critic.save_weights(model_checkpoint_base_name.format('critic', epoch))
-
-                # Here is generating new data
-                #z = tf.random.normal((432, self.noise_dim))
-                #gen_data = self.generator(z)
 
     def load(self, path):
         assert os.path.isdir(path) == True, \
