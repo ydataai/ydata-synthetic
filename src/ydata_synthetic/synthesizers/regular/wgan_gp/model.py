@@ -12,7 +12,6 @@ import tensorflow.keras.backend as K
 from tensorflow.keras import Model
 from tensorflow.keras.optimizers import Adam
 
-
 #Auxiliary Keras backend class to calculate the Random Weighted average
 #https://stackoverflow.com/questions/58133430/how-to-substitute-keras-layers-merge-merge-in-tensorflow-keras
 class RandomWeightedAverage(tf.keras.layers.Layer):
@@ -27,7 +26,7 @@ class RandomWeightedAverage(tf.keras.layers.Layer):
     def compute_output_shape(self, input_shape):
         return input_shape[0]
 
-class WGAN(gan.Model):
+class WGAN_GP(gan.Model):
 
     def __init__(self, model_parameters, n_critic):
         # As recommended in WGAN paper - https://arxiv.org/abs/1701.07875
