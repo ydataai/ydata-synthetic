@@ -137,7 +137,7 @@ class WGAN_GP(gan.Model):
         [cache_prefix, epochs, sample_interval] = train_arguments
 
         #Create a summary file
-        train_summary_writer = tf.summary.create_file_writer(path.join('.', 'summaries', 'train'))
+        train_summary_writer = tf.summary.create_file_writer(path.join('../wgan_gp_test', 'summaries', 'train'))
 
         # Adversarial ground truths
         valid = -np.ones((self.batch_size, 1))
@@ -186,7 +186,6 @@ class WGAN_GP(gan.Model):
         self.generator = Generator(self.batch_size)
         self.generator = self.generator.load_weights(path)
         return self.generator
-
 
 class Generator(tf.keras.Model):
     def __init__(self, batch_size):
