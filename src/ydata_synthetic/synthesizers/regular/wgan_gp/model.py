@@ -2,6 +2,7 @@ import os
 from os import path
 import numpy as np
 from tqdm import tqdm
+from functools import partial
 
 from ydata_synthetic.synthesizers import gan
 
@@ -37,7 +38,7 @@ class WGAN(gan.Model):
     def wasserstein_loss(self, y_true, y_pred):
         return K.mean(y_true * y_pred)
 
-    def define_gan(self):
+    def define_gan(self):        
         self.generator = Generator(self.batch_size). \
             build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim)
 
@@ -47,25 +48,78 @@ class WGAN(gan.Model):
         optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
         self.critic_optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
 
-        # Build and compile the critic
-        self.critic.compile(loss=self.wasserstein_loss,
-                                   optimizer=self.critic_optimizer,
-                                   metrics=['accuracy'])
+        # Freeze the generator while discriminator training
+        self.generator.trainable = False
 
-        # The generator takes noise as input and generates imgs
+        #Real event input
+        real_event = Input(shape=self.data_dim)
+
+        #Random noise object       
         z = Input(shape=(self.noise_dim,))
+        #Generate new record using the generator from noise
         record = self.generator(z)
-        # The discriminator takes generated images as input and determines validity
-        validity = self.critic(record)
+
+        # Discriminator determines validity of the real and fake events
+        fake = self.critic(record)
+        valid = self.critic(real_event)
+
+        # Construct weighted average between real and the fake envents
+        interpolated_img = RandomWeightedAverage()([real_event, record])
+
+        # Determine validity of weighted sample
+        validity_interpolated = self.critic(interpolated_img)
+
+        partial_gp_loss = partial(self.gradient_penalty_loss,
+                                  averaged_samples=validity_interpolated)
+        partial_gp_loss.__name__ = 'gradient_penalty'  # Keras requires function names
+
+        self._model_critic = Model(inputs=[real_event, z],
+                                  outputs=[valid, fake, validity_interpolated],
+                                  metrics=['accuracy'])
+
+        self._model_critic.compile(loss=[self.wasserstein_loss,
+                                        self.wasserstein_loss,
+                                        partial_gp_loss],
+                                  optimizer=optimizer,
+                                  loss_weights=[1, 1, 10])
 
         # For the combined model we will only train the generator
         self.critic.trainable = False
 
+        # Computational graph for the Generator
+        #Freeze the critic training while training the generator
+        self.critic.trainable = False
+        self.generator.trainable = True
+
+        z_gen = Input(shape=(self.noise_dim,))
+        fake_record = self.generator(z_gen)
+        valid = self.critic(fake_record)
+
         # The combined model  (stacked generator and discriminator)
         # Trains the generator to fool the discriminator
-        #For the WGAN model use the Wassertein loss
-        self._model = Model(z, validity)
+        # For the WGAN model use the Wassertein loss
+        self._model = Model(z_gen, valid)
         self._model.compile(loss=self.wasserstein_loss, optimizer=optimizer)
+
+    def gradient_penalty_loss(self, y_pred, averaged_samples):
+        """
+        Computing gradient penalty based on the prediction for real, fake and weighted events
+        """
+        gradients = K.gradients(y_pred, averaged_samples)[0]
+
+        gradients_sqr = K.square(gradients)
+
+        gradients_sqr_sum = K.sum(gradients_sqr,
+                                  axis=np.arange(1, len(gradients_sqr.shape)))
+
+        gradient_l2_norm = K.sqrt(gradients_sqr_sum)
+
+        # compute lambda * (1 - ||grad||)^2 still for each single sample
+        gradient_penalty = K.square(1 - gradient_l2_norm)
+
+        # return the mean as loss over all the batch samples
+        return K.mean(gradient_penalty)
+
 
     def get_data_batch(self, train, batch_size, seed=0):
         # np.random.seed(seed)
@@ -87,8 +141,9 @@ class WGAN(gan.Model):
         train_summary_writer = tf.summary.create_file_writer(path.join('.', 'summaries', 'train'))
 
         # Adversarial ground truths
-        valid = np.ones((self.batch_size, 1))
-        fake = -np.ones((self.batch_size, 1))
+        valid = -np.ones((self.batch_size, 1))
+        fake = np.ones((self.batch_size, 1))
+        dummy = -np.zeros((self.batch_size, 1))
 
         with train_summary_writer.as_default():
             for epoch in tqdm.trange(epochs, desc='Epoch Iterations'):
@@ -104,14 +159,8 @@ class WGAN(gan.Model):
                     gen_data = self.generator(noise)
 
                     # Train the Critic
-                    d_loss_real = self.critic.train_on_batch(batch_data, valid)
-                    d_loss_fake = self.critic.train_on_batch(gen_data, fake)
-                    d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
-
-                    for l in self.critic.layers:
-                        weights = l.get_weights()
-                        weights = [np.clip(w, -self.clip_value, self.clip_value) for w in weights]
-                        l.set_weights(weights)
+                    d_loss = self._model_critic.train_on_batch([batch_data, noise],
+                                                                [valid, fake, dummy])
 
                 # ---------------------
                 #  Train Generator

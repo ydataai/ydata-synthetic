@@ -1,4 +1,5 @@
 import os
+import tensorflow as tf
 from tensorflow.python import keras
 
 class Model():
@@ -35,6 +36,10 @@ class Model():
 
     def train(self, data, train_arguments):
         raise NotImplementedError
+
+    @tf.function
+    def samples(self, z):
+        return self.generator(z, training=False)
 
     def save(self, path, name):
         assert os.path.isdir(path) == True, \
