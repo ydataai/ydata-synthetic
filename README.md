@@ -36,3 +36,4 @@ Here you can find usage examples of the package and models to synthesize tabular
 - [GAN](https://arxiv.org/abs/1406.2661)
 - [CGAN (Conditional GAN)](https://arxiv.org/abs/1411.1784)
 - [WGAN (Wasserstein GAN)](https://arxiv.org/abs/1701.07875)
+- [WGAN-GP (Wassertein GAN with Gradient Penalty)](https://arxiv.org/abs/1704.00028)
