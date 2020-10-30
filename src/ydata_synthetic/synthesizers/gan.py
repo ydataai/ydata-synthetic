@@ -1,4 +1,7 @@
 import os
+import tqdm
+
+import pandas as pd
 import tensorflow as tf
 from tensorflow.python import keras
 
@@ -23,10 +26,6 @@ class Model():
         return network.trainable_variables
 
     @property
-    def model(self):
-        return self._model
-
-    @property
     def model_parameters(self):
         return self._model_parameters
 
@@ -37,9 +36,14 @@ class Model():
     def train(self, data, train_arguments):
         raise NotImplementedError
 
-    @tf.function
-    def samples(self, z):
-        return self.generator(z, training=False)
+    def sample(self, n_samples):
+        steps = n_samples // self.batch_size + 1
+        data = []
+        for step in tqdm.trange(steps):
+            z = tf.random.uniform([self.batch_size, self.noise_dim])
+            records = tf.make_ndarray(tf.make_tensor_proto(self.generator(z, training=False)))
+            data.append(pd.DataFrame(records))
+        return pd.concat(data)
 
     def save(self, path, name):
         assert os.path.isdir(path) == True, \
