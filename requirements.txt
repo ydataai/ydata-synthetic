@@ -3,4 +3,7 @@ numpy==1.17.4
 scikit-learn==0.22.2
 matplotlib==3.3.2
 tensorflow==2.1.2
+tensorflow-privacy==0.5.1
+kaggle==1.5.9
 easydict
+pmlb
