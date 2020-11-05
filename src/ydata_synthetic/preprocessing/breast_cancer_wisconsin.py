@@ -7,6 +7,12 @@ from sklearn.compose import ColumnTransformer
 from pmlb import fetch_data
 
 def transformations(auto=True):
+    """
+    Transform a dataframe to scaler.
+
+    Args:
+        auto: (array): write your description
+    """
     if auto:
         data = fetch_data('breast_cancer_wisconsin')
     else:

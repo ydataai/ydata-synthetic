@@ -17,12 +17,26 @@ class WGAN_GP(gan.Model):
     GRADIENT_PENALTY_WEIGHT = 10
     
     def __init__(self, model_parameters, n_critic):
+        """
+        Initialize the n_parameters.
+
+        Args:
+            self: (todo): write your description
+            model_parameters: (str): write your description
+            n_critic: (int): write your description
+        """
         # As recommended in WGAN paper - https://arxiv.org/abs/1701.07875
         # WGAN-GP - WGAN with Gradient Penalty
         self.n_critic = n_critic
         super().__init__(model_parameters)
 
     def define_gan(self):
+        """
+        Creates the model
+
+        Args:
+            self: (todo): write your description
+        """
         self.generator = Generator(self.batch_size). \
             build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim)
 
@@ -33,9 +47,25 @@ class WGAN_GP(gan.Model):
         self.critic_optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
 
     def wasserstein_loss(self, y_true, y_pred):
+        """
+        Wasser loss of the model
+
+        Args:
+            self: (todo): write your description
+            y_true: (array): write your description
+            y_pred: (array): write your description
+        """
         return K.mean(y_true * y_pred)
 
     def gradient_penalty(self, real, fake):
+        """
+        Compute the gradient of a tensor.
+
+        Args:
+            self: (todo): write your description
+            real: (todo): write your description
+            fake: (todo): write your description
+        """
         epsilon = tf.random.uniform([real.shape[0], 1], 0.0, 1.0, dtype=tf.dtypes.float32)
         x_hat = epsilon * real + (1 - epsilon) * fake
         with tf.GradientTape() as t:
@@ -61,6 +91,14 @@ class WGAN_GP(gan.Model):
         return gen_gradients, disc_gradients
 
     def apply_gradients(self, ggradients, dgradients):
+        """
+        Applies the gradients.
+
+        Args:
+            self: (todo): write your description
+            ggradients: (todo): write your description
+            dgradients: (todo): write your description
+        """
         self.g_optimizer.apply_gradients(
             zip(ggradients, self.generator.trainable_variables)
         )
@@ -96,6 +134,15 @@ class WGAN_GP(gan.Model):
         return d_loss, g_loss
 
     def get_data_batch(self, train, batch_size, seed=0):
+        """
+        Return a batch of examples.
+
+        Args:
+            self: (todo): write your description
+            train: (bool): write your description
+            batch_size: (int): write your description
+            seed: (int): write your description
+        """
         # np.random.seed(seed)
         # x = train.loc[ np.random.choice(train.index, batch_size) ].values
         # iterate through shuffled indices, so every sample gets covered evenly
@@ -110,10 +157,25 @@ class WGAN_GP(gan.Model):
 
     @tf.function
     def train_step(self, train_data):
+        """
+        Train the forward step.
+
+        Args:
+            self: (todo): write your description
+            train_data: (todo): write your description
+        """
         g_gradients, d_gradients = self.compute_gradients(train_data)
         self.apply_gradients(g_gradients, d_gradients)
 
     def train(self, data, train_arguments):
+        """
+        Train model.
+
+        Args:
+            self: (todo): write your description
+            data: (todo): write your description
+            train_arguments: (todo): write your description
+        """
         [cache_prefix, epochs, sample_interval] = train_arguments
 
         # Create a summary file
@@ -140,6 +202,13 @@ class WGAN_GP(gan.Model):
                     self.critic.save_weights(model_checkpoint_base_name.format('critic', epoch))
 
     def load(self, path):
+        """
+        Loads a generator from a file.
+
+        Args:
+            self: (todo): write your description
+            path: (str): write your description
+        """
         assert os.path.isdir(path) == True, \
             "Please provide a valid path. Path must be a directory."
         self.generator = Generator(self.batch_size)
@@ -148,9 +217,25 @@ class WGAN_GP(gan.Model):
 
 class Generator(tf.keras.Model):
     def __init__(self, batch_size):
+        """
+        Initialize a batch.
+
+        Args:
+            self: (todo): write your description
+            batch_size: (int): write your description
+        """
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim, data_dim):
+        """
+        Builds the model.
+
+        Args:
+            self: (todo): write your description
+            input_shape: (list): write your description
+            dim: (int): write your description
+            data_dim: (str): write your description
+        """
         input = Input(shape=input_shape, batch_size=self.batch_size)
         x = Dense(dim, activation='relu')(input)
         x = Dense(dim * 2, activation='relu')(x)
@@ -160,9 +245,24 @@ class Generator(tf.keras.Model):
 
 class Critic(tf.keras.Model):
     def __init__(self, batch_size):
+        """
+        Initialize a batch.
+
+        Args:
+            self: (todo): write your description
+            batch_size: (int): write your description
+        """
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim):
+        """
+        Builds the model.
+
+        Args:
+            self: (todo): write your description
+            input_shape: (list): write your description
+            dim: (int): write your description
+        """
         input = Input(shape=input_shape, batch_size=self.batch_size)
         x = Dense(dim * 4, activation='relu')(input)
         x = Dropout(0.1)(x)

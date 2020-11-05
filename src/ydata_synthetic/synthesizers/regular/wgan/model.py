@@ -15,28 +15,71 @@ from tensorflow.keras.optimizers import Adam
 #https://stackoverflow.com/questions/58133430/how-to-substitute-keras-layers-merge-merge-in-tensorflow-keras
 class RandomWeightedAverage(tf.keras.layers.Layer):
     def __init__(self, batch_size):
+        """
+        Initialize batch_size.
+
+        Args:
+            self: (todo): write your description
+            batch_size: (int): write your description
+        """
         super().__init__()
         self.batch_size = batch_size
 
     def call(self, inputs, **kwargs):
+        """
+        Return a new call.
+
+        Args:
+            self: (todo): write your description
+            inputs: (dict): write your description
+        """
         alpha = tf.random_uniform((self.batch_size, 1, 1, 1))
         return (alpha * inputs[0]) + ((1 - alpha) * inputs[1])
 
     def compute_output_shape(self, input_shape):
+        """
+        Compute the shape shape for the given input shape.
+
+        Args:
+            self: (todo): write your description
+            input_shape: (list): write your description
+        """
         return input_shape[0]
 
 class WGAN(gan.Model):
 
     def __init__(self, model_parameters, n_critic):
+        """
+        Initialize the n_parameters.
+
+        Args:
+            self: (todo): write your description
+            model_parameters: (str): write your description
+            n_critic: (int): write your description
+        """
         # As recommended in WGAN paper - https://arxiv.org/abs/1701.07875
         # WGAN-GP - WGAN with Gradient Penalty
         self.n_critic = n_critic
         super().__init__(model_parameters)
 
     def wasserstein_loss(self, y_true, y_pred):
+        """
+        Wasser loss of the model
+
+        Args:
+            self: (todo): write your description
+            y_true: (array): write your description
+            y_pred: (array): write your description
+        """
         return K.mean(y_true * y_pred)
 
     def define_gan(self):
+        """
+        Builds the model.
+
+        Args:
+            self: (todo): write your description
+        """
         self.generator = Generator(self.batch_size). \
             build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim)
 
@@ -67,6 +110,15 @@ class WGAN(gan.Model):
         self._model.compile(loss=self.wasserstein_loss, optimizer=optimizer)
 
     def get_data_batch(self, train, batch_size, seed=0):
+        """
+        Return a batch of examples.
+
+        Args:
+            self: (todo): write your description
+            train: (bool): write your description
+            batch_size: (int): write your description
+            seed: (int): write your description
+        """
         # np.random.seed(seed)
         # x = train.loc[ np.random.choice(train.index, batch_size) ].values
         # iterate through shuffled indices, so every sample gets covered evenly
@@ -80,6 +132,14 @@ class WGAN(gan.Model):
         return np.reshape(x, (batch_size, -1))
 
     def train(self, data, train_arguments):
+        """
+        Trains model.
+
+        Args:
+            self: (todo): write your description
+            data: (todo): write your description
+            train_arguments: (todo): write your description
+        """
         [cache_prefix, epochs, sample_interval] = train_arguments
 
         #Create a summary file
@@ -132,6 +192,13 @@ class WGAN(gan.Model):
                     self.critic.save_weights(model_checkpoint_base_name.format('critic', epoch))
 
     def load(self, path):
+        """
+        Loads a generator from a file.
+
+        Args:
+            self: (todo): write your description
+            path: (str): write your description
+        """
         assert os.path.isdir(path) == True, \
             "Please provide a valid path. Path must be a directory."
         self.generator = Generator(self.batch_size)
@@ -141,9 +208,25 @@ class WGAN(gan.Model):
 
 class Generator(tf.keras.Model):
     def __init__(self, batch_size):
+        """
+        Initialize a batch.
+
+        Args:
+            self: (todo): write your description
+            batch_size: (int): write your description
+        """
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim, data_dim):
+        """
+        Builds the model.
+
+        Args:
+            self: (todo): write your description
+            input_shape: (list): write your description
+            dim: (int): write your description
+            data_dim: (str): write your description
+        """
         input = Input(shape=input_shape, batch_size=self.batch_size)
         x = Dense(dim, activation='relu')(input)
         x = Dense(dim * 2, activation='relu')(x)
@@ -153,9 +236,24 @@ class Generator(tf.keras.Model):
 
 class Critic(tf.keras.Model):
     def __init__(self, batch_size):
+        """
+        Initialize a batch.
+
+        Args:
+            self: (todo): write your description
+            batch_size: (int): write your description
+        """
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim):
+        """
+        Builds the model.
+
+        Args:
+            self: (todo): write your description
+            input_shape: (list): write your description
+            dim: (int): write your description
+        """
         input = Input(shape=input_shape, batch_size=self.batch_size)
         x = Dense(dim * 4, activation='relu')(input)
         x = Dropout(0.1)(x)

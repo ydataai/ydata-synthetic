@@ -7,6 +7,12 @@ from sklearn.compose import ColumnTransformer
 from pmlb import fetch_data
 
 def transformations(auto=True):
+    """
+    Computes the transformer to data.
+
+    Args:
+        auto: (array): write your description
+    """
     if auto:
         data = fetch_data('adult')
     else:

@@ -7,6 +7,12 @@ import math
 from sklearn.preprocessing import PowerTransformer
 
 def transformations(data):
+    """
+    Convert dataframe to a new dataframe.
+
+    Args:
+        data: (array): write your description
+    """
     #Log transformation to Amount variable
     data_cols = list(data.columns[data.columns != 'Class'])
   
