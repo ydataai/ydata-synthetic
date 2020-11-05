@@ -13,6 +13,13 @@ from tensorflow.keras.optimizers import Adam
 class CGAN():
 
     def __init__(self, model_parameters):
+        """
+        Initialize the model.
+
+        Args:
+            self: (todo): write your description
+            model_parameters: (str): write your description
+        """
         [self.batch_size, lr,self.beta_1, self.beta_2, self.noise_dim,
          self.data_dim, num_classes, self.classes, layers_dim] = model_parameters
 
@@ -46,6 +53,15 @@ class CGAN():
         self.combined.compile(loss='binary_crossentropy', optimizer=optimizer)
 
     def get_data_batch(self, train, batch_size, seed=0):
+        """
+        Return a batch of examples.
+
+        Args:
+            self: (todo): write your description
+            train: (bool): write your description
+            batch_size: (int): write your description
+            seed: (int): write your description
+        """
         # # random sampling - some samples will have excessively low or high sampling, but easy to implement
         # np.random.seed(seed)
         # x = train.loc[ np.random.choice(train.index, batch_size) ].values
@@ -61,6 +77,14 @@ class CGAN():
         return np.reshape(x, (batch_size, -1))
 
     def train(self, data, train_arguments):
+        """
+        Training function.
+
+        Args:
+            self: (todo): write your description
+            data: (todo): write your description
+            train_arguments: (todo): write your description
+        """
         [cache_prefix, label_dim, epochs, sample_interval, data_dir] = train_arguments
 
         # Adversarial ground truths
@@ -109,6 +133,14 @@ class CGAN():
                 gen_data = self.generator([z, label_z])
 
     def save(self, path, name):
+        """
+        Save the model to disk.
+
+        Args:
+            self: (todo): write your description
+            path: (str): write your description
+            name: (str): write your description
+        """
         assert os.path.isdir(path) == True, \
             "Please provide a valid path. Path must be a directory."
         model_path = os.path.join(path, name)
@@ -116,6 +148,13 @@ class CGAN():
         return
 
     def load(self, path):
+        """
+        Loads a generator from a file.
+
+        Args:
+            self: (todo): write your description
+            path: (str): write your description
+        """
         assert os.path.isdir(path) == True, \
             "Please provide a valid path. Path must be a directory."
         self.generator = Generator(self.batch_size)
@@ -124,10 +163,27 @@ class CGAN():
 
 class Generator():
     def __init__(self, batch_size, num_classes):
+        """
+        Initialize batch of classes.
+
+        Args:
+            self: (todo): write your description
+            batch_size: (int): write your description
+            num_classes: (int): write your description
+        """
         self.batch_size = batch_size
         self.num_classes = num_classes
 
     def build_model(self, input_shape, dim, data_dim):
+        """
+        Builds the model.
+
+        Args:
+            self: (todo): write your description
+            input_shape: (list): write your description
+            dim: (int): write your description
+            data_dim: (str): write your description
+        """
         noise = Input(shape=input_shape, batch_size=self.batch_size)
         label = Input(shape=(1,), batch_size=self.batch_size, dtype='int32')
         label_embedding = Flatten()(Embedding(self.num_classes, 1)(label))
@@ -141,10 +197,26 @@ class Generator():
 
 class Discriminator():
     def __init__(self, batch_size, num_classes):
+        """
+        Initialize batch of classes.
+
+        Args:
+            self: (todo): write your description
+            batch_size: (int): write your description
+            num_classes: (int): write your description
+        """
         self.batch_size = batch_size
         self.num_classes = num_classes
 
     def build_model(self, input_shape, dim):
+        """
+        Builds the model.
+
+        Args:
+            self: (todo): write your description
+            input_shape: (list): write your description
+            dim: (int): write your description
+        """
         events = Input(shape=input_shape, batch_size=self.batch_size)
         label = Input(shape=(1,), batch_size=self.batch_size, dtype='int32')
         label_embedding = Flatten()(Embedding(self.num_classes, 1)(label))

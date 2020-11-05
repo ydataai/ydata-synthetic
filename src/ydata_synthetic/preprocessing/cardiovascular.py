@@ -5,6 +5,12 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 
 def transformations(data):
+    """
+    Transform categorical features.
+
+    Args:
+        data: (array): write your description
+    """
     categorical_features = ['gender', 'cardio', 'active', 'alco', 'smoke', 'gluc',
                 'cholesterol']
     numerical_features = [ 'height', 'weight', 'ap_hi', 'ap_lo']
