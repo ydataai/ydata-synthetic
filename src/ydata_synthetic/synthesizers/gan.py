@@ -3,7 +3,7 @@ import tqdm
 
 import pandas as pd
 import tensorflow as tf
-from tensorflow.python import keras
+from tensorflow.keras.layers import InputLayer
 
 class Model():
     def __init__(
@@ -17,6 +17,15 @@ class Model():
 
     def __call__(self, inputs, **kwargs):
         return self.model(inputs=inputs, **kwargs)
+
+    @property
+    def layers(self):
+        # Historically, `sequential.layers` only returns layers that were added
+        # via `add`, and omits the auto-generated `InputLayer`
+        # that comes at the bottom of the stack.
+        if self._layers and isinstance(self._layers[0], InputLayer):
+            return self._layers[1:]
+        return self._layers
 
     def define_gan(self):
         raise NotImplementedError

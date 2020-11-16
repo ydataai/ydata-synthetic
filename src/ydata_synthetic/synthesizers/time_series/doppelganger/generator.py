@@ -6,9 +6,8 @@ from tensorflow.keras.layers import Input, RNN, Dense, ReLU, BatchNormalization,
 from tensorflow.keras.backend import one_hot, argmax, reshape, stop_gradient, concatenate, cast, expand_dims, tile
 
 from metadata import Variable, Metadata, OutputType, Activation
-from src.synthesizers.conditionalTimeSeries.network import Network
 
-class Generator(Network):
+class Generator():
     def __init__(self, train_metadata, noise_dim, period, sample_len,
                  features_dim = (100,), attributes_dim = (100, 100, 100),
                  batch_size = 100, initial_stddev = 0.02,

@@ -9,13 +9,13 @@ from tensorflow.keras.optimizers import Adam
 
 from metadata import Metadata, Variable, OutputType, Activation
 
-from src.synthesizers.conditionalTimeSeries.generator import Generator
-from src.synthesizers.conditionalTimeSeries import Discriminator, AttrDiscriminator
-from synthesizers.basesynhtesizer import Basesynthesizer
+from ydata_synthetic.synthesizers.time_series.doppelganger import Generator
+from ydata_synthetic.synthesizers.time_series.doppelganger import Discriminator, AttrDiscriminator
+from ydata_synthetic.synthesizers.gan import Model
 from src.synthesizers.utils import checkpoint, loss
 
 
-class Timesynthesizer(Basesynthesizer):
+class Doppelganger(Model):
 
     def __init__(self, train_metadata, sample_len,
                  batch_size=100, epochs=100, noise_dim=5,

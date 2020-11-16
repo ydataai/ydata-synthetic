@@ -6,9 +6,7 @@ from tensorflow.keras import Model, Input
 from tensorflow.keras.layers import ReLU, Dense, Flatten, Lambda, Concatenate
 from tensorflow.keras.backend import squeeze
 
-from src.synthesizers.conditionalTimeSeries.network import Network
-
-class Discriminator(Network):
+class Discriminator():
     """
     Main TS-Synthesizer Discriminator class.
     """
@@ -40,7 +38,7 @@ class Discriminator(Network):
         output = Lambda(lambda x: squeeze(x, 1))(output)
         return Model(inputs=[feature_input, attr_input], outputs=output)
 
-class AttrDiscriminator(Network):
+class AttrDiscriminator():
     """
     Attributes specific discriminator.
     Auxiliar Discriminator to improve TSGenerator results for attribute variables
