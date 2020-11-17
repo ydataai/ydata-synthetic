@@ -12,7 +12,7 @@ from metadata import Metadata, Variable, OutputType, Activation
 from ydata_synthetic.synthesizers.time_series.doppelganger import Generator
 from ydata_synthetic.synthesizers.time_series.doppelganger import Discriminator, AttrDiscriminator
 from ydata_synthetic.synthesizers.gan import Model
-from ydata_synthetic.utils.checkpoint import Checkpoint, loss
+from ydata_synthetic.utils import Checkpoint, loss
 
 
 class Doppelganger(Model):
