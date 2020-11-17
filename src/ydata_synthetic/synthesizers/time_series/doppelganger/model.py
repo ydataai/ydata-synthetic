@@ -12,7 +12,7 @@ from metadata import Metadata, Variable, OutputType, Activation
 from ydata_synthetic.synthesizers.time_series.doppelganger import Generator
 from ydata_synthetic.synthesizers.time_series.doppelganger import Discriminator, AttrDiscriminator
 from ydata_synthetic.synthesizers.gan import Model
-from src.synthesizers.utils import checkpoint, loss
+from ydata_synthetic.utils.checkpoint import Checkpoint, loss
 
 
 class Doppelganger(Model):
@@ -221,13 +221,13 @@ class Doppelganger(Model):
         batch_num = dataset_len // self.batch_size
 
         #Init the checkpoints object
-        check = checkpoint.Checkpoint(dict(G=self.generator,
-                                           D=self.discriminator,
-                                           G_optimizer=g_optimizer,
-                                           D_optimizer=d_optimizer,
-                                           ep_cnt=epoch_counter),
-                                      os.path.join(self.output_dir, 'checkpoints'),
-                                      max_to_keep=5)
+        check = Checkpoint(dict(G=self.generator,
+                               D=self.discriminator,
+                               G_optimizer=g_optimizer,
+                               D_optimizer=d_optimizer,s
+                               ep_cnt=epoch_counter),
+                              os.path.join(self.output_dir, 'checkpoints'),
+                              max_to_keep=5)
         try:  # restore checkpoint including the epoch counter
             check.restore().assert_existing_objects_matched()
         except Exception as e:
