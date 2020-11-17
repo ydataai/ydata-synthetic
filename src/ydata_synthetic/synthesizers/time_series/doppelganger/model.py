@@ -16,7 +16,8 @@ from ydata_synthetic.utils import Checkpoint, loss
 
 
 class Doppelganger(Model):
-
+    
+    #Remove metadata from the equation
     def __init__(self, train_metadata, sample_len,
                  batch_size=100, epochs=100, noise_dim=5,
                  pack=10, d_rounds=1, g_rounds=1, checkpoint_dir='./',
@@ -195,9 +196,12 @@ class Doppelganger(Model):
 
         return losses_fn
 
-    def fit(self, train_data, real_attribute_mask, g_lr=0.0002, d_lr=0.004,
-            attr_d_lr=0.001, d_beta1=0.5, attr_d_beta1=0.5, g_beta1=0.5,
-            d_rounds=1, g_rounds=1, d_gp_coe=0.2, attr_d_gp_coe=1.0):
+    def train(self, data, train_arguments)
+        #(self, train_data, real_attribute_mask, g_lr=0.0002, d_lr=0.004,
+        #    attr_d_lr=0.001, d_beta1=0.5, attr_d_beta1=0.5, g_beta1=0.5,
+        #    d_rounds=1, g_rounds=1, d_gp_coe=0.2, attr_d_gp_coe=1.0):
+        
+        #Add here the list of training arguments
 
         self._traindata_validation(train_data)
 
