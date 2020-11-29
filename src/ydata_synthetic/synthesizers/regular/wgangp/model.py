@@ -2,7 +2,6 @@ import os
 from os import path
 import numpy as np
 import tqdm
-from functools import partial
 
 from ydata_synthetic.synthesizers import gan
 
@@ -13,13 +12,12 @@ from tensorflow.keras import Model
 from tensorflow.keras.optimizers import Adam
 
 class WGAN_GP(gan.Model):
-    
-    GRADIENT_PENALTY_WEIGHT = 10
-    
-    def __init__(self, model_parameters, n_critic):
+
+    def __init__(self, model_parameters, n_critic, gradient_penalty_weight=10):
         # As recommended in WGAN paper - https://arxiv.org/abs/1701.07875
         # WGAN-GP - WGAN with Gradient Penalty
         self.n_critic = n_critic
+        self.gradient_penalty_weight = gradient_penalty_weight
         super().__init__(model_parameters)
 
     def define_gan(self):
@@ -46,36 +44,43 @@ class WGAN_GP(gan.Model):
         d_regularizer = tf.reduce_mean((ddx - 1.0) ** 2)
         return d_regularizer
 
-    def compute_gradients(self, x):
+    def update_gradients(self, x):
         """
         Compute the gradients for both the Generator and the Critic
         :param x: real data event
         :return: generator gradients, critic gradients
         """
-        with tf.GradientTape() as g_tape, tf.GradientTape() as d_tape:
-            d_loss, g_loss = self.compute_loss(x)
+        # Update the gradients of critic for n_critic times (Training the critic)
+        for _ in range(self.n_critic):
+            with tf.GradientTape() as d_tape:
+                critic_loss = self.d_lossfn(x)
+            # Get the gradients of the critic
+            d_gradient = d_tape.gradient(critic_loss, self.critic.trainable_variables)
+            # Update the weights of the critic using the optimizer
+            self.critic_optimizer.apply_gradients(
+                zip(d_gradient, self.critic.trainable_variables)
+            )
 
-        gen_gradients = g_tape.gradient(g_loss, self.generator.trainable_variables)
-        disc_gradients = d_tape.gradient(d_loss, self.critic.trainable_variables)
+        # Update the generator
+        with tf.GradientTape() as g_tape:
+            gen_loss = self.g_lossfn(x)
 
-        return gen_gradients, disc_gradients
+        # Get the gradients of the generator
+        gen_gradients = g_tape.gradient(gen_loss, self.generator.trainable_variables)
 
-    def apply_gradients(self, ggradients, dgradients):
+        # Update the weights of the generator
         self.g_optimizer.apply_gradients(
-            zip(ggradients, self.generator.trainable_variables)
-        )
-        self.critic_optimizer.apply_gradients(
-            zip(dgradients, self.critic.trainable_variables)
+            zip(gen_gradients, self.generator.trainable_variables)
         )
 
-    def compute_loss(self, real):
-        """ 
+        return critic_loss, gen_loss
+
+    def d_lossfn(self, real):
+        """
         passes through the network and computes the losses
         """
         # generating noise from a uniform distribution
-
         noise = tf.random.normal([real.shape[0], self.noise_dim], dtype=tf.dtypes.float32)
-
         # run noise through generator
         fake = self.generator(noise)
         # discriminate x and x_gen
@@ -83,17 +88,26 @@ class WGAN_GP(gan.Model):
         logits_fake = self.critic(fake)
 
         # gradient penalty
-        d_regularizer = self.gradient_penalty(real, fake)
-        ### losses
-        d_loss = (
-                tf.reduce_mean(logits_real)
-                - tf.reduce_mean(logits_fake)
-                + d_regularizer * self.GRADIENT_PENALTY_WEIGHT
-        )
+        gp = self.gradient_penalty(real, fake)
+        # getting the loss of the discriminator.
+        d_loss = (tf.reduce_mean(logits_fake)
+                  - tf.reduce_mean(logits_real)
+                  + gp * self.gradient_penalty_weight)
+        return d_loss
 
-        # losses of fake with label "1"
-        g_loss = tf.reduce_mean(logits_fake)
-        return d_loss, g_loss
+
+    def g_lossfn(self, real):
+        """
+        :param real: Data batch we are analyzing
+        :return: Loss of the generator
+        """
+        # generating noise from a uniform distribution
+        noise = tf.random.normal([real.shape[0], self.noise_dim], dtype=tf.dtypes.float32)
+
+        fake = self.generator(noise)
+        logits_fake = self.critic(fake)
+        g_loss = -tf.reduce_mean(logits_fake)
+        return g_loss
 
     def get_data_batch(self, train, batch_size, seed=0):
         # np.random.seed(seed)
@@ -110,34 +124,33 @@ class WGAN_GP(gan.Model):
 
     @tf.function
     def train_step(self, train_data):
-        g_gradients, d_gradients = self.compute_gradients(train_data)
-        self.apply_gradients(g_gradients, d_gradients)
+        cri_loss, ge_loss = self.update_gradients(train_data)
+        return cri_loss, ge_loss
 
     def train(self, data, train_arguments):
-        [cache_prefix, epochs, sample_interval] = train_arguments
+        [cache_prefix, iterations, sample_interval] = train_arguments
 
         # Create a summary file
-        train_summary_writer = tf.summary.create_file_writer(path.join('../wgan_gp_test', 'summaries', 'train'))
+        train_summary_writer = tf.summary.create_file_writer(path.join('..\wgan_gp_test', 'summaries', 'train'))
 
         with train_summary_writer.as_default():
-            for epoch in tqdm.trange(epochs):
+            for iteration in tqdm.trange(iterations):
                 batch_data = self.get_data_batch(data, self.batch_size).astype(np.float32)
-                self.train_step(batch_data)
-                loss = self.compute_loss(batch_data)
+                cri_loss, ge_loss = self.train_step(batch_data)
 
                 print(
-                    "Epoch: {} | disc_loss: {} | gen_loss: {}".format(
-                        epoch, loss[0], loss[1]
+                    "Iteration: {} | disc_loss: {} | gen_loss: {}".format(
+                        iteration, cri_loss, ge_loss
                     ))
 
-                if epoch % sample_interval == 0:
+                if iteration % sample_interval == 0:
                     # Test here data generation step
                     # save model checkpoints
                     if path.exists('./cache') is False:
                         os.mkdir('./cache')
                     model_checkpoint_base_name = './cache/' + cache_prefix + '_{}_model_weights_step_{}.h5'
-                    self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
-                    self.critic.save_weights(model_checkpoint_base_name.format('critic', epoch))
+                    self.generator.save_weights(model_checkpoint_base_name.format('generator', iteration))
+                    self.critic.save_weights(model_checkpoint_base_name.format('critic', iteration))
 
     def load(self, path):
         assert os.path.isdir(path) == True, \
