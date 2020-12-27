@@ -85,7 +85,7 @@ class VanilllaGAN(gan.Model):
             # ---------------------
             noise = tf.random.normal((self.batch_size, self.noise_dim))
             # Train the generator (to have the discriminator label samples as valid)
-            g_loss = self.model.train_on_batch(noise, valid)
+            g_loss = self._model.train_on_batch(noise, valid)
 
             # Plot the progress
             print("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100 * d_loss[1], g_loss))
