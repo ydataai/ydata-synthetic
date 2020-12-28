@@ -74,7 +74,19 @@ noise_dim = 32
 synthesizer = model(gan_args, n_critic=2)
 synthesizer.train(train_sample, train_args)
 
-#WGAN_GP models is now trained 
-#So we can easily generate a few samples
+#Saving the synthesizer to later generate new events
+synthesizer.save(path='models/wgan_creditcard.pkl')
+
+#Loading the synthesizer
+synth = WGAN_GP.load(path='models/wgan_creditcard.pkl')
+
+#Sampling the data
+#Note that the data returned it is not inverse processed.
+data_sample = synth.sample(100000)
+
+print('Testing the sample of data.')
+
+#Sample events using the trained model
+
 
 

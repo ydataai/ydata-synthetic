@@ -108,20 +108,6 @@ class CGAN():
                 label_z = tf.random.uniform((432,), minval=min(self.classes), maxval=max(self.classes)+1, dtype=tf.dtypes.int32)
                 gen_data = self.generator([z, label_z])
 
-    def save(self, path, name):
-        assert os.path.isdir(path) == True, \
-            "Please provide a valid path. Path must be a directory."
-        model_path = os.path.join(path, name)
-        self.generator.save_weights(model_path)  # Load the generator
-        return
-
-    def load(self, path):
-        assert os.path.isdir(path) == True, \
-            "Please provide a valid path. Path must be a directory."
-        self.generator = Generator(self.batch_size)
-        self.generator = self.generator.load_weights(path)
-        return self.generator
-
 class Generator():
     def __init__(self, batch_size, num_classes):
         self.batch_size = batch_size

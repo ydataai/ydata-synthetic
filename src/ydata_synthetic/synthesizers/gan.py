@@ -1,9 +1,9 @@
 import os
 import tqdm
-
+from joblib import dump, load
 import pandas as pd
 import tensorflow as tf
-from tensorflow.python import keras
+from tensorflow.keras.models import model_from_json
 
 class Model():
     def __init__(
@@ -35,19 +35,33 @@ class Model():
 
     def train(self, data, train_arguments):
         raise NotImplementedError
+    
+    def to_pickle(self):
+        self.generator = self.generator.to_json()
+        try:
+            self.discriminator
+            self.discriminitor = None
+        except:
+            self.critic = None
 
     def sample(self, n_samples):
         steps = n_samples // self.batch_size + 1
         data = []
-        for step in tqdm.trange(steps):
+        for _ in tqdm.trange(steps):
             z = tf.random.uniform([self.batch_size, self.noise_dim])
             records = tf.make_ndarray(tf.make_tensor_proto(self.generator(z, training=False)))
             data.append(pd.DataFrame(records))
         return pd.concat(data)
 
-    def save(self, path, name):
-        assert os.path.isdir(path) == True, \
-            "Please provide a valid path. Path must be a directory."
-        model_path = os.path.join(path, name)
-        self.generator.save_weights(model_path)  # Load the generator
-        return
+    def save(self, path):
+        self.to_pickle()
+        try:
+            dump(self, path)
+        except:
+            raise Exception('Please provide a valid path to save the model.')
+
+    @classmethod
+    def load(cls, path):
+        synth = load(path)
+        synth.generator = model_from_json(synth.generator)
+        return synth
