@@ -131,13 +131,6 @@ class WGAN(gan.Model):
                     self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
                     self.critic.save_weights(model_checkpoint_base_name.format('critic', epoch))
 
-    def load(self, path):
-        assert os.path.isdir(path) == True, \
-            "Please provide a valid path. Path must be a directory."
-        self.generator = Generator(self.batch_size)
-        self.generator = self.generator.load_weights(path)
-        return self.generator
-
 
 class Generator(tf.keras.Model):
     def __init__(self, batch_size):
