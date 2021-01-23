@@ -6,4 +6,4 @@ tensorflow==2.3.*
 tensorflow-privacy==0.5.1
 easydict==1.9
 pmlb==1.0.*
-tqdm
+tqdm<5.0
