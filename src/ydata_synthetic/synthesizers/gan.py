@@ -1,9 +1,9 @@
-import os
 import tqdm
 from joblib import dump, load
 import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.models import model_from_json
+from ydata_synthetic.synthesizers.saving_keras import make_keras_picklable
 
 class Model():
     def __init__(
@@ -35,26 +35,18 @@ class Model():
 
     def train(self, data, train_arguments):
         raise NotImplementedError
-    
-    def to_pickle(self):
-        self.generator = self.generator.to_json()
-        try:
-            self.discriminator
-            self.discriminitor = None
-        except:
-            self.critic = None
 
     def sample(self, n_samples):
         steps = n_samples // self.batch_size + 1
         data = []
-        for _ in tqdm.trange(steps):
+        for _ in tqdm.trange(steps, desc='Synthetic data generation'):
             z = tf.random.uniform([self.batch_size, self.noise_dim])
             records = tf.make_ndarray(tf.make_tensor_proto(self.generator(z, training=False)))
             data.append(pd.DataFrame(records))
         return pd.concat(data)
 
     def save(self, path):
-        self.to_pickle()
+        make_keras_picklable()
         try:
             dump(self, path)
         except:
