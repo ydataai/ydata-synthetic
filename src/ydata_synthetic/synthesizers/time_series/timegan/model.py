@@ -5,9 +5,10 @@ Original code can be found here: https://bitbucket.org/mvdschaar/mlforhealthlabp
 from tensorflow import function, GradientTape, sqrt, abs, reduce_mean, ones_like, zeros_like, random, float32
 from tensorflow import data as tfdata
 from tensorflow import train as tftrain
+from tensorflow import config as tfconfig
 from tensorflow import nn
 from tensorflow.keras import Model, Sequential, Input
-from tensorflow.keras.layers import GRU, LSTM, Dense, RNN, GRUCell
+from tensorflow.keras.layers import GRU, LSTM, Dense
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import BinaryCrossentropy, MeanSquaredError
 
@@ -35,6 +36,14 @@ def make_net(model, n_layers, hidden_units, output_units, net_type='GRU'):
 
 class TimeGAN(gan.Model):
     def __init__(self, model_parameters, hidden_dim, seq_len, n_seq, gamma):
+        physical_devices = tfconfig.list_physical_devices('GPU')
+        if len(physical_devices) > 0:
+            try:
+                tfconfig.experimental.set_memory_growth(physical_devices[0], True)
+            except:
+                # Invalid device or cannot modify virtual devices once initialized.
+                pass
+
         self.seq_len=seq_len
         self.n_seq=n_seq
         self.hidden_dim=hidden_dim
@@ -226,15 +235,25 @@ class TimeGAN(gan.Model):
                                 .repeat())
 
     def train(self, data, train_steps):
+        ## Embedding network training
+        for _ in tqdm(range(train_steps), desc='Emddeding network training'):
+            X_ = next(self.get_batch_data(data, n_windows=len(data)))
+            step_e_loss_t0 = self.train_autoencoder(X_)
+
+        ## Supervised Network training
+        for _ in tqdm(range(train_steps), desc='Supervised network training'):
+            X_ = next(self.get_batch_data(data, n_windows=len(data)))
+            step_g_loss_s = self.train_supervisor(X_)
+
+        ## Joint training
         step_g_loss_u = step_g_loss_s = step_g_loss_v = step_e_loss_t0 = step_d_loss = 0
-        for step in tqdm(range(train_steps)):
+        for _ in tqdm(range(train_steps), desc='Joint networks training'):
 
             #Train the generator (k times as often as the discriminator)
             # Here k=2
             for _ in range(2):
                 X_ = next(self.get_batch_data(data, n_windows=len(data)))
                 Z_ = next(self.get_batch_noise())
-
                 # --------------------------
                 # Train the generator
                 # --------------------------
@@ -250,13 +269,6 @@ class TimeGAN(gan.Model):
             step_d_loss = self.discriminator_loss(X_, Z_)
             if step_d_loss > 0.15:
                 step_d_loss = self.train_discriminator(X_, Z_)
-
-            #Log here the results
-            logging_hook = tftrain.LoggingTensorHook({"d_loss": step_d_loss,
-                                                      "g_loss_u": step_g_loss_u,
-                                                      "g_loss_v": step_g_loss_v,
-                                                      "g_loss_s": step_g_loss_v,
-                                                      "e_loss_t0": step_e_loss_t0}, every_n_iter=1000)
 
 
 class Generator(Model):
@@ -330,58 +342,4 @@ class Supervisor(Model):
                          hidden_units=self.hidden_dim,
                          output_units=self.hidden_dim)
         return model
-
-
-if __name__ == '__main__':
-    import pandas as pd
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from sklearn.preprocessing import MinMaxScaler
-    """
-    import quandl
-    quandl_api_key = "ssf2fazqBjcLq-qhWTvo"
-    quandl.ApiConfig.api_key=quandl_api_key
-    quandl.ApiConfig.verify_ssl = False
-
-
-    dataset = []
-    for tick in tickers:
-        dataset.append(quandl.get_table('WIKI/PRICES', ticker=tick))
-
-    data = pd.concat(dataset)
-    """
-    tickers = ['BA', 'CAT', 'DIS', 'GE', 'IBM', 'KO']
-    data = pd.read_csv('wiki_prices.csv')
-    data=data.drop('None', axis=1)
-
-    data = data.set_index(['ticker', 'date']).adj_close.unstack(level=0).loc['2000':, tickers].dropna()
-
-    #Normalize the data
-    scaler = MinMaxScaler()
-    scaled_data = scaler.fit_transform(data).astype(np.float32)
-
-    #Create rolling windows for the data
-    seq_len=24
-    n_seq=6
-
-    dataset = []
-    for i in range(len(data) - seq_len):
-        dataset.append(scaled_data[i:i+seq_len])
-    n_windows=len(dataset)
-
-    noise_dim = 32
-    dim = 128
-    batch_size = 128
-
-    log_step = 100
-    epochs = 500 + 1
-    learning_rate = 5e-4
-    models_dir = './cache'
-
-    gan_args = [batch_size, learning_rate, noise_dim, 24, 2, (0, 1), dim]
-
-    synth = TimeGAN(model_parameters=gan_args, hidden_dim=24, seq_len=seq_len, n_seq=n_seq, gamma=1)
-    synth.train(dataset, train_steps=10000)
-
-    print('result')
 
