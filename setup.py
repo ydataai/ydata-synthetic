@@ -23,9 +23,10 @@ setup(name='ydata-synthetic',
       ],
       keywords='data science ydata',
       url='https://github.com/ydataai/ydata-synthetic',
-      python_requires=">=3.6",
+      license="https://github.com/ydataai/ydata-synthetic/blob/master/LICENSE",
+      python_requires=">=3.6, <3.9",
       packages=find_namespace_packages('src'),
       package_dir={'':'src'},
       include_package_data=True,
-      install_requires=requirements,
-      options={"bdist_wheel": {"universal": True}})
+      options={"bdist_wheel": {"universal": True}},
+      install_requires=requirements)
