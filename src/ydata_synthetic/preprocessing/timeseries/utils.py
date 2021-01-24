@@ -18,7 +18,8 @@ def real_data_loading(data: np.array, seq_len):
     # Flip the data to make chronological data
     ori_data = data[::-1]
     # Normalize the data
-    ori_data = MinMaxScaler(ori_data)
+    scaler = MinMaxScaler().fit(ori_data)
+    ori_data = scaler.transform(ori_data)
 
     # Preprocess the dataset
     temp_data = []
