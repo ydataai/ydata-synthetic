@@ -18,22 +18,27 @@ It consists in a set of different GANs architectures developed ussing Tensorflow
 
 # Quickstart
 ```
-pip install ydata-synthetic
+pip install git+https://github.com/ydataai/ydata-synthetic.git
 ```
 
 ## Examples
 Here you can find usage examples of the package and models to synthesize tabular data.
 
-**Credit Fraud dataset** 
+**Credit Fraud dataset**   [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/regular/gan_example.ipynb)
 
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/gan_example.ipynb)
+**Stock dataset** [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/timeseries/TimeGAN_Synthetic_stock_data.ipynb)
 
 # Project Resources
 - Synthetic GitHub: https://github.com/ydataai/ydata-synthetic
 - Synthetic Data Community Slack: [click here to join](http://slack.ydata.ai/)
 
 ### In this repo you can find the following GAN architectures:
+
+#### Tabular data
 - [GAN](https://arxiv.org/abs/1406.2661)
 - [CGAN (Conditional GAN)](https://arxiv.org/abs/1411.1784)
 - [WGAN (Wasserstein GAN)](https://arxiv.org/abs/1701.07875)
 - [WGAN-GP (Wassertein GAN with Gradient Penalty)](https://arxiv.org/abs/1704.00028)
+
+#### Sequential data
+- [TimeGAN](https://papers.nips.cc/paper/2019/file/c9efe5f26cd17ba6216bbe2a7d26d490-Paper.pdf)
