@@ -2,6 +2,7 @@ pandas==1.2.*
 numpy==1.18.*
 scikit-learn==0.22.*
 matplotlib==3.3.2
+seaborn==0.11.*
 tensorflow==2.3.*
 tensorflow-privacy==0.5.1
 easydict==1.9

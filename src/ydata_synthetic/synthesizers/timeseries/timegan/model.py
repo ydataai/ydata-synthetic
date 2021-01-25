@@ -2,9 +2,8 @@
 TimeGAN class implemented accordingly with:
 Original code can be found here: https://bitbucket.org/mvdschaar/mlforhealthlabpub/src/master/alg/timegan/
 """
-from tensorflow import function, GradientTape, sqrt, abs, reduce_mean, ones_like, zeros_like, random, float32
+from tensorflow import function, GradientTape, sqrt, abs, reduce_mean, ones_like, zeros_like, convert_to_tensor,float32
 from tensorflow import data as tfdata
-from tensorflow import train as tftrain
 from tensorflow import config as tfconfig
 from tensorflow import nn
 from tensorflow.keras import Model, Sequential, Input
@@ -222,6 +221,7 @@ class TimeGAN(gan.Model):
         return discriminator_loss
 
     def get_batch_data(self, data, n_windows):
+        data = convert_to_tensor(data, dtype=float32)
         return iter(tfdata.Dataset.from_tensor_slices(data)
                                 .shuffle(buffer_size=n_windows)
                                 .batch(self.batch_size).repeat())

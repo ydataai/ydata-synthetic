@@ -55,5 +55,4 @@ class Model():
     @classmethod
     def load(cls, path):
         synth = load(path)
-        synth.generator = model_from_json(synth.generator)
         return synth
