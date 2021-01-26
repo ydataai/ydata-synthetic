@@ -23,7 +23,10 @@ def transformations(seq_len: int):
         # Reading the stock data
         stock_df = pd.read_csv('../data/stock.csv')
 
-    stock_df = stock_df.set_index('Date').sort_index()
+    try:
+        stock_df = stock_df.set_index('Date').sort_index()
+    except:
+        stock_df=stock_df
     #Data transformations to be applied prior to be used with the synthesizer model
     processed_data = real_data_loading(stock_df.values, seq_len=seq_len)
 
