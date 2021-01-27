@@ -2,7 +2,6 @@ import tqdm
 from joblib import dump, load
 import pandas as pd
 import tensorflow as tf
-from tensorflow.keras.models import model_from_json
 from ydata_synthetic.synthesizers.saving_keras import make_keras_picklable
 
 class Model():
@@ -54,5 +53,8 @@ class Model():
 
     @classmethod
     def load(cls, path):
+        physical_devices = tf.config.list_physical_devices('GPU')
+        tf.config.experimental.set_memory_growth(physical_devices[0], enable=True)
+
         synth = load(path)
         return synth
