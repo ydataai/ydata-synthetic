@@ -18,7 +18,7 @@ It consists in a set of different GANs architectures developed ussing Tensorflow
 
 # Quickstart
 ```
-pip install git+https://github.com/ydataai/ydata-synthetic.git
+pip install ydata-synthetic
 ```
 
 ## Examples
