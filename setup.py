@@ -1,5 +1,4 @@
 from setuptools import setup, find_namespace_packages
-import os
 from pathlib import Path
 
 here = Path(__file__).parent.resolve()
@@ -7,19 +6,31 @@ here = Path(__file__).parent.resolve()
 requirements = (here / "requirements.txt").read_text(encoding="utf8")
 long_description = (here / 'README.md').read_text(encoding='utf-8')
 
-VERSION = os.getenv('VERSION')
+version = (here / 'VERSION').read_text().rstrip("\n")
 
 setup(name='ydata-synthetic',
-      version=VERSION,
+      version=version,
       description='Synthetic data generation methods with different synthetization methods.',
       author='YData',
       author_email='community@ydata.ai',
       classifiers=[
-        'Programming Language :: Python :: 3 :: Only',
-        'Topic :: Software Development :: Artificial Intelligence :: Python Modules :: ',
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Education',
+        'Intended Audience :: End Users/Desktop',
+        'Intended Audience :: Financial and Insurance Industry',
+        'Intended Audience :: Healthcare Industry',
+        'Intended Audience :: Science/Research',
+        'Intended Audience :: Telecommunications Industry',
+        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
         'Operating System :: POSIX :: Linux',
         'Operating System :: MacOS',
         'Operating System :: Microsoft :: Windows',
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: Implementation',
+        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+        'Topic :: Software Development',
+        'Topic :: Software Development :: Libraries :: Python Modules'
       ],
       keywords='data science ydata',
       url='https://github.com/ydataai/ydata-synthetic',
