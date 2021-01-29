@@ -17,7 +17,7 @@ jobs:
 
     - name: Version
       id: version
-      run: echo ::set-output name=value::$(cat VERSION)
+      run: echo ::set-output name=value::${GITHUB_REF#refs/*/}
 
     - name: Setup Python 3.7
       uses: actions/setup-python@v2
