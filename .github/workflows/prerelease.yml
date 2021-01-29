@@ -51,6 +51,8 @@ jobs:
     name: Upload Assets to Release
     runs-on: ubuntu-20.04
 
+    needs: package
+
     steps:
     - uses: actions/download-artifact@v2
       with:
@@ -61,16 +63,19 @@ jobs:
       with:
         files: 'dist/*'
         repo-token: ${{ secrets.ACCESS_TOKEN }}
-        release-tag: ${{ steps.version.outputs.value }}
+        release-tag: ${{ needs.package.outputs.version }}
 
   publish-pypi:
     name: Publish packages to PyPi
     runs-on: ubuntu-20.04
 
+    needs: package
+
     steps:
     - uses: actions/download-artifact@v2
       with:
         name: built-artifacts
+        path: dist/
 
     - name: Publish a Python distribution to PyPI
       uses: pypa/gh-action-pypi-publish@master
