@@ -1,5 +1,5 @@
-from ydata_synthetic.synthesizers import CGAN
-from ydata_synthetic.preprocessing.credit_fraud import transformations
+from ydata_synthetic.synthesizers.regular import CGAN
+from ydata_synthetic.preprocessing.regular.credit_fraud import transformations
 
 import pandas as pd
 import numpy as np
