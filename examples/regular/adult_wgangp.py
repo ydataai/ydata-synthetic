@@ -1,5 +1,5 @@
-from ydata_synthetic.preprocessing.adult import transformations
-from ydata_synthetic.synthesizers import WGAN_GP
+from ydata_synthetic.preprocessing.regular.adult import transformations
+from ydata_synthetic.synthesizers.regular import WGAN_GP
 
 #Load and process the data
 data, processed_data, preprocessor = transformations()
