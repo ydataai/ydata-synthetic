@@ -9,8 +9,8 @@ import numpy as np
 import sklearn.cluster as cluster
 import matplotlib.pyplot as plt
 
-from ydata_synthetic.synthesizers import WGAN_GP
-from ydata_synthetic.preprocessing.credit_fraud import *
+from ydata_synthetic.synthesizers.regular import WGAN_GP
+from ydata_synthetic.preprocessing.regular.credit_fraud import *
 
 model = WGAN_GP
 
