@@ -2,6 +2,8 @@ import tqdm
 from joblib import dump, load
 import pandas as pd
 import tensorflow as tf
+from tensorflow import config as tfconfig
+
 from ydata_synthetic.synthesizers.saving_keras import make_keras_picklable
 
 class Model():
@@ -9,6 +11,14 @@ class Model():
             self,
             model_parameters
     ):
+        gpu_devices = tfconfig.list_physical_devices('GPU')
+        if len(gpu_devices) > 0:
+            try:
+                tfconfig.experimental.set_memory_growth(gpu_devices[0], True)
+            except:
+                # Invalid device or cannot modify virtual devices once initialized.
+                pass
+
         self._model_parameters = model_parameters
         [self.batch_size, self.lr, self.beta_1, self.beta_2, self.noise_dim,
          self.data_dim, self.layers_dim] = model_parameters
@@ -53,8 +63,12 @@ class Model():
 
     @classmethod
     def load(cls, path):
-        physical_devices = tf.config.list_physical_devices('GPU')
-        tf.config.experimental.set_memory_growth(physical_devices[0], enable=True)
-
+        gpu_devices = tf.config.list_physical_devices('GPU')
+        if len(gpu_devices) > 0:
+            try:
+                tfconfig.experimental.set_memory_growth(gpu_devices[0], True)
+            except:
+                # Invalid device or cannot modify virtual devices once initialized.
+                pass
         synth = load(path)
         return synth

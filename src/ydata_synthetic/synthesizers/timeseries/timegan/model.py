@@ -36,14 +36,6 @@ def make_net(model, n_layers, hidden_units, output_units, net_type='GRU'):
 
 class TimeGAN(gan.Model):
     def __init__(self, model_parameters, hidden_dim, seq_len, n_seq, gamma):
-        physical_devices = tfconfig.list_physical_devices('GPU')
-        if len(physical_devices) > 0:
-            try:
-                tfconfig.experimental.set_memory_growth(physical_devices[0], True)
-            except:
-                # Invalid device or cannot modify virtual devices once initialized.
-                pass
-
         self.seq_len=seq_len
         self.n_seq=n_seq
         self.hidden_dim=hidden_dim
@@ -138,7 +130,7 @@ class TimeGAN(gan.Model):
             h_hat_supervised = self.supervisor(h)
             g_loss_s = self._mse(h[:, 1:, :], h_hat_supervised[:, 1:, :])
 
-        var_list = self.supervisor.trainable_variables
+        var_list = self.supervisor.trainable_variables + self.generator.trainable_variables
         gradients = tape.gradient(g_loss_s, var_list)
         self.supervisor_opt.apply_gradients(zip(gradients, var_list))
         return g_loss_s
