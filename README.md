@@ -2,7 +2,6 @@
 ![](https://img.shields.io/pypi/status/ydata-synthetic)
 ![](https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8-blue)
 [![](https://img.shields.io/pypi/v/ydata-synthetic)](https://pypi.org/project/ydata-synthetic/)
-![](https://img.shields.io/pypi/dm/ydata-synthetic)
 ![](https://img.shields.io/github/license/ydataai/ydata-synthetic)
 
 <p align="center"><img width="200" src="https://ydata-demos.s3.eu-central-1.amazonaws.com/Synthetic+Data_2.png" alt="Synthetic Data Logo"></p>
