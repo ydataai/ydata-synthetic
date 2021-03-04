@@ -155,5 +155,5 @@ class Critic(tf.keras.Model):
         x = Dense(dim * 2, activation='relu')(x)
         x = Dropout(0.1)(x)
         x = Dense(dim, activation='relu')(x)
-        x = Dense(1, activation='sigmoid')(x)
+        x = Dense(1)(x)
         return Model(inputs=input, outputs=x)
