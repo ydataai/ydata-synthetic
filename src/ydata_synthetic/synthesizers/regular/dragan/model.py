@@ -33,7 +33,7 @@ class DRAGAN(BaseModel):
         self.d_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2, clipvalue=0.001)
 
     def gradient_penalty(self, real, fake):
-        gp = gradient_penalty(self.discriminator, real, fake, mode='dragan')
+        gp = gradient_penalty(self.discriminator, real, fake, mode= Mode.DRAGAN)
         return gp
 
     def update_gradients(self, x):
