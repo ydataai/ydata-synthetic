@@ -168,3 +168,4 @@ class Generator(Model):
     x = Dense(dim * 4, activation='relu')(x)
     x = Dense(data_dim)(x)
     return Model(inputs=input, outputs=x)
+
