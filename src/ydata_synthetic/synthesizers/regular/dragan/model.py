@@ -34,11 +34,7 @@ class DRAGAN(gan.Model):
         self.d_optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2, clipvalue=0.001)
 
     def gradient_penalty(self, real, fake):
-<<<<<<< HEAD
         gp = gradient_penalty(self.discriminator, real, fake, mode= Mode.DRAGAN)
-=======
-        gp = gradient_penalty(self.discriminator, real, fake, mode='dragan')
->>>>>>> master
         return gp
 
     def update_gradients(self, x):
