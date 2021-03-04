@@ -7,7 +7,6 @@ from ydata_synthetic.synthesizers import gan
 
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Dense, Dropout
-import tensorflow.keras.backend as K
 from tensorflow.keras import Model
 from tensorflow.keras.optimizers import Adam
 
@@ -29,9 +28,6 @@ class WGAN_GP(gan.Model):
 
         self.g_optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
         self.critic_optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
-
-    def wasserstein_loss(self, y_true, y_pred):
-        return K.mean(y_true * y_pred)
 
     def gradient_penalty(self, real, fake):
         epsilon = tf.random.uniform([real.shape[0], 1], 0.0, 1.0, dtype=tf.dtypes.float32)
@@ -176,5 +172,5 @@ class Critic(tf.keras.Model):
         x = Dense(dim * 2, activation='relu')(x)
         x = Dropout(0.1)(x)
         x = Dense(dim, activation='relu')(x)
-        x = Dense(1)(x)
+        x = Dense(1, activation='sigmoid')(x)
         return Model(inputs=input, outputs=x)
