@@ -46,6 +46,8 @@ Here you can find usage examples of the package and models to synthesize tabular
 - [CGAN (Conditional GAN)](https://arxiv.org/abs/1411.1784)
 - [WGAN (Wasserstein GAN)](https://arxiv.org/abs/1701.07875)
 - [WGAN-GP (Wassertein GAN with Gradient Penalty)](https://arxiv.org/abs/1704.00028)
+- [DRAGAN (On Convergence and stability of GANS)](https://arxiv.org/pdf/1705.07215.pdf)
+- [Cramer GAN (The Cramer Distance as a Solution to Biased Wasserstein Gradients)](https://arxiv.org/abs/1705.10743)
 
 #### Sequential data
 - [TimeGAN](https://papers.nips.cc/paper/2019/file/c9efe5f26cd17ba6216bbe2a7d26d490-Paper.pdf)
