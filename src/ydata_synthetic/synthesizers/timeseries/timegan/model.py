@@ -45,9 +45,9 @@ class TimeGAN(gan.Model):
     def define_gan(self):
         self.generator_aux=Generator(self.hidden_dim).build(input_shape=(self.seq_len, self.n_seq))
         self.supervisor=Supervisor(self.hidden_dim).build(input_shape=(self.hidden_dim, self.hidden_dim))
-        self.discriminator=Discriminator(self.hidden_dim).build(input_shape=(self.seq_len, self.n_seq))
+        self.discriminator=Discriminator(self.hidden_dim).build(input_shape=(self.hidden_dim, self.hidden_dim))
         self.recovery = Recovery(self.hidden_dim, self.n_seq).build(input_shape=(self.hidden_dim, self.hidden_dim))
-        self.embedder = Embedder(self.hidden_dim).build(input_shape=(self.hidden_dim, self.n_seq))
+        self.embedder = Embedder(self.hidden_dim).build(input_shape=(self.seq_len, self.n_seq))
 
         X = Input(shape=[self.seq_len, self.n_seq], batch_size=self.batch_size, name='RealData')
         Z = Input(shape=[self.seq_len, self.n_seq], batch_size=self.batch_size, name='RandomNoise')
@@ -282,7 +282,6 @@ class Generator(Model):
 
     def build(self, input_shape):
         model = Sequential(name='Generator')
-        model.add(Input(shape=input_shape))
         model = make_net(model,
                          n_layers=3,
                          hidden_units=self.hidden_dim,
@@ -312,7 +311,6 @@ class Recovery(Model):
 
     def build(self, input_shape):
         recovery = Sequential(name='Recovery')
-        recovery.add(Input(shape=input_shape, name='EmbeddedData'))
         recovery = make_net(recovery,
                             n_layers=3,
                             hidden_units=self.hidden_dim,
@@ -327,7 +325,6 @@ class Embedder(Model):
 
     def build(self, input_shape):
         embedder = Sequential(name='Embedder')
-        embedder.add(Input(shape=input_shape, name='Data'))
         embedder = make_net(embedder,
                             n_layers=3,
                             hidden_units=self.hidden_dim,
@@ -340,7 +337,6 @@ class Supervisor(Model):
 
     def build(self, input_shape):
         model = Sequential(name='Supervisor')
-        model.add(Input(shape=input_shape))
         model = make_net(model,
                          n_layers=2,
                          hidden_units=self.hidden_dim,
