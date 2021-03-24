@@ -123,7 +123,8 @@ class TimeGAN(gan.Model):
 
         var_list = self.supervisor.trainable_variables + self.generator.trainable_variables
         gradients = tape.gradient(g_loss_s, var_list)
-        opt.apply_gradients(zip(gradients, var_list))
+        apply_grads = [(grad, var) for (grad, var) in zip(gradients, var_list) if grad is not None]
+        opt.apply_gradients(apply_grads)
         return g_loss_s
 
     @function
