@@ -10,19 +10,20 @@ from tensorflow.keras import Model
 
 from tensorflow.keras.optimizers import Adam
 
-class CGAN():
+class CGAN(gan.Model):
 
-    def __init__(self, model_parameters):
-        [self.batch_size, lr,self.beta_1, self.beta_2, self.noise_dim,
-         self.data_dim, num_classes, self.classes, layers_dim] = model_parameters
+    def __init__(self, model_parameters, num_classes):
+        self.num_classes = num_classes
+        super().__init__(model_parameters)
 
-        self.generator = Generator(self.batch_size, num_classes). \
-            build_model(input_shape=(self.noise_dim,), dim=layers_dim, data_dim=self.data_dim)
+    def define_gan(self):
+        self.generator = Generator(self.batch_size, self.num_classes). \
+            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim)
 
-        self.discriminator = Discriminator(self.batch_size, num_classes). \
-            build_model(input_shape=(self.data_dim,), dim=layers_dim)
+        self.discriminator = Discriminator(self.batch_size, self.num_classes). \
+            build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
 
-        optimizer = Adam(lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
 
         # Build and compile the discriminator
         self.discriminator.compile(loss='binary_crossentropy',
@@ -30,8 +31,8 @@ class CGAN():
                                    metrics=['accuracy'])
 
         # The generator takes noise as input and generates imgs
-        z = Input(shape=(self.noise_dim,), batch_size=self.batch_size)
-        label = Input(shape=(1,), batch_size=self.batch_size)
+        z = Input(shape=(self.noise_dim,))
+        label = Input(shape=(1,))
         record = self.generator([z, label])
 
         # For the combined model we will only train the generator
@@ -42,8 +43,8 @@ class CGAN():
 
         # The combined model  (stacked generator and discriminator)
         # Trains the generator to fool the discriminator
-        self.combined = Model([z, label], validity)
-        self.combined.compile(loss='binary_crossentropy', optimizer=optimizer)
+        self._model = Model([z, label], validity)
+        self._model.compile(loss='binary_crossentropy', optimizer=optimizer)
 
     def get_data_batch(self, train, batch_size, seed=0):
         # # random sampling - some samples will have excessively low or high sampling, but easy to implement
@@ -61,11 +62,13 @@ class CGAN():
         return np.reshape(x, (batch_size, -1))
 
     def train(self, data, train_arguments):
-        [cache_prefix, label_dim, epochs, sample_interval, data_dir] = train_arguments
+        [cache_prefix, label_dim, epochs, sample_interval, classes] = train_arguments
 
         # Adversarial ground truths
         valid = np.ones((self.batch_size, 1))
         fake = np.zeros((self.batch_size, 1))
+
+        #define here the classes?
 
         for epoch in range(epochs):
             # ---------------------
@@ -88,7 +91,7 @@ class CGAN():
             # ---------------------
             noise = tf.random.normal((self.batch_size, self.noise_dim))
             # Train the generator (to have the discriminator label samples as valid)
-            g_loss = self.combined.train_on_batch([noise, label], valid)
+            g_loss = self._model.train_on_batch([noise, label], valid)
 
             # Plot the progress
             print("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100 * d_loss[1], g_loss))
@@ -105,7 +108,7 @@ class CGAN():
 
                 #Here is generating synthetic data
                 z = tf.random.normal((432, self.noise_dim))
-                label_z = tf.random.uniform((432,), minval=min(self.classes), maxval=max(self.classes)+1, dtype=tf.dtypes.int32)
+                label_z = tf.random.uniform((432,), minval=min(classes), maxval=max(classes)+1, dtype=tf.dtypes.int32)
                 gen_data = self.generator([z, label_z])
 
 class Generator():
@@ -144,66 +147,3 @@ class Discriminator():
         x = Dense(dim, activation='relu')(x)
         x = Dense(1, activation='sigmoid')(x)
         return Model(inputs=[events, label], outputs=x)
-
-
-if __name__ == '__main__':
-    import pandas as pd
-    from src.ydata_synthetic.preprocessing import transformations
-    import sklearn.cluster as cluster
-
-    data = pd.read_csv('/home/fabiana/PycharmProjects/YData/gan-playground/examples/data/creditcard.csv')
-    
-    data_cols = list(data.columns[data.columns != 'Class'])
-    label_cols = ['Class']
-    
-    print('Dataset columns: {}'.format(data_cols))
-    sorted_cols = ['V14', 'V4', 'V10', 'V17', 'V12', 'V26', 'Amount', 'V21', 'V8', 'V11', 'V7', 'V28', 'V19', 'V3',
-                   'V22', 'V6', 'V20', 'V27', 'V16', 'V13', 'V25', 'V24', 'V18', 'V2', 'V1', 'V5', 'V15', 'V9',
-                   'V23',
-                   'Class']
-    processed_data = data[sorted_cols].copy()
-    
-    data = transformations(data)
-    
-    # For the purpose of this example we will only synthesize the minority class
-    train_data = data.loc[data['Class'] == 1].copy()
-    
-    print(
-        "Dataset info: Number of records - {} Number of varibles - {}".format(train_data.shape[0],
-                                                                              train_data.shape[1]))
-    algorithm = cluster.KMeans
-    args, kwds = (), {'n_clusters': 2, 'random_state': 0}
-    labels = algorithm(*args, **kwds).fit_predict(train_data[data_cols])
-    
-    print(pd.DataFrame([[np.sum(labels == i)] for i in np.unique(labels)], columns=['count'],
-                       index=np.unique(labels)))
-    
-    fraud_w_classes = train_data.copy()
-    fraud_w_classes['Class'] = labels
-    
-    noise_dim = 32
-    dim = 128
-    batch_size = 128
-    
-    log_step = 100
-    epochs = 500 + 1
-    learning_rate = 5e-4
-    models_dir = './cache'
-    
-    train_sample = data.copy().reset_index(drop=True)
-    train_sample = pd.get_dummies(train_sample, columns=['Class'], prefix='Class', drop_first=True)
-    label_cols = [i for i in train_sample.columns if 'Class' in i]
-    data_cols = [i for i in train_sample.columns if i not in label_cols]
-    train_sample[data_cols] = train_sample[data_cols] / 10  # scale to random noise size, one less thing to learn
-    train_no_label = train_sample[data_cols]
-    
-    gan_args = [batch_size, learning_rate, noise_dim, train_sample.shape[1], 2, (0, 1), dim]
-    train_args = ['', -1, epochs, log_step, '']
-
-    synthesizer = CGAN(gan_args)
-    synthesizer.train(train_sample, train_args)
-
-
-
-
-
