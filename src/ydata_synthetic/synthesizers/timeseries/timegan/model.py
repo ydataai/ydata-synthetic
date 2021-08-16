@@ -220,21 +220,21 @@ class TimeGAN(BaseModel):
 
     def train(self, data, train_steps):
         ## Embedding network training
-        autoencoder_opt = Adam(learning_rate=self.lr)
+        autoencoder_opt = Adam(learning_rate=self.g_lr)
         for _ in tqdm(range(train_steps), desc='Emddeding network training'):
             X_ = next(self.get_batch_data(data, n_windows=len(data)))
             step_e_loss_t0 = self.train_autoencoder(X_, autoencoder_opt)
 
         ## Supervised Network training
-        supervisor_opt = Adam(learning_rate=self.lr)
+        supervisor_opt = Adam(learning_rate=self.g_lr)
         for _ in tqdm(range(train_steps), desc='Supervised network training'):
             X_ = next(self.get_batch_data(data, n_windows=len(data)))
             step_g_loss_s = self.train_supervisor(X_, supervisor_opt)
 
         ## Joint training
-        generator_opt = Adam(learning_rate=self.lr)
-        embedder_opt = Adam(learning_rate=self.lr)
-        discriminator_opt = Adam(learning_rate=self.lr)
+        generator_opt = Adam(learning_rate=self.g_lr)
+        embedder_opt = Adam(learning_rate=self.g_lr)
+        discriminator_opt = Adam(learning_rate=self.d_lr)
 
         step_g_loss_u = step_g_loss_s = step_g_loss_v = step_e_loss_t0 = step_d_loss = 0
         for _ in tqdm(range(train_steps), desc='Joint networks training'):

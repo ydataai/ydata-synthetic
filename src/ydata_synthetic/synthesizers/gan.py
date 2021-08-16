@@ -13,10 +13,12 @@ from ydata_synthetic.synthesizers.saving_keras import make_keras_picklable
 
 _model_parameters = ['batch_size', 'lr', 'betas', 'layers_dim', 'noise_dim',
                      'n_cols', 'seq_len', 'condition', 'n_critic', 'n_features']
+_model_parameters_df = [128, 1e-4, (None, None), 128, 264,
+                        None, None, None, 1, None]
 
 _train_parameters = ['cache_prefix', 'label_dim', 'epochs', 'sample_interval', 'labels']
 
-ModelParameters = namedtuple('ModelParameters', _model_parameters, defaults=(None,)*len(_model_parameters))
+ModelParameters = namedtuple('ModelParameters', _model_parameters, defaults=_model_parameters_df)
 TrainParameters = namedtuple('TrainParameters', _train_parameters, defaults=('', None, 300, 50, None))
 
 class BaseModel():
