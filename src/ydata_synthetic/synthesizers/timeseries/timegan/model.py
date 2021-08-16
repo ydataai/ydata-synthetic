@@ -4,7 +4,6 @@ Original code can be found here: https://bitbucket.org/mvdschaar/mlforhealthlabp
 """
 from tensorflow import function, GradientTape, sqrt, abs, reduce_mean, ones_like, zeros_like, convert_to_tensor,float32
 from tensorflow import data as tfdata
-from tensorflow import config as tfconfig
 from tensorflow import nn
 from tensorflow.keras import Model, Sequential, Input
 from tensorflow.keras.layers import GRU, LSTM, Dense
@@ -14,7 +13,7 @@ from tensorflow.keras.losses import BinaryCrossentropy, MeanSquaredError
 import numpy as np
 from tqdm import tqdm, trange
 
-from ydata_synthetic.synthesizers import gan
+from ydata_synthetic.synthesizers.gan import BaseModel
 
 def make_net(model, n_layers, hidden_units, output_units, net_type='GRU'):
     if net_type=='GRU':
@@ -34,7 +33,7 @@ def make_net(model, n_layers, hidden_units, output_units, net_type='GRU'):
     return model
 
 
-class TimeGAN(gan.Model):
+class TimeGAN(BaseModel):
     def __init__(self, model_parameters, hidden_dim, seq_len, n_seq, gamma):
         self.seq_len=seq_len
         self.n_seq=n_seq
@@ -221,21 +220,21 @@ class TimeGAN(gan.Model):
 
     def train(self, data, train_steps):
         ## Embedding network training
-        autoencoder_opt = Adam(learning_rate=self.lr)
+        autoencoder_opt = Adam(learning_rate=self.g_lr)
         for _ in tqdm(range(train_steps), desc='Emddeding network training'):
             X_ = next(self.get_batch_data(data, n_windows=len(data)))
             step_e_loss_t0 = self.train_autoencoder(X_, autoencoder_opt)
 
         ## Supervised Network training
-        supervisor_opt = Adam(learning_rate=self.lr)
+        supervisor_opt = Adam(learning_rate=self.g_lr)
         for _ in tqdm(range(train_steps), desc='Supervised network training'):
             X_ = next(self.get_batch_data(data, n_windows=len(data)))
             step_g_loss_s = self.train_supervisor(X_, supervisor_opt)
 
         ## Joint training
-        generator_opt = Adam(learning_rate=self.lr)
-        embedder_opt = Adam(learning_rate=self.lr)
-        discriminator_opt = Adam(learning_rate=self.lr)
+        generator_opt = Adam(learning_rate=self.g_lr)
+        embedder_opt = Adam(learning_rate=self.g_lr)
+        discriminator_opt = Adam(learning_rate=self.d_lr)
 
         step_g_loss_u = step_g_loss_s = step_g_loss_v = step_e_loss_t0 = step_d_loss = 0
         for _ in tqdm(range(train_steps), desc='Joint networks training'):
