@@ -7,7 +7,7 @@ import numpy as np
 from sklearn import cluster
 
 #Read the original data and have it preprocessed
-data = pd.read_csv('/Users/fabianaclemente/Documents/github/ydata-synthetic/data/creditcard.csv', index_col=[0])
+data = pd.read_csv('data/creditcard.csv', index_col=[0])
 
 #List of columns different from the Class column
 data_cols = list(data.columns[ data.columns != 'Class' ])
