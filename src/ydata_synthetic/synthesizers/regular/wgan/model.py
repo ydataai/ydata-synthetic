@@ -1,7 +1,7 @@
 import os
 from os import path
 import numpy as np
-from tqdm import tqdm
+from tqdm import trange
 
 from ydata_synthetic.synthesizers import gan
 
@@ -27,10 +27,11 @@ class RandomWeightedAverage(tf.keras.layers.Layer):
 
 class WGAN(gan.Model):
 
-    def __init__(self, model_parameters, n_critic):
+    def __init__(self, model_parameters, n_critic, clip_value=0.01):
         # As recommended in WGAN paper - https://arxiv.org/abs/1701.07875
         # WGAN-GP - WGAN with Gradient Penalty
         self.n_critic = n_critic
+        self.clip_value = clip_value
         super().__init__(model_parameters)
 
     def wasserstein_loss(self, y_true, y_pred):
@@ -90,7 +91,7 @@ class WGAN(gan.Model):
         fake = -np.ones((self.batch_size, 1))
 
         with train_summary_writer.as_default():
-            for epoch in tqdm.trange(epochs, desc='Epoch Iterations'):
+            for epoch in trange(epochs, desc='Epoch Iterations'):
 
                 for _ in range(self.n_critic):
                     # ---------------------
