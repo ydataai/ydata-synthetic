@@ -1,8 +1,11 @@
 import os
 from os import path
+from typing import Union
 import numpy as np
+from numpy import array
+from pandas import DataFrame
 
-from ydata_synthetic.synthesizers import gan
+from ydata_synthetic.synthesizers import gan, TrainParameters
 
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Dense, Dropout, Flatten, Embedding, multiply
@@ -61,21 +64,29 @@ class CGAN(gan.Model):
         x = train.loc[train_ix[start_i: stop_i]].values
         return np.reshape(x, (batch_size, -1))
 
-    def train(self, data, train_arguments):
-        [cache_prefix, label_dim, epochs, sample_interval, classes] = train_arguments
-
+    def train(self, data: Union[DataFrame, array],
+              label:str,
+              train_arguments:TrainParameters):
+        """
+        Args:
+            data: A pandas DataFrame or a Numpy array with the data to be synthesized
+            label: The name of the column to be used as a label and condition for the training
+            train_arguments: Gan training arguments.
+        Returns:
+            A CGAN model fitted to the provided data
+        """
         # Adversarial ground truths
         valid = np.ones((self.batch_size, 1))
         fake = np.zeros((self.batch_size, 1))
 
         #define here the classes?
 
-        for epoch in range(epochs):
+        for epoch in range(train_arguments.epochs):
             # ---------------------
             #  Train Discriminator
             # ---------------------
             batch_x = self.get_data_batch(data, self.batch_size)
-            label = batch_x[:, label_dim]
+            label = batch_x[:, train_arguments.label_dim]
             noise = tf.random.normal((self.batch_size, self.noise_dim))
 
             # Generate a batch of new records
@@ -97,18 +108,18 @@ class CGAN(gan.Model):
             print("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100 * d_loss[1], g_loss))
 
             # If at save interval => save generated image samples
-            if epoch % sample_interval == 0:
+            if epoch % train_arguments.sample_interval == 0:
                 # Test here data generation step
                 # save model checkpoints
                 if path.exists('./cache') is False:
                     os.mkdir('./cache')
-                model_checkpoint_base_name = './cache/' + cache_prefix + '_{}_model_weights_step_{}.h5'
+                model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
                 self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
                 self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
 
                 #Here is generating synthetic data
                 z = tf.random.normal((432, self.noise_dim))
-                label_z = tf.random.uniform((432,), minval=min(classes), maxval=max(classes)+1, dtype=tf.dtypes.int32)
+                label_z = tf.random.uniform((432,), minval=min(train_arguments.labels), maxval=max(train_arguments.labels)+1, dtype=tf.dtypes.int32)
                 gen_data = self.generator([z, label_z])
 
 class Generator():

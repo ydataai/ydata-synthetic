@@ -1,9 +1,8 @@
-import os
-from os import path
+from os import path, mkdir
 import numpy as np
 from tqdm import trange
 
-from ydata_synthetic.synthesizers import gan
+from ydata_synthetic.synthesizers import gan, TrainParameters
 
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Dense, Dropout
@@ -80,9 +79,9 @@ class WGAN(gan.Model):
         x = train.loc[train_ix[start_i: stop_i]].values
         return np.reshape(x, (batch_size, -1))
 
-    def train(self, data, train_arguments):
-        [cache_prefix, epochs, sample_interval] = train_arguments
-
+    def train(self,
+              data,
+              train_arguments: TrainParameters):
         #Create a summary file
         train_summary_writer = tf.summary.create_file_writer(path.join('.', 'summaries', 'train'))
 
@@ -91,7 +90,7 @@ class WGAN(gan.Model):
         fake = -np.ones((self.batch_size, 1))
 
         with train_summary_writer.as_default():
-            for epoch in trange(epochs, desc='Epoch Iterations'):
+            for epoch in trange(train_arguments.epochs, desc='Epoch Iterations'):
 
                 for _ in range(self.n_critic):
                     # ---------------------
@@ -123,12 +122,12 @@ class WGAN(gan.Model):
                 print("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100 * d_loss[1], g_loss))
 
                 #If at save interval => save generated events
-                if epoch % sample_interval == 0:
+                if epoch % train_arguments.sample_interval == 0:
                     # Test here data generation step
                     # save model checkpoints
                     if path.exists('./cache') is False:
-                        os.mkdir('./cache')
-                    model_checkpoint_base_name = './cache/' + cache_prefix + '_{}_model_weights_step_{}.h5'
+                        mkdir('./cache')
+                    model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
                     self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
                     self.critic.save_weights(model_checkpoint_base_name.format('critic', epoch))
 
