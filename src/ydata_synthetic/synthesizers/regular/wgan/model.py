@@ -43,8 +43,8 @@ class WGAN(gan.Model):
         self.critic = Critic(self.batch_size). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
 
-        optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
-        self.critic_optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        self.critic_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
 
         # Build and compile the critic
         self.critic.compile(loss=self.wasserstein_loss,

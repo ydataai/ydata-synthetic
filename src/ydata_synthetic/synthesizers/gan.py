@@ -36,7 +36,7 @@ class Model():
             assert len(model_parameters.betas) == 2, "Please provide the betas information as a tuple."
 
         self.batch_size = model_parameters.batch_size
-        self.lr = model_parameters.lr
+        self._set_lr(model_parameters.lr)
         self.beta_1 = model_parameters.betas[0]
         self.beta_2 = model_parameters.betas[1]
         self.noise_dim = model_parameters.noise_dim
@@ -46,6 +46,15 @@ class Model():
 
     def __call__(self, inputs, **kwargs):
         return self.model(inputs=inputs, **kwargs)
+
+    def _set_lr(self, lr):
+        if isinstance(lr, float):
+            self.g_lr=lr
+            self.d_lr=lr
+        elif isinstance(lr,list) or isinstance(lr, tuple):
+            assert len(lr)==2, "Please provide a tow values array for the learning rates or a float."
+            self.g_lr=lr[0]
+            self.d_lr=lr[1]
 
     def define_gan(self):
         raise NotImplementedError
@@ -83,8 +92,8 @@ class Model():
         except:
             raise Exception('Please provide a valid path to save the model.')
 
-    @classmethod
-    def load(cls, path):
+    @staticmethod
+    def load(path):
         gpu_devices = tf.config.list_physical_devices('GPU')
         if len(gpu_devices) > 0:
             try:

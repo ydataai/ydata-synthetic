@@ -26,11 +26,12 @@ class CGAN(gan.Model):
         self.discriminator = Discriminator(self.batch_size, self.num_classes). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
 
-        optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        d_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
 
         # Build and compile the discriminator
         self.discriminator.compile(loss='binary_crossentropy',
-                                   optimizer=optimizer,
+                                   optimizer=d_optimizer,
                                    metrics=['accuracy'])
 
         # The generator takes noise as input and generates imgs
@@ -47,7 +48,7 @@ class CGAN(gan.Model):
         # The combined model  (stacked generator and discriminator)
         # Trains the generator to fool the discriminator
         self._model = Model([z, label], validity)
-        self._model.compile(loss='binary_crossentropy', optimizer=optimizer)
+        self._model.compile(loss='binary_crossentropy', optimizer=g_optimizer)
 
     def get_data_batch(self, train, batch_size, seed=0):
         # # random sampling - some samples will have excessively low or high sampling, but easy to implement

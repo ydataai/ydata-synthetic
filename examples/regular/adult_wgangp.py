@@ -14,7 +14,7 @@ batch_size = 128
 
 log_step = 100
 epochs = 5+1
-learning_rate = 5e-4
+learning_rate = [5e-4, 3e-3]
 beta_1 = 0.5
 beta_2 = 0.9
 models_dir = './cache'

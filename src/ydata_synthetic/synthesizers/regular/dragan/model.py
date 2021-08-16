@@ -30,8 +30,8 @@ class DRAGAN(gan.Model):
         self.discriminator = Discriminator(self.batch_size). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
 
-        self.g_optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2, clipvalue=0.001)
-        self.d_optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2, clipvalue=0.001)
+        self.g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2, clipvalue=0.001)
+        self.d_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2, clipvalue=0.001)
 
     def gradient_penalty(self, real, fake):
         gp = gradient_penalty(self.discriminator, real, fake, mode='dragan')
