@@ -115,31 +115,30 @@ class DRAGAN(gan.Model):
         return d_loss, g_loss
 
     def train(self, data, train_arguments):
-        [cache_prefix, iterations, sample_interval] = train_arguments
         train_loader = self.get_data_batch(data, self.batch_size)
 
         # Create a summary file
         train_summary_writer = tf.summary.create_file_writer(path.join('..\dragan_test', 'summaries', 'train'))
 
         with train_summary_writer.as_default():
-            for iteration in tqdm.trange(iterations):
+            for epoch in tqdm.trange(train_arguments.epochs):
                 for batch_data in train_loader:
                     batch_data = tf.cast(batch_data, dtype=tf.float32)
                     d_loss, g_loss = self.train_step(batch_data)
 
                     print(
                         "Iteration: {} | disc_loss: {} | gen_loss: {}".format(
-                            iteration, d_loss, g_loss
+                            epoch, d_loss, g_loss
                         ))
 
-                    if iteration % sample_interval == 0:
+                    if epoch % train_arguments.sample_interval == 0:
                         # Test here data generation step
                         # save model checkpoints
                         if path.exists('./cache') is False:
                             os.mkdir('./cache')
-                        model_checkpoint_base_name = './cache/' + cache_prefix + '_{}_model_weights_step_{}.h5'
-                        self.generator.save_weights(model_checkpoint_base_name.format('generator', iteration))
-                        self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', iteration))
+                        model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
+                        self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
+                        self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
 
 
 class Discriminator(Model):
