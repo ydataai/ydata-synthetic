@@ -4,7 +4,6 @@ Original code can be found here: https://bitbucket.org/mvdschaar/mlforhealthlabp
 """
 from tensorflow import function, GradientTape, sqrt, abs, reduce_mean, ones_like, zeros_like, convert_to_tensor,float32
 from tensorflow import data as tfdata
-from tensorflow import config as tfconfig
 from tensorflow import nn
 from tensorflow.keras import Model, Sequential, Input
 from tensorflow.keras.layers import GRU, LSTM, Dense
@@ -14,7 +13,7 @@ from tensorflow.keras.losses import BinaryCrossentropy, MeanSquaredError
 import numpy as np
 from tqdm import tqdm, trange
 
-from ydata_synthetic.synthesizers import gan
+from ydata_synthetic.synthesizers.gan import BaseModel
 
 def make_net(model, n_layers, hidden_units, output_units, net_type='GRU'):
     if net_type=='GRU':
@@ -34,7 +33,7 @@ def make_net(model, n_layers, hidden_units, output_units, net_type='GRU'):
     return model
 
 
-class TimeGAN(gan.Model):
+class TimeGAN(BaseModel):
     def __init__(self, model_parameters, hidden_dim, seq_len, n_seq, gamma):
         self.seq_len=seq_len
         self.n_seq=n_seq

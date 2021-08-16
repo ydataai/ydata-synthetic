@@ -1,7 +1,6 @@
 import os
 from os import path
 
-import numpy as np
 import tqdm
 
 import tensorflow as tf
@@ -9,12 +8,10 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.layers import Input, Dense, Dropout
 from tensorflow.keras import Model, initializers
 
-from ydata_synthetic.synthesizers import gan
+from ydata_synthetic.synthesizers.gan import BaseModel
 from ydata_synthetic.synthesizers.loss import gradient_penalty
 
-import pandas as pd
-
-class DRAGAN(gan.Model):
+class DRAGAN(BaseModel):
 
     def __init__(self, model_parameters, n_discriminator, gradient_penalty_weight=10):
         # As recommended in DRAGAN paper - https://arxiv.org/abs/1705.07215
@@ -126,19 +123,19 @@ class DRAGAN(gan.Model):
                     batch_data = tf.cast(batch_data, dtype=tf.float32)
                     d_loss, g_loss = self.train_step(batch_data)
 
-                    print(
-                        "Iteration: {} | disc_loss: {} | gen_loss: {}".format(
-                            epoch, d_loss, g_loss
-                        ))
+                print(
+                    "Epoch: {} | disc_loss: {} | gen_loss: {}".format(
+                        epoch, d_loss, g_loss
+                    ))
 
-                    if epoch % train_arguments.sample_interval == 0:
-                        # Test here data generation step
-                        # save model checkpoints
-                        if path.exists('./cache') is False:
-                            os.mkdir('./cache')
-                        model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
-                        self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
-                        self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
+                if epoch % train_arguments.sample_interval == 0:
+                    # Test here data generation step
+                    # save model checkpoints
+                    if path.exists('./cache') is False:
+                        os.mkdir('./cache')
+                    model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
+                    self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
+                    self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
 
 
 class Discriminator(Model):

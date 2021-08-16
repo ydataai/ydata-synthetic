@@ -1,11 +1,15 @@
 import os
 from os import path
 from typing import Union
+from tqdm import trange
+
 import numpy as np
 from numpy import array
 from pandas import DataFrame
 
-from ydata_synthetic.synthesizers import gan, TrainParameters
+
+from ydata_synthetic.synthesizers.gan import BaseModel
+from ydata_synthetic.synthesizers import TrainParameters
 
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Dense, Dropout, Flatten, Embedding, multiply
@@ -13,7 +17,7 @@ from tensorflow.keras import Model
 
 from tensorflow.keras.optimizers import Adam
 
-class CGAN(gan.Model):
+class CGAN(BaseModel):
 
     def __init__(self, model_parameters, num_classes):
         self.num_classes = num_classes
@@ -76,34 +80,34 @@ class CGAN(gan.Model):
         Returns:
             A CGAN model fitted to the provided data
         """
+        iterations = int(abs(data.shape[0] / self.batch_size) + 1)
         # Adversarial ground truths
         valid = np.ones((self.batch_size, 1))
         fake = np.zeros((self.batch_size, 1))
 
-        #define here the classes?
+        for epoch in trange(train_arguments.epochs):
+            for _ in range(iterations):
+                # ---------------------
+                #  Train Discriminator
+                # ---------------------
+                batch_x = self.get_data_batch(data, self.batch_size)
+                label = batch_x[:, train_arguments.label_dim]
+                noise = tf.random.normal((self.batch_size, self.noise_dim))
 
-        for epoch in range(train_arguments.epochs):
-            # ---------------------
-            #  Train Discriminator
-            # ---------------------
-            batch_x = self.get_data_batch(data, self.batch_size)
-            label = batch_x[:, train_arguments.label_dim]
-            noise = tf.random.normal((self.batch_size, self.noise_dim))
+                # Generate a batch of new records
+                gen_records = self.generator([noise, label], training=True)
 
-            # Generate a batch of new records
-            gen_records = self.generator([noise, label], training=True)
+                # Train the discriminator
+                d_loss_real = self.discriminator.train_on_batch([batch_x, label], valid)
+                d_loss_fake = self.discriminator.train_on_batch([gen_records, label], fake)
+                d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
 
-            # Train the discriminator
-            d_loss_real = self.discriminator.train_on_batch([batch_x, label], valid)
-            d_loss_fake = self.discriminator.train_on_batch([gen_records, label], fake)
-            d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
-
-            # ---------------------
-            #  Train Generator
-            # ---------------------
-            noise = tf.random.normal((self.batch_size, self.noise_dim))
-            # Train the generator (to have the discriminator label samples as valid)
-            g_loss = self._model.train_on_batch([noise, label], valid)
+                # ---------------------
+                #  Train Generator
+                # ---------------------
+                noise = tf.random.normal((self.batch_size, self.noise_dim))
+                # Train the generator (to have the discriminator label samples as valid)
+                g_loss = self._model.train_on_batch([noise, label], valid)
 
             # Plot the progress
             print("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100 * d_loss[1], g_loss))

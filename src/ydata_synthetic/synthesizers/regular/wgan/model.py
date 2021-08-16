@@ -2,7 +2,8 @@ from os import path, mkdir
 import numpy as np
 from tqdm import trange
 
-from ydata_synthetic.synthesizers import gan, TrainParameters
+from ydata_synthetic.synthesizers.gan import BaseModel
+from ydata_synthetic.synthesizers import TrainParameters
 
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Dense, Dropout
@@ -24,7 +25,7 @@ class RandomWeightedAverage(tf.keras.layers.Layer):
     def compute_output_shape(self, input_shape):
         return input_shape[0]
 
-class WGAN(gan.Model):
+class WGAN(BaseModel):
 
     def __init__(self, model_parameters, n_critic, clip_value=0.01):
         # As recommended in WGAN paper - https://arxiv.org/abs/1701.07875
@@ -83,6 +84,7 @@ class WGAN(gan.Model):
               data,
               train_arguments: TrainParameters):
         #Create a summary file
+        iterations = int(abs(data.shape[0]/self.batch_size)+1)
         train_summary_writer = tf.summary.create_file_writer(path.join('.', 'summaries', 'train'))
 
         # Adversarial ground truths
@@ -91,35 +93,35 @@ class WGAN(gan.Model):
 
         with train_summary_writer.as_default():
             for epoch in trange(train_arguments.epochs, desc='Epoch Iterations'):
+                for _ in range(iterations):
+                    for _ in range(self.n_critic):
+                        # ---------------------
+                        #  Train the Critic
+                        # ---------------------
+                        batch_data = self.get_data_batch(data, self.batch_size)
+                        noise = tf.random.normal((self.batch_size, self.noise_dim))
 
-                for _ in range(self.n_critic):
+                        # Generate a batch of events
+                        gen_data = self.generator(noise)
+
+                        # Train the Critic
+                        d_loss_real = self.critic.train_on_batch(batch_data, valid)
+                        d_loss_fake = self.critic.train_on_batch(gen_data, fake)
+                        d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
+
+                        for l in self.critic.layers:
+                            weights = l.get_weights()
+                            weights = [np.clip(w, -self.clip_value, self.clip_value) for w in weights]
+                            l.set_weights(weights)
+
                     # ---------------------
-                    #  Train the Critic
+                    #  Train Generator
                     # ---------------------
-                    batch_data = self.get_data_batch(data, self.batch_size)
                     noise = tf.random.normal((self.batch_size, self.noise_dim))
-
-                    # Generate a batch of events
-                    gen_data = self.generator(noise)
-
-                    # Train the Critic
-                    d_loss_real = self.critic.train_on_batch(batch_data, valid)
-                    d_loss_fake = self.critic.train_on_batch(gen_data, fake)
-                    d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
-
-                    for l in self.critic.layers:
-                        weights = l.get_weights()
-                        weights = [np.clip(w, -self.clip_value, self.clip_value) for w in weights]
-                        l.set_weights(weights)
-
-                # ---------------------
-                #  Train Generator
-                # ---------------------
-                noise = tf.random.normal((self.batch_size, self.noise_dim))
-                # Train the generator (to have the critic label samples as valid)
-                g_loss = self._model.train_on_batch(noise, valid)
-                # Plot the progress
-                print("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100 * d_loss[1], g_loss))
+                    # Train the generator (to have the critic label samples as valid)
+                    g_loss = self._model.train_on_batch(noise, valid)
+                    # Plot the progress
+                    print("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100 * d_loss[1], g_loss))
 
                 #If at save interval => save generated events
                 if epoch % train_arguments.sample_interval == 0:

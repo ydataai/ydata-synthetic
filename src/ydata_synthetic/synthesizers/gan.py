@@ -19,7 +19,7 @@ _train_parameters = ['cache_prefix', 'label_dim', 'epochs', 'sample_interval', '
 ModelParameters = namedtuple('ModelParameters', _model_parameters, defaults=(None,)*len(_model_parameters))
 TrainParameters = namedtuple('TrainParameters', _train_parameters, defaults=('', None, 300, 50, None))
 
-class Model():
+class BaseModel():
     def __init__(
             self,
             model_parameters: ModelParameters
