@@ -31,5 +31,4 @@ train_args = TrainParameters(epochs=epochs,
 
 synthesizer = DRAGAN(gan_args, n_discriminator=3)
 synthesizer.train(processed_data, train_args)
-
-synth_data = synthesizer.sample(1000)
+synthesizer.save('adult_synth.pkl')
