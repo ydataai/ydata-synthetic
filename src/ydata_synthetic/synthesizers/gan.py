@@ -89,10 +89,7 @@ class BaseModel():
 
     def save(self, path):
         make_keras_picklable()
-        try:
-            dump(self, path)
-        except:
-            raise Exception('Please provide a valid path to save the model.')
+        dump(self, path)
 
     @staticmethod
     def load(path):

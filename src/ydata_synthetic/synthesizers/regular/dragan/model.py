@@ -123,19 +123,22 @@ class DRAGAN(BaseModel):
                     batch_data = tf.cast(batch_data, dtype=tf.float32)
                     d_loss, g_loss = self.train_step(batch_data)
 
-                print(
-                    "Epoch: {} | disc_loss: {} | gen_loss: {}".format(
-                        epoch, d_loss, g_loss
-                    ))
+            print(
+                "Epoch: {} | disc_loss: {} | gen_loss: {}".format(
+                    epoch, d_loss, g_loss
+                ))
 
-                if epoch % train_arguments.sample_interval == 0:
-                    # Test here data generation step
-                    # save model checkpoints
-                    if path.exists('./cache') is False:
-                        os.mkdir('./cache')
-                    model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
-                    self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
-                    self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
+            if epoch % train_arguments.sample_interval == 0:
+                # Test here data generation step
+                # save model checkpoints
+                if path.exists('./cache') is False:
+                    os.mkdir('./cache')
+                model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
+                self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
+                self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
+
+            self.g_optimizer=self.g_optimizer.get_config()
+            self.d_optimizer=self.d_optimizer.get_config()
 
 
 class Discriminator(Model):

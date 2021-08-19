@@ -6,14 +6,14 @@ from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
 data, processed_data, preprocessor = transformations()
 
 # WGAN_GP training
-#Defininf the training parameters of WGAN_GP
+#Defining the training parameters of WGAN_GP
 
 noise_dim = 32
 dim = 128
 batch_size = 128
 
 log_step = 100
-epochs = 200+1
+epochs = 300+1
 learning_rate = [5e-4, 3e-3]
 beta_1 = 0.5
 beta_2 = 0.9

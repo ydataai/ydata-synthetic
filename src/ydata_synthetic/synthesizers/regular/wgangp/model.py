@@ -153,6 +153,9 @@ class WGAN_GP(BaseModel):
                     self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
                     self.critic.save_weights(model_checkpoint_base_name.format('critic', epoch))
 
+        self.g_optimizer=self.g_optimizer.get_config()
+        self.critic_optimizer=self.critic_optimizer.get_config()
+
 
 class Generator(tf.keras.Model):
     def __init__(self, batch_size):
