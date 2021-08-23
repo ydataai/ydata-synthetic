@@ -118,7 +118,7 @@ class TimeGAN(BaseModel):
         with GradientTape() as tape:
             h = self.embedder(x)
             h_hat_supervised = self.supervisor(h)
-            g_loss_s = self._mse(h[:, 1:, :], h_hat_supervised[:, 1:, :])
+            g_loss_s = self._mse(h[:, 1:, :], h_hat_supervised[:, :-1, :])
 
         var_list = self.supervisor.trainable_variables + self.generator.trainable_variables
         gradients = tape.gradient(g_loss_s, var_list)
@@ -129,10 +129,12 @@ class TimeGAN(BaseModel):
     @function
     def train_embedder(self,x, opt):
         with GradientTape() as tape:
+            # Supervised Loss
             h = self.embedder(x)
             h_hat_supervised = self.supervisor(h)
             generator_loss_supervised = self._mse(h[:, 1:, :], h_hat_supervised[:, 1:, :])
 
+            # Reconstruction Loss
             x_tilde = self.autoencoder(x)
             embedding_loss_t0 = self._mse(x, x_tilde)
             e_loss = 10 * sqrt(embedding_loss_t0) + 0.1 * generator_loss_supervised
@@ -143,10 +145,12 @@ class TimeGAN(BaseModel):
         return sqrt(embedding_loss_t0)
 
     def discriminator_loss(self, x, z):
+        # Loss on false negatives
         y_real = self.discriminator_model(x)
         discriminator_loss_real = self._bce(y_true=ones_like(y_real),
                                             y_pred=y_real)
 
+        # Loss on false positives
         y_fake = self.adversarial_supervised(z)
         discriminator_loss_fake = self._bce(y_true=zeros_like(y_fake),
                                             y_pred=y_fake)
