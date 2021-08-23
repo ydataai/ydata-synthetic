@@ -42,11 +42,11 @@ class TimeGAN(BaseModel):
         super().__init__(model_parameters)
 
     def define_gan(self):
-        self.generator_aux=Generator(self.hidden_dim).build(input_shape=(self.seq_len, self.n_seq))
-        self.supervisor=Supervisor(self.hidden_dim).build(input_shape=(self.hidden_dim, self.hidden_dim))
-        self.discriminator=Discriminator(self.hidden_dim).build(input_shape=(self.hidden_dim, self.hidden_dim))
-        self.recovery = Recovery(self.hidden_dim, self.n_seq).build(input_shape=(self.hidden_dim, self.hidden_dim))
-        self.embedder = Embedder(self.hidden_dim).build(input_shape=(self.seq_len, self.n_seq))
+        self.generator_aux=Generator(self.hidden_dim).build()
+        self.supervisor=Supervisor(self.hidden_dim).build()
+        self.discriminator=Discriminator(self.hidden_dim).build()
+        self.recovery = Recovery(self.hidden_dim, self.n_seq).build()
+        self.embedder = Embedder(self.hidden_dim).build()
 
         X = Input(shape=[self.seq_len, self.n_seq], batch_size=self.batch_size, name='RealData')
         Z = Input(shape=[self.seq_len, self.n_seq], batch_size=self.batch_size, name='RandomNoise')
@@ -275,7 +275,7 @@ class Generator(Model):
         self.hidden_dim = hidden_dim
         self.net_type = net_type
 
-    def build(self, input_shape):
+    def build(self):
         model = Sequential(name='Generator')
         model = make_net(model,
                          n_layers=3,
@@ -289,7 +289,7 @@ class Discriminator(Model):
         self.hidden_dim = hidden_dim
         self.net_type=net_type
 
-    def build(self, input_shape):
+    def build(self):
         model = Sequential(name='Discriminator')
         model = make_net(model,
                          n_layers=3,
@@ -304,7 +304,7 @@ class Recovery(Model):
         self.n_seq=n_seq
         return
 
-    def build(self, input_shape):
+    def build(self):
         recovery = Sequential(name='Recovery')
         recovery = make_net(recovery,
                             n_layers=3,
@@ -318,7 +318,7 @@ class Embedder(Model):
         self.hidden_dim=hidden_dim
         return
 
-    def build(self, input_shape):
+    def build(self):
         embedder = Sequential(name='Embedder')
         embedder = make_net(embedder,
                             n_layers=3,
@@ -330,7 +330,7 @@ class Supervisor(Model):
     def __init__(self, hidden_dim):
         self.hidden_dim=hidden_dim
 
-    def build(self, input_shape):
+    def build(self):
         model = Sequential(name='Supervisor')
         model = make_net(model,
                          n_layers=2,
