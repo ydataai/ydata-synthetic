@@ -118,13 +118,13 @@ class TimeGAN(BaseModel):
         with GradientTape() as tape:
             h = self.embedder(x)
             h_hat_supervised = self.supervisor(h)
-            g_loss_s = self._mse(h[:, 1:, :], h_hat_supervised[:, :-1, :])
+            generator_loss_supervised = self._mse(h[:, 1:, :], h_hat_supervised[:, :-1, :])
 
         var_list = self.supervisor.trainable_variables + self.generator.trainable_variables
-        gradients = tape.gradient(g_loss_s, var_list)
+        gradients = tape.gradient(generator_loss_supervised, var_list)
         apply_grads = [(grad, var) for (grad, var) in zip(gradients, var_list) if grad is not None]
         opt.apply_gradients(apply_grads)
-        return g_loss_s
+        return generator_loss_supervised
 
     @function
     def train_embedder(self,x, opt):
@@ -132,7 +132,7 @@ class TimeGAN(BaseModel):
             # Supervised Loss
             h = self.embedder(x)
             h_hat_supervised = self.supervisor(h)
-            generator_loss_supervised = self._mse(h[:, 1:, :], h_hat_supervised[:, 1:, :])
+            generator_loss_supervised = self._mse(h[:, 1:, :], h_hat_supervised[:, :-1, :])
 
             # Reconstruction Loss
             x_tilde = self.autoencoder(x)
@@ -182,7 +182,7 @@ class TimeGAN(BaseModel):
                                                       y_pred=y_fake_e)
             h = self.embedder(x)
             h_hat_supervised = self.supervisor(h)
-            generator_loss_supervised = self._mse(h[:, 1:, :], h_hat_supervised[:, 1:, :])
+            generator_loss_supervised = self._mse(h[:, 1:, :], h_hat_supervised[:, :-1, :])
 
             x_hat = self.generator(z)
             generator_moment_loss = self.calc_generator_moments_loss(x, x_hat)
