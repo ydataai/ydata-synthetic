@@ -13,6 +13,8 @@ from tensorflow.keras.optimizers import Adam
 
 class VanilllaGAN(BaseModel):
 
+    __MODEL__='GAN'
+
     def __init__(self, model_parameters):
         super().__init__(model_parameters)
 

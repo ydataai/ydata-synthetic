@@ -13,6 +13,8 @@ from tensorflow.keras.optimizers import Adam
 
 class WGAN_GP(BaseModel):
 
+    __MODEL__='WGAN_GP'
+
     def __init__(self, model_parameters, n_critic, gradient_penalty_weight=10):
         # As recommended in WGAN paper - https://arxiv.org/abs/1701.07875
         # WGAN-GP - WGAN with Gradient Penalty
