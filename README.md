@@ -21,9 +21,13 @@ Synthetic data can be used for many applications:
 
 # ydata-synthetic
 This repository contains material related with Generative Adversarial Networks for synthetic data generation, in particular regular tabular data and time-series. 
-It consists in a set of different GANs architectures developed ussing Tensorflow 2.0. An example Jupyter Notebook is included, to show how to use the different architectures.
+It consists a set of different GANs architectures developed using Tensorflow 2.0. Several example Jupyter Notebooks and Python scripts are included, to show how to use the different architectures.
 
 # Quickstart
+
+The source code is currently hosted on GitHub at: https://github.com/ydataai/ydata-synthetic
+
+Binary installers for the latest released version are available at the [Python Package Index (PyPI).](https://pypi.org/project/ydata-synthetic/)
 ```
 pip install ydata-synthetic
 ```
@@ -31,15 +35,13 @@ pip install ydata-synthetic
 ## Examples
 Here you can find usage examples of the package and models to synthesize tabular data.
 
-**Credit Fraud dataset**   [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/regular/gan_example.ipynb)
-
-**Stock dataset** [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/timeseries/TimeGAN_Synthetic_stock_data.ipynb)
+- Synthesizing the minority class with VanillaGAN on credit fraud dataset  [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/regular/gan_example.ipynb)
+- Time Series synthetic data generation with TimeGAN on stock dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/timeseries/TimeGAN_Synthetic_stock_data.ipynb)
+- More examples are continously added and can be found in `/examples` directory.
 
 # Project Resources
-- Synthetic GitHub: https://github.com/ydataai/ydata-synthetic
-- Synthetic Data Community Slack: [click here to join](http://slack.ydata.ai/)
 
-### In this repo you can find the following GAN architectures:
+In this repository you can find the several GAN architectures that are used to create synthesizers:
 
 #### Tabular data
 - [GAN](https://arxiv.org/abs/1406.2661)
@@ -51,3 +53,15 @@ Here you can find usage examples of the package and models to synthesize tabular
 
 #### Sequential data
 - [TimeGAN](https://papers.nips.cc/paper/2019/file/c9efe5f26cd17ba6216bbe2a7d26d490-Paper.pdf)
+
+# Contributing
+We are open to collaboration! If you want to start contributing you only need to:
+1. Search for an issue in which you would like to work. Issues for newcomers are labeled with good first issue.
+2. Create a PR solving the issue.
+3. We would review every PRs and either accept or ask for revisions.
+
+# Support
+For support in using this library, please join the #help Slack channel. The Slack community is very friendly and great about quickly answering questions about the use and development of the library. [Click here to join our Slack community!](http://slack.ydata.ai/)
+
+# License
+[GNU General Public License v3.0](https://github.com/ydataai/ydata-synthetic/blob/master/LICENSE)
