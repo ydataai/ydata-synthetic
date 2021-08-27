@@ -1,5 +1,6 @@
 from ydata_synthetic.synthesizers.regular import CGAN
 from ydata_synthetic.preprocessing.regular.credit_fraud import transformations
+from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
 
 import pandas as pd
 import numpy as np
@@ -46,7 +47,7 @@ beta_1 = 0.5
 beta_2 = 0.9
 
 log_step = 100
-epochs = 500 + 1
+epochs = 300 + 1
 learning_rate = 5e-4
 models_dir = './cache'
 
@@ -57,14 +58,25 @@ data_cols = [ i for i in train_sample.columns if i not in label_cols ]
 train_sample[ data_cols ] = train_sample[ data_cols ] / 10 # scale to random noise size, one less thing to learn
 train_no_label = train_sample[ data_cols ]
 
-gan_args = [batch_size, learning_rate, beta_1, beta_2, noise_dim, train_sample.shape[1], dim]
-train_args = ['', -1, epochs, log_step, (0, 1)]
+#Test here the new inputs
+gan_args = ModelParameters(batch_size=batch_size,
+                           lr=learning_rate,
+                           betas=(beta_1, beta_2),
+                           noise_dim=noise_dim,
+                           n_cols=train_sample.shape[1],
+                           layers_dim=dim)
+
+train_args = TrainParameters(epochs=epochs,
+                             cache_prefix='',
+                             sample_interval=log_step,
+                             label_dim=-1,
+                             labels=(0,1))
 
 #Init the Conditional GAN providing the index of the label column as one of the arguments
-synthesizer = CGAN(gan_args, num_classes=2)
+synthesizer = CGAN(model_parameters=gan_args, num_classes=2)
 
 #Training the Conditional GAN
-synthesizer.train(train_sample, train_args)
+synthesizer.train(data=train_sample, label="Class",train_arguments=train_args)
 
 #Saving the synthesizer
 synthesizer.save('cgan_synthtrained.pkl')

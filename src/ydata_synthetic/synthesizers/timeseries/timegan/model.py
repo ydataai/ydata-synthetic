@@ -4,7 +4,6 @@ Original code can be found here: https://bitbucket.org/mvdschaar/mlforhealthlabp
 """
 from tensorflow import function, GradientTape, sqrt, abs, reduce_mean, ones_like, zeros_like, convert_to_tensor,float32
 from tensorflow import data as tfdata
-from tensorflow import config as tfconfig
 from tensorflow import nn
 from tensorflow.keras import Model, Sequential, Input
 from tensorflow.keras.layers import GRU, LSTM, Dense
@@ -14,7 +13,7 @@ from tensorflow.keras.losses import BinaryCrossentropy, MeanSquaredError
 import numpy as np
 from tqdm import tqdm, trange
 
-from ydata_synthetic.synthesizers import gan
+from ydata_synthetic.synthesizers.gan import BaseModel
 
 def make_net(model, n_layers, hidden_units, output_units, net_type='GRU'):
     if net_type=='GRU':
@@ -34,7 +33,7 @@ def make_net(model, n_layers, hidden_units, output_units, net_type='GRU'):
     return model
 
 
-class TimeGAN(gan.Model):
+class TimeGAN(BaseModel):
     def __init__(self, model_parameters, hidden_dim, seq_len, n_seq, gamma):
         self.seq_len=seq_len
         self.n_seq=n_seq
@@ -43,11 +42,11 @@ class TimeGAN(gan.Model):
         super().__init__(model_parameters)
 
     def define_gan(self):
-        self.generator_aux=Generator(self.hidden_dim).build(input_shape=(self.seq_len, self.n_seq))
-        self.supervisor=Supervisor(self.hidden_dim).build(input_shape=(self.hidden_dim, self.hidden_dim))
-        self.discriminator=Discriminator(self.hidden_dim).build(input_shape=(self.hidden_dim, self.hidden_dim))
-        self.recovery = Recovery(self.hidden_dim, self.n_seq).build(input_shape=(self.hidden_dim, self.hidden_dim))
-        self.embedder = Embedder(self.hidden_dim).build(input_shape=(self.seq_len, self.n_seq))
+        self.generator_aux=Generator(self.hidden_dim).build()
+        self.supervisor=Supervisor(self.hidden_dim).build()
+        self.discriminator=Discriminator(self.hidden_dim).build()
+        self.recovery = Recovery(self.hidden_dim, self.n_seq).build()
+        self.embedder = Embedder(self.hidden_dim).build()
 
         X = Input(shape=[self.seq_len, self.n_seq], batch_size=self.batch_size, name='RealData')
         Z = Input(shape=[self.seq_len, self.n_seq], batch_size=self.batch_size, name='RandomNoise')
@@ -119,21 +118,23 @@ class TimeGAN(gan.Model):
         with GradientTape() as tape:
             h = self.embedder(x)
             h_hat_supervised = self.supervisor(h)
-            g_loss_s = self._mse(h[:, 1:, :], h_hat_supervised[:, 1:, :])
+            generator_loss_supervised = self._mse(h[:, 1:, :], h_hat_supervised[:, :-1, :])
 
         var_list = self.supervisor.trainable_variables + self.generator.trainable_variables
-        gradients = tape.gradient(g_loss_s, var_list)
+        gradients = tape.gradient(generator_loss_supervised, var_list)
         apply_grads = [(grad, var) for (grad, var) in zip(gradients, var_list) if grad is not None]
         opt.apply_gradients(apply_grads)
-        return g_loss_s
+        return generator_loss_supervised
 
     @function
     def train_embedder(self,x, opt):
         with GradientTape() as tape:
+            # Supervised Loss
             h = self.embedder(x)
             h_hat_supervised = self.supervisor(h)
-            generator_loss_supervised = self._mse(h[:, 1:, :], h_hat_supervised[:, 1:, :])
+            generator_loss_supervised = self._mse(h[:, 1:, :], h_hat_supervised[:, :-1, :])
 
+            # Reconstruction Loss
             x_tilde = self.autoencoder(x)
             embedding_loss_t0 = self._mse(x, x_tilde)
             e_loss = 10 * sqrt(embedding_loss_t0) + 0.1 * generator_loss_supervised
@@ -144,10 +145,12 @@ class TimeGAN(gan.Model):
         return sqrt(embedding_loss_t0)
 
     def discriminator_loss(self, x, z):
+        # Loss on false negatives
         y_real = self.discriminator_model(x)
         discriminator_loss_real = self._bce(y_true=ones_like(y_real),
                                             y_pred=y_real)
 
+        # Loss on false positives
         y_fake = self.adversarial_supervised(z)
         discriminator_loss_fake = self._bce(y_true=zeros_like(y_fake),
                                             y_pred=y_fake)
@@ -179,7 +182,7 @@ class TimeGAN(gan.Model):
                                                       y_pred=y_fake_e)
             h = self.embedder(x)
             h_hat_supervised = self.supervisor(h)
-            generator_loss_supervised = self._mse(h[:, 1:, :], h_hat_supervised[:, 1:, :])
+            generator_loss_supervised = self._mse(h[:, 1:, :], h_hat_supervised[:, :-1, :])
 
             x_hat = self.generator(z)
             generator_moment_loss = self.calc_generator_moments_loss(x, x_hat)
@@ -221,21 +224,21 @@ class TimeGAN(gan.Model):
 
     def train(self, data, train_steps):
         ## Embedding network training
-        autoencoder_opt = Adam(learning_rate=self.lr)
+        autoencoder_opt = Adam(learning_rate=self.g_lr)
         for _ in tqdm(range(train_steps), desc='Emddeding network training'):
             X_ = next(self.get_batch_data(data, n_windows=len(data)))
             step_e_loss_t0 = self.train_autoencoder(X_, autoencoder_opt)
 
         ## Supervised Network training
-        supervisor_opt = Adam(learning_rate=self.lr)
+        supervisor_opt = Adam(learning_rate=self.g_lr)
         for _ in tqdm(range(train_steps), desc='Supervised network training'):
             X_ = next(self.get_batch_data(data, n_windows=len(data)))
             step_g_loss_s = self.train_supervisor(X_, supervisor_opt)
 
         ## Joint training
-        generator_opt = Adam(learning_rate=self.lr)
-        embedder_opt = Adam(learning_rate=self.lr)
-        discriminator_opt = Adam(learning_rate=self.lr)
+        generator_opt = Adam(learning_rate=self.g_lr)
+        embedder_opt = Adam(learning_rate=self.g_lr)
+        discriminator_opt = Adam(learning_rate=self.d_lr)
 
         step_g_loss_u = step_g_loss_s = step_g_loss_v = step_e_loss_t0 = step_d_loss = 0
         for _ in tqdm(range(train_steps), desc='Joint networks training'):
@@ -276,7 +279,7 @@ class Generator(Model):
         self.hidden_dim = hidden_dim
         self.net_type = net_type
 
-    def build(self, input_shape):
+    def build(self):
         model = Sequential(name='Generator')
         model = make_net(model,
                          n_layers=3,
@@ -290,7 +293,7 @@ class Discriminator(Model):
         self.hidden_dim = hidden_dim
         self.net_type=net_type
 
-    def build(self, input_shape):
+    def build(self):
         model = Sequential(name='Discriminator')
         model = make_net(model,
                          n_layers=3,
@@ -305,7 +308,7 @@ class Recovery(Model):
         self.n_seq=n_seq
         return
 
-    def build(self, input_shape):
+    def build(self):
         recovery = Sequential(name='Recovery')
         recovery = make_net(recovery,
                             n_layers=3,
@@ -319,7 +322,7 @@ class Embedder(Model):
         self.hidden_dim=hidden_dim
         return
 
-    def build(self, input_shape):
+    def build(self):
         embedder = Sequential(name='Embedder')
         embedder = make_net(embedder,
                             n_layers=3,
@@ -331,7 +334,7 @@ class Supervisor(Model):
     def __init__(self, hidden_dim):
         self.hidden_dim=hidden_dim
 
-    def build(self, input_shape):
+    def build(self):
         model = Sequential(name='Supervisor')
         model = make_net(model,
                          n_layers=2,

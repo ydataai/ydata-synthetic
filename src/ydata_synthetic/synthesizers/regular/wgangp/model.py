@@ -1,16 +1,19 @@
 import os
 from os import path
 import numpy as np
-import tqdm
+from tqdm import trange
 
-from ydata_synthetic.synthesizers import gan
+from ydata_synthetic.synthesizers.gan import BaseModel
+from ydata_synthetic.synthesizers import TrainParameters
 
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Dense, Dropout
 from tensorflow.keras import Model
 from tensorflow.keras.optimizers import Adam
 
-class WGAN_GP(gan.Model):
+class WGAN_GP(BaseModel):
+
+    __MODEL__='WGAN_GP'
 
     def __init__(self, model_parameters, n_critic, gradient_penalty_weight=10):
         # As recommended in WGAN paper - https://arxiv.org/abs/1701.07875
@@ -26,8 +29,8 @@ class WGAN_GP(gan.Model):
         self.critic = Critic(self.batch_size). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
 
-        self.g_optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
-        self.critic_optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        self.g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        self.critic_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
 
     def gradient_penalty(self, real, fake):
         epsilon = tf.random.uniform([real.shape[0], 1], 0.0, 1.0, dtype=tf.dtypes.float32)
@@ -123,30 +126,37 @@ class WGAN_GP(gan.Model):
         cri_loss, ge_loss = self.update_gradients(train_data)
         return cri_loss, ge_loss
 
-    def train(self, data, train_arguments):
-        [cache_prefix, iterations, sample_interval] = train_arguments
+    def train(self,
+              data,
+              train_arguments: TrainParameters):
+
+        iterations = int(abs(data.shape[0]/self.batch_size)+1)
 
         # Create a summary file
         train_summary_writer = tf.summary.create_file_writer(path.join('..\wgan_gp_test', 'summaries', 'train'))
 
         with train_summary_writer.as_default():
-            for iteration in tqdm.trange(iterations):
-                batch_data = self.get_data_batch(data, self.batch_size).astype(np.float32)
-                cri_loss, ge_loss = self.train_step(batch_data)
+            for epoch in trange(train_arguments.epochs):
+                for _ in range(iterations):
+                    batch_data = self.get_data_batch(data, self.batch_size).astype(np.float32)
+                    cri_loss, ge_loss = self.train_step(batch_data)
 
                 print(
-                    "Iteration: {} | disc_loss: {} | gen_loss: {}".format(
-                        iteration, cri_loss, ge_loss
+                    "Epoch: {} | disc_loss: {} | gen_loss: {}".format(
+                        epoch, cri_loss, ge_loss
                     ))
 
-                if iteration % sample_interval == 0:
+                if epoch % train_arguments.sample_interval == 0:
                     # Test here data generation step
                     # save model checkpoints
                     if path.exists('./cache') is False:
                         os.mkdir('./cache')
-                    model_checkpoint_base_name = './cache/' + cache_prefix + '_{}_model_weights_step_{}.h5'
-                    self.generator.save_weights(model_checkpoint_base_name.format('generator', iteration))
-                    self.critic.save_weights(model_checkpoint_base_name.format('critic', iteration))
+                    model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
+                    self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
+                    self.critic.save_weights(model_checkpoint_base_name.format('critic', epoch))
+
+        self.g_optimizer=self.g_optimizer.get_config()
+        self.critic_optimizer=self.critic_optimizer.get_config()
 
 
 class Generator(tf.keras.Model):

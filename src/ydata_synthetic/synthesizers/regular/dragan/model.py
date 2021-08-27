@@ -1,7 +1,6 @@
 import os
 from os import path
 
-import numpy as np
 import tqdm
 
 import tensorflow as tf
@@ -9,12 +8,12 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.layers import Input, Dense, Dropout
 from tensorflow.keras import Model, initializers
 
-from ydata_synthetic.synthesizers import gan
+from ydata_synthetic.synthesizers.gan import BaseModel
 from ydata_synthetic.synthesizers.loss import gradient_penalty
 
-import pandas as pd
+class DRAGAN(BaseModel):
 
-class DRAGAN(gan.Model):
+    __MODEL__='DRAGAN'
 
     def __init__(self, model_parameters, n_discriminator, gradient_penalty_weight=10):
         # As recommended in DRAGAN paper - https://arxiv.org/abs/1705.07215
@@ -30,8 +29,8 @@ class DRAGAN(gan.Model):
         self.discriminator = Discriminator(self.batch_size). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
 
-        self.g_optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2, clipvalue=0.001)
-        self.d_optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2, clipvalue=0.001)
+        self.g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2, clipvalue=0.001)
+        self.d_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2, clipvalue=0.001)
 
     def gradient_penalty(self, real, fake):
         gp = gradient_penalty(self.discriminator, real, fake, mode='dragan')
@@ -115,31 +114,33 @@ class DRAGAN(gan.Model):
         return d_loss, g_loss
 
     def train(self, data, train_arguments):
-        [cache_prefix, iterations, sample_interval] = train_arguments
         train_loader = self.get_data_batch(data, self.batch_size)
 
         # Create a summary file
         train_summary_writer = tf.summary.create_file_writer(path.join('..\dragan_test', 'summaries', 'train'))
 
         with train_summary_writer.as_default():
-            for iteration in tqdm.trange(iterations):
+            for epoch in tqdm.trange(train_arguments.epochs):
                 for batch_data in train_loader:
                     batch_data = tf.cast(batch_data, dtype=tf.float32)
                     d_loss, g_loss = self.train_step(batch_data)
 
-                    print(
-                        "Iteration: {} | disc_loss: {} | gen_loss: {}".format(
-                            iteration, d_loss, g_loss
-                        ))
+            print(
+                "Epoch: {} | disc_loss: {} | gen_loss: {}".format(
+                    epoch, d_loss, g_loss
+                ))
 
-                    if iteration % sample_interval == 0:
-                        # Test here data generation step
-                        # save model checkpoints
-                        if path.exists('./cache') is False:
-                            os.mkdir('./cache')
-                        model_checkpoint_base_name = './cache/' + cache_prefix + '_{}_model_weights_step_{}.h5'
-                        self.generator.save_weights(model_checkpoint_base_name.format('generator', iteration))
-                        self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', iteration))
+            if epoch % train_arguments.sample_interval == 0:
+                # Test here data generation step
+                # save model checkpoints
+                if path.exists('./cache') is False:
+                    os.mkdir('./cache')
+                model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
+                self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
+                self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
+
+            self.g_optimizer=self.g_optimizer.get_config()
+            self.d_optimizer=self.d_optimizer.get_config()
 
 
 class Discriminator(Model):
