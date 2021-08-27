@@ -25,8 +25,9 @@ class CGAN(BaseModel):
         super().__init__(model_parameters)
 
     def define_gan(self):
+        label_dim = self.num_classes - 1
         self.generator = Generator(self.batch_size, self.num_classes). \
-            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim)
+            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim - label_dim)
 
         self.discriminator = Discriminator(self.batch_size, self.num_classes). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
@@ -93,13 +94,15 @@ class CGAN(BaseModel):
                 # ---------------------
                 batch_x = self.get_data_batch(data, self.batch_size)
                 label = batch_x[:, train_arguments.label_dim]
+                label_mask = np.zeros(batch_x.shape[1], dtype=bool)
+                label_mask[train_arguments.label_dim] = True
                 noise = tf.random.normal((self.batch_size, self.noise_dim))
 
                 # Generate a batch of new records
                 gen_records = self.generator([noise, label], training=True)
 
                 # Train the discriminator
-                d_loss_real = self.discriminator.train_on_batch([batch_x, label], valid)
+                d_loss_real = self.discriminator.train_on_batch([batch_x[:, ~label_mask], label], valid)
                 d_loss_fake = self.discriminator.train_on_batch([gen_records, label], fake)
                 d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
 
@@ -151,7 +154,8 @@ class Discriminator():
         self.num_classes = num_classes
 
     def build_model(self, input_shape, dim):
-        events = Input(shape=input_shape, batch_size=self.batch_size)
+        data_dim = input_shape[0] - 1
+        events = Input(shape=(data_dim,), batch_size=self.batch_size)
         label = Input(shape=(1,), batch_size=self.batch_size, dtype='int32')
         label_embedding = Flatten()(Embedding(self.num_classes, 1)(label))
         events_flat = Flatten()(events)
