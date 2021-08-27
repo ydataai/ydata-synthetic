@@ -7,7 +7,6 @@ import numpy as np
 from numpy import array
 from pandas import DataFrame
 
-
 from ydata_synthetic.synthesizers.gan import BaseModel
 from ydata_synthetic.synthesizers import TrainParameters
 
@@ -18,6 +17,8 @@ from tensorflow.keras import Model
 from tensorflow.keras.optimizers import Adam
 
 class CGAN(BaseModel):
+
+    __MODEL__='CGAN'
 
     def __init__(self, model_parameters, num_classes):
         self.num_classes = num_classes

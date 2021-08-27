@@ -88,6 +88,9 @@ class BaseModel():
         return concat(data)
 
     def save(self, path):
+        #Save only the generator?
+        if self.__MODEL__=='WGAN' or self.__MODEL__=='WGAN_GP':
+            self.critic=None
         make_keras_picklable()
         dump(self, path)
 

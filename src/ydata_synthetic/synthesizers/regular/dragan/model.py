@@ -13,6 +13,8 @@ from ydata_synthetic.synthesizers.loss import gradient_penalty
 
 class DRAGAN(BaseModel):
 
+    __MODEL__='DRAGAN'
+
     def __init__(self, model_parameters, n_discriminator, gradient_penalty_weight=10):
         # As recommended in DRAGAN paper - https://arxiv.org/abs/1705.07215
         self.n_discriminator = n_discriminator

@@ -27,6 +27,8 @@ class RandomWeightedAverage(tf.keras.layers.Layer):
 
 class WGAN(BaseModel):
 
+    __MODEL__='WGAN'
+
     def __init__(self, model_parameters, n_critic, clip_value=0.01):
         # As recommended in WGAN paper - https://arxiv.org/abs/1701.07875
         # WGAN-GP - WGAN with Gradient Penalty
@@ -65,7 +67,7 @@ class WGAN(BaseModel):
         # Trains the generator to fool the discriminator
         #For the WGAN model use the Wassertein loss
         self._model = Model(z, validity)
-        self._model.compile(loss=self.wasserstein_loss, optimizer=optimizer)
+        self._model.compile(loss='binary_crossentropy', optimizer=optimizer)
 
     def get_data_batch(self, train, batch_size, seed=0):
         # np.random.seed(seed)
