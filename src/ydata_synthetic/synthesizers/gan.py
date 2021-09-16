@@ -22,6 +22,9 @@ ModelParameters = namedtuple('ModelParameters', _model_parameters, defaults=_mod
 TrainParameters = namedtuple('TrainParameters', _train_parameters, defaults=('', None, 300, 50, None))
 
 class BaseModel():
+
+    __MODEL__='BaseModel'
+    
     def __init__(
             self,
             model_parameters: ModelParameters
