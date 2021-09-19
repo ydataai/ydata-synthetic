@@ -22,6 +22,9 @@ ModelParameters = namedtuple('ModelParameters', _model_parameters, defaults=_mod
 TrainParameters = namedtuple('TrainParameters', _train_parameters, defaults=('', None, 300, 50, None))
 
 class BaseModel():
+
+    __MODEL__=''
+
     def __init__(
             self,
             model_parameters: ModelParameters
@@ -89,8 +92,9 @@ class BaseModel():
 
     def save(self, path):
         #Save only the generator?
-        if self.__MODEL__=='WGAN' or self.__MODEL__=='WGAN_GP':
-            self.critic=None
+        if hasattr(self, '__MODEL__'):
+            if self.__MODEL__ == 'WGAN' or self.__MODEL__ == 'WGAN_GP':
+                self.critic=None
         make_keras_picklable()
         dump(self, path)
 
