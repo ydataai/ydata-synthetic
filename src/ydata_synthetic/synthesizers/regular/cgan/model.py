@@ -101,7 +101,7 @@ class CGAN(BaseModel):
 
                 # Train the discriminator
                 d_loss_real = self.discriminator.train_on_batch([batch_x[:, data_cols], label], valid)  # Separate labels
-                d_loss_fake = self.discriminator.train_on_batch([tf.gather(gen_records, data_cols, axis=1), label], fake)  # Separate labels
+                d_loss_fake = self.discriminator.train_on_batch([gen_records, label], fake)  # Separate labels
                 d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
 
                 # ---------------------
