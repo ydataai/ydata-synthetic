@@ -63,7 +63,7 @@ gan_args = ModelParameters(batch_size=batch_size,
                            lr=learning_rate,
                            betas=(beta_1, beta_2),
                            noise_dim=noise_dim,
-                           n_cols=train_sample.shape[1] - len(label_cols),
+                           n_cols=train_sample.shape[1] - len(label_cols),  # Don't count the label columns here
                            layers_dim=dim)
 
 train_args = TrainParameters(epochs=epochs,
