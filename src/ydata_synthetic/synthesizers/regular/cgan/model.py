@@ -29,7 +29,7 @@ class CGAN(BaseModel):
             build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim)
 
         self.discriminator = Discriminator(self.batch_size, self.num_classes). \
-            build_model(input_shape=(self.data_dim - 1), dim=self.layers_dim)
+            build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
 
         g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
         d_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
@@ -43,13 +43,12 @@ class CGAN(BaseModel):
         z = Input(shape=(self.noise_dim,))
         label = Input(shape=(1,))
         record = self.generator([z, label])
-        record_no_label = record[:,:-1]
 
         # For the combined model we will only train the generator
         self.discriminator.trainable = False
 
         # The discriminator takes generated images as input and determines validity
-        validity = self.discriminator([record_no_label, label])
+        validity = self.discriminator([record, label])
 
         # The combined model  (stacked generator and discriminator)
         # Trains the generator to fool the discriminator
