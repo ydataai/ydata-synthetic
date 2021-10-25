@@ -4,6 +4,7 @@ import numpy as np
 from tqdm import trange
 
 from ydata_synthetic.synthesizers.gan import BaseModel
+from ydata_synthetic.synthesizers.loss import Mode, gradient_penalty
 from ydata_synthetic.synthesizers import TrainParameters
 
 import tensorflow as tf
@@ -45,16 +46,9 @@ class CRAMERGAN(BaseModel):
         _model = Model(z, logits)
         _model.compile(loss=self.g_lossfn, optimizer=self.g_optimizer)
 
-    def gradient_penalty(self, real, fake, fake2):
-        epsilon = tf.random.uniform([real.shape[0], 1], 0.0, 1.0, dtype=tf.dtypes.float32)
-        x_hat = epsilon * real + (1 - epsilon) * fake
-        with tf.GradientTape() as t:
-            t.watch(x_hat)
-            f_x_hat = self.f_crit(x_hat, fake2)
-        gradients = t.gradient(f_x_hat, x_hat)
-        c_dx = tf.sqrt(tf.reduce_sum(gradients ** 2, axis=1))
-        c_regularizer = (c_dx - 1.0) ** 2
-        return c_regularizer
+    def gradient_penalty(self, real, fake):
+        gp = gradient_penalty(self.f_crit, real, fake, mode=Mode.CRAMER)
+        return gp
 
     def update_gradients(self, x):
         """
@@ -123,7 +117,7 @@ class CRAMERGAN(BaseModel):
         f_real = self.f_crit(real, fake2)
         f_fake = self.f_crit(fake, fake2)
         loss_surrogate = f_real - f_fake
-        gp = self.gradient_penalty(real, fake, fake2)
+        gp = self.gradient_penalty(real, [fake, fake2])
         return tf.reduce_mean(- loss_surrogate + self.gradient_penalty_weight*gp)
 
     def get_data_batch(self, train, batch_size, seed=0):
