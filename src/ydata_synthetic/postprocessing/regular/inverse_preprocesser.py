@@ -1,11 +1,7 @@
 # Inverts all preprocessing pipelines provided in the preprocessing examples
-from os import listdir
-from os.path import isfile, join
-import sys
 from typing import Union
 
 import pandas as pd
-from numpy import isclose, ndarray
 
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
@@ -47,28 +43,3 @@ def inverter(data: pd.DataFrame, processor: Union[Pipeline, ColumnTransformer, P
         print('The provided data processor is not supported and cannot be inverted with this method.')
         return None
     return inv_data
-
-if __name__ == '__main__':
-    def non_recovered_cols(orig_data, inv_data):
-        comparable_cols = [col for col in inv_data.columns if col in orig_data.columns]
-        non_recovered_cols = sum(~isclose(data[comparable_cols], inv_data[comparable_cols]).any(0))
-        if non_recovered_cols > 0:
-            print(f"Warning, {non_recovered_cols}/{len(comparable_cols)} are not similar to the original data after inversion.")
-        else:
-            print(f"All {len(comparable_cols)} columns were successfully inverted.")
-
-    from ydata_synthetic.preprocessing.regular.adult import transformations
-    data, processed_data, processor = transformations()
-    inv_data = inverter(processed_data, processor)
-    non_recovered_cols(data, inv_data)
-
-    from ydata_synthetic.preprocessing.regular.breast_cancer_wisconsin import transformations
-    data, processed_data, processor = transformations()
-    inv_data = inverter(processed_data, processor)
-    non_recovered_cols(data, inv_data)
-
-    from ydata_synthetic.preprocessing.regular.credit_fraud import transformations
-    data = pd.read_csv('data/creditcard.csv', index_col=[0])
-    data, processed_data, processor = transformations(data)
-    inv_data = inverter(processed_data, processor)
-    non_recovered_cols(data, inv_data)
