@@ -17,8 +17,8 @@ class CRAMERGAN(BaseModel):
     __MODEL__='CRAMERGAN'
 
     def __init__(self, model_parameters, gradient_penalty_weight=10):
-        # As recommended in WGAN paper - https://arxiv.org/pdf/1705.10743.pdf
-        # Cramer GAN- Introducing a anew distance as a solution to biased Wassertein Gradient
+        """As recommended in WGAN paper - https://arxiv.org/pdf/1705.10743.pdf
+        Cramer GAN- Introducing a anew distance as a solution to biased Wassertein Gradient"""
         self.gradient_penalty_weight = gradient_penalty_weight
         super().__init__(model_parameters)
 
@@ -51,8 +51,8 @@ class CRAMERGAN(BaseModel):
         return gp
 
     def update_gradients(self, x):
-        """
-        Compute the gradients for both the Generator and the Critic
+        """Compute and apply the gradients for both the Generator and the Critic
+
         :param x: real data event
         :return: generator gradients, critic gradients
         """
@@ -120,7 +120,8 @@ class CRAMERGAN(BaseModel):
         gp = self.gradient_penalty(real, [fake, fake2])
         return tf.reduce_mean(- loss_surrogate + self.gradient_penalty_weight*gp)
 
-    def get_data_batch(self, train, batch_size, seed=0):
+    @staticmethod
+    def get_data_batch(train, batch_size, seed=0):
         # np.random.seed(seed)
         # x = train.loc[ np.random.choice(train.index, batch_size) ].values
         # iterate through shuffled indices, so every sample gets covered evenly
@@ -166,29 +167,40 @@ class CRAMERGAN(BaseModel):
         self.g_optimizer=self.g_optimizer.get_config()
         self.critic_optimizer=self.c_optimizer.get_config()
 
+    def save(self, path):
+        "Strip down the optimizers from the model then save."
+        for attr in ['g_optimizer', 'c_optimizer']:
+            try:
+                delattr(self, attr)
+            except AttributeError:
+                continue
+        super().save(path)
+
 
 class Generator(tf.keras.Model):
     def __init__(self, batch_size):
+        "Simple generator with dense feedforward layers."
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim, data_dim):
-        input = Input(shape=input_shape, batch_size=self.batch_size)
-        x = Dense(dim, activation='relu')(input)
+        input_ = Input(shape=input_shape, batch_size=self.batch_size)
+        x = Dense(dim, activation='relu')(input_)
         x = Dense(dim * 2, activation='relu')(x)
         x = Dense(dim * 4, activation='relu')(x)
         x = Dense(data_dim)(x)
-        return Model(inputs=input, outputs=x)
+        return Model(inputs=input_, outputs=x)
 
 class Critic(tf.keras.Model):
     def __init__(self, batch_size):
+        "Simple critic with dense feedforward and dropout layers."
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim):
-        input = Input(shape=input_shape, batch_size=self.batch_size)
-        x = Dense(dim * 4, activation='relu')(input)
+        input_ = Input(shape=input_shape, batch_size=self.batch_size)
+        x = Dense(dim * 4, activation='relu')(input_)
         x = Dropout(0.1)(x)
         x = Dense(dim * 2, activation='relu')(x)
         x = Dropout(0.1)(x)
         x = Dense(dim, activation='relu')(x)
         x = Dense(1)(x)
-        return Model(inputs=input, outputs=x)
+        return Model(inputs=input_, outputs=x)

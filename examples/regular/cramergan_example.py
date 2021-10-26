@@ -1,10 +1,12 @@
 #Install ydata-synthetic lib
 # pip install ydata-synthetic
 import sklearn.cluster as cluster
+import numpy as np
+import pandas as pd
 
 from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
 from ydata_synthetic.synthesizers.regular import CRAMERGAN
-from ydata_synthetic.preprocessing.regular.credit_fraud import *
+from ydata_synthetic.preprocessing.regular.credit_fraud import transformations
 
 model = CRAMERGAN
 
