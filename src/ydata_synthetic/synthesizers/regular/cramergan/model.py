@@ -17,8 +17,10 @@ class CRAMERGAN(BaseModel):
     __MODEL__='CRAMERGAN'
 
     def __init__(self, model_parameters, gradient_penalty_weight=10):
-        """As recommended in WGAN paper - https://arxiv.org/pdf/1705.10743.pdf
-        Cramer GAN- Introducing a anew distance as a solution to biased Wassertein Gradient"""
+        """Create a base CramerGAN.
+
+        Based according to the WGAN paper - https://arxiv.org/pdf/1705.10743.pdf
+        CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.10743"""
         self.gradient_penalty_weight = gradient_penalty_weight
         super().__init__(model_parameters)
 
@@ -51,7 +53,7 @@ class CRAMERGAN(BaseModel):
         return gp
 
     def update_gradients(self, x):
-        """Compute and apply the gradients for both the Generator and the Critic
+        """Compute and apply the gradients for both the Generator and the Critic.
 
         :param x: real data event
         :return: generator gradients, critic gradients
@@ -87,7 +89,8 @@ class CRAMERGAN(BaseModel):
         return c_loss, g_loss
 
     def g_lossfn(self, real, fake, fake2):
-        """
+        """Compute generator loss function according to the CramerGAN paper.
+
         :param real: A real sample
         :param fake: A fake sample
         :param fak2: A second fake sample
@@ -168,7 +171,7 @@ class CRAMERGAN(BaseModel):
         self.critic_optimizer=self.c_optimizer.get_config()
 
     def save(self, path):
-        "Strip down the optimizers from the model then save."
+        """Strip down the optimizers from the model then save."""
         for attr in ['g_optimizer', 'c_optimizer']:
             try:
                 delattr(self, attr)
@@ -179,7 +182,7 @@ class CRAMERGAN(BaseModel):
 
 class Generator(tf.keras.Model):
     def __init__(self, batch_size):
-        "Simple generator with dense feedforward layers."
+        """Simple generator with dense feedforward layers."""
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim, data_dim):
@@ -192,7 +195,7 @@ class Generator(tf.keras.Model):
 
 class Critic(tf.keras.Model):
     def __init__(self, batch_size):
-        "Simple critic with dense feedforward and dropout layers."
+        """Simple critic with dense feedforward and dropout layers."""
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim):
