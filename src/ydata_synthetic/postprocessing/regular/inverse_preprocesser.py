@@ -36,9 +36,12 @@ def inverter(data: pd.DataFrame, processor: Union[Pipeline, ColumnTransformer, P
                 continue
             else:
                 inv_cols = pd.DataFrame(t.inverse_transform(data.iloc[:,t_indices].values), columns = t_cols, index = data.index)
-            if len(t_indices) != len(t_cols):
+                inv_col_names = inv_cols.columns
+            if set(inv_col_names).issubset(set(inv_data.columns)):
+                inv_data[inv_col_names] = inv_cols[inv_col_names]
+            else:
                 to_drop += t_indices
-            inv_data = pd.concat([inv_data, inv_cols], axis=1)
+                inv_data = pd.concat([inv_data, inv_cols], axis=1)
         inv_data.drop(columns=to_drop, inplace=True)
     else:
         print('The provided data processor is not supported and cannot be inverted with this method.')
