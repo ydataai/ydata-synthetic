@@ -15,14 +15,13 @@ label_cols = ['Class']
 
 print('Dataset columns: {}'.format(data_cols))
 sorted_cols = ['V14', 'V4', 'V10', 'V17', 'V12', 'V26', 'Amount', 'V21', 'V8', 'V11', 'V7', 'V28', 'V19', 'V3', 'V22', 'V6', 'V20', 'V27', 'V16', 'V13', 'V25', 'V24', 'V18', 'V2', 'V1', 'V5', 'V15', 'V9', 'V23', 'Class']
-processed_data = data[ sorted_cols ].copy()
 
 #Before training the GAN do not forget to apply the required data transformations
-#To ease here we've applied a PowerTransformation
-data = transformations(data)
+#To ease here we've applied a PowerTransformationdata, processed_data, transformer = data[ sorted_cols ].copy()
+data, proc_data, _ = transformations(data)
 
 #For the purpose of this example we will only synthesize the minority class
-train_data = data.loc[ data['Class']==1 ].copy()
+train_data = proc_data.loc[ data['Class']==1 ].copy()
 
 #Create a new class column using KMeans - This will mainly be useful if we want to leverage conditional GAN
 print("Dataset info: Number of records - {} Number of variables - {}".format(train_data.shape[0], train_data.shape[1]))
