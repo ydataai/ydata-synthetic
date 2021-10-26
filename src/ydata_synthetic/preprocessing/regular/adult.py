@@ -9,13 +9,13 @@ from pmlb import fetch_data
 def transformations():
     data = fetch_data('adult')
 
-    numerical_features = ['age', 'fnlwgt', 
+    numerical_features = ['age', 'fnlwgt',
                           'capital-gain', 'capital-loss',
                           'hours-per-week']
     numerical_transformer = Pipeline(steps=[
-        ('onehot', StandardScaler())])
+        ('scaler', StandardScaler())])
 
-    categorical_features = ['workclass','education', 'marital-status', 
+    categorical_features = ['workclass','education', 'marital-status',
                             'occupation', 'relationship',
                             'race', 'sex']
     categorical_transformer = Pipeline(steps=[
@@ -31,4 +31,3 @@ def transformations():
     return data, processed_data, preprocessor
 
 
-    
