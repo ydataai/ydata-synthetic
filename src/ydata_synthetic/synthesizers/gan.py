@@ -93,7 +93,7 @@ class BaseModel():
     def save(self, path):
         #Save only the generator?
         if hasattr(self, '__MODEL__'):
-            if self.__MODEL__ == 'WGAN' or self.__MODEL__ == 'WGAN_GP':
+            if self.__MODEL__ in ['WGAN', 'WGAN_GP', 'CRAMERGAN']:
                 self.critic=None
         make_keras_picklable()
         dump(self, path)
