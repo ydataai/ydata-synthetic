@@ -8,7 +8,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import PowerTransformer, OneHotEncoder, StandardScaler
 
 
-def inverter(data: pd.DataFrame, processor: Union[Pipeline, ColumnTransformer, PowerTransformer, OneHotEncoder, StandardScaler]) -> pd.DataFrame:
+def inverse_transform(data: pd.DataFrame, processor: Union[Pipeline, ColumnTransformer, PowerTransformer, OneHotEncoder, StandardScaler]) -> pd.DataFrame:
     """Inverts data transformations taking place in a standard sklearn processor.
     Supported processes are sklearn pipelines, column transformers or base estimators like standard scalers.
 
@@ -28,8 +28,11 @@ def inverter(data: pd.DataFrame, processor: Union[Pipeline, ColumnTransformer, P
         for t_name, t, t_cols in processor.transformers_[::-1]:
             slice_ = output_indices[t_name]
             t_indices = list(range(slice_.start, slice_.stop, 1 if slice_.step is None else slice_.step))
-            if t_name == 'remainder':
+            if t == 'drop':
                 continue
+            elif t == 'passthrough':
+                inv_cols = pd.DataFrame(data.iloc[:,t_indices].values, columns = t_cols, index = data.index)
+                inv_col_names = inv_cols.columns
             else:
                 inv_cols = pd.DataFrame(t.inverse_transform(data.iloc[:,t_indices].values), columns = t_cols, index = data.index)
                 inv_col_names = inv_cols.columns

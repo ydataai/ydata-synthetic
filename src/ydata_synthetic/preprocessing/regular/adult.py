@@ -21,10 +21,13 @@ def transformations():
     categorical_transformer = Pipeline(steps=[
         ('onehot', OneHotEncoder(handle_unknown='ignore'))])
 
+    remaining_features = ['education-num', 'native-country','target']
+    remaining_transformer = 'passthrough'
     preprocessor = ColumnTransformer(
         transformers=[
             ('num', numerical_transformer, numerical_features),
-            ('cat', categorical_transformer, categorical_features)])
+            ('cat', categorical_transformer, categorical_features),
+            ('remaining', remaining_transformer, remaining_features)])
 
     processed_data = pd.DataFrame.sparse.from_spmatrix(preprocessor.fit_transform(data))
 
