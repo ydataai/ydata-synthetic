@@ -41,8 +41,7 @@ def inverse_transform(data: pd.DataFrame, processor: Union[Pipeline, ColumnTrans
             else:
                 to_drop += t_indices
                 inv_data = pd.concat([inv_data, inv_cols], axis=1)
-        inv_data.drop(columns=to_drop, inplace=True)
     else:
         print('The provided data processor is not supported and cannot be inverted with this method.')
         return None
-    return inv_data
+    return inv_data[processor.feature_names_in_]
