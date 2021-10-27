@@ -22,7 +22,6 @@ def inverse_transform(data: pd.DataFrame, processor: Union[Pipeline, ColumnTrans
     if isinstance(processor, (PowerTransformer, OneHotEncoder, StandardScaler, Pipeline)):
         inv_data = pd.DataFrame(processor.inverse_transform(data), columns=processor.feature_names_in_)
     elif isinstance(processor, ColumnTransformer):
-        to_drop = []
         output_indices = processor.output_indices_
         assert isinstance(data, pd.DataFrame), "The data to be inverted from a ColumnTransformer has to be a Pandas DataFrame."
         for t_name, t, t_cols in processor.transformers_[::-1]:
@@ -39,7 +38,6 @@ def inverse_transform(data: pd.DataFrame, processor: Union[Pipeline, ColumnTrans
             if set(inv_col_names).issubset(set(inv_data.columns)):
                 inv_data[inv_col_names] = inv_cols[inv_col_names]
             else:
-                to_drop += t_indices
                 inv_data = pd.concat([inv_data, inv_cols], axis=1)
     else:
         print('The provided data processor is not supported and cannot be inverted with this method.')
