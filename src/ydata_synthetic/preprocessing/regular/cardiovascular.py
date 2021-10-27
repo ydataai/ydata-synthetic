@@ -19,7 +19,7 @@ def transformations(data):
         transformers=[
             ('num', numerical_transformer, numerical_features),
             ('cat', categorical_transformer, categorical_features)])
-    
+
     processed_data = preprocessor.fit_transform(data)
     processed_data = pd.DataFrame.sparse.from_spmatrix(preprocessor.fit_transform(processed_data))
-    return processed_data, preprocessor
+    return data, processed_data, preprocessor
