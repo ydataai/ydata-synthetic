@@ -1,22 +1,26 @@
 import os
 from os import path
 import numpy as np
-import tqdm
+from tqdm import trange
 
-from ydata_synthetic.synthesizers import gan
+from ydata_synthetic.synthesizers.gan import BaseModel
 from ydata_synthetic.synthesizers.loss import Mode, gradient_penalty
+from ydata_synthetic.synthesizers import TrainParameters
 
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Dense, Dropout
-import tensorflow.keras.backend as K
 from tensorflow.keras import Model
 from tensorflow.keras.optimizers import Adam
 
-class CRAMERGAN(gan.Model):
+class CRAMERGAN(BaseModel):
+
+    __MODEL__='CRAMERGAN'
 
     def __init__(self, model_parameters, gradient_penalty_weight=10):
-        # As recommended in WGAN paper - https://arxiv.org/pdf/1705.10743.pdf
-        # Cramer GAN- Introducing a anew distance as a solution to biased Wassertein Gradient
+        """Create a base CramerGAN.
+
+        Based according to the WGAN paper - https://arxiv.org/pdf/1705.10743.pdf
+        CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.10743"""
         self.gradient_penalty_weight = gradient_penalty_weight
         super().__init__(model_parameters)
 
@@ -24,21 +28,33 @@ class CRAMERGAN(gan.Model):
         self.generator = Generator(self.batch_size). \
             build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim)
 
-        self.discriminator = Discriminator(self.batch_size). \
+        self.critic = Critic(self.batch_size). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
 
-        self.critic = Critic(self.discriminator)
+        self.g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        self.c_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
 
-        self.g_optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
-        self.critic_optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        # The generator takes noise as input and generates records
+        z = Input(shape=(self.noise_dim,), batch_size=self.batch_size)
+        fake = self.generator(z, training=True)
+        logits = self.critic(fake, training=True)
+
+        # Compile the critic
+        self.critic.compile(loss=self.c_lossfn,
+                            optimizer=self.c_optimizer,
+                            metrics=['accuracy'])
+
+        # Generator and critic model
+        _model = Model(z, logits)
+        _model.compile(loss=self.g_lossfn, optimizer=self.g_optimizer)
 
     def gradient_penalty(self, real, fake):
-        gp = gradient_penalty(self.critic, real, fake, mode=Mode.CRAMER)
+        gp = gradient_penalty(self.f_crit, real, fake, mode=Mode.CRAMER)
         return gp
 
     def update_gradients(self, x):
-        """
-        Compute the gradients for both the Generator and the Critic
+        """Compute and apply the gradients for both the Generator and the Critic.
+
         :param x: real data event
         :return: generator gradients, critic gradients
         """
@@ -52,129 +68,142 @@ class CRAMERGAN(gan.Model):
             fake=self.generator(noise, training=True)
             fake2=self.generator(noise2, training=True)
 
-            g_loss = tf.reduce_mean(
-                self.critic(x, fake2) - self.critic(fake, fake2)
-            )
+            g_loss = self.g_lossfn(x, fake, fake2)
 
-            d_loss = -g_loss
-            gp = self.gradient_penalty(x, [fake, fake2])
-
-            critic_loss = d_loss + gp*self.gradient_penalty_weight
+            c_loss = self.c_lossfn(x, fake, fake2)
 
         # Get the gradients of the generator
-        gen_gradients = g_tape.gradient(g_loss, self.generator.trainable_variables)
+        g_gradients = g_tape.gradient(g_loss, self.generator.trainable_variables)
 
         # Update the weights of the generator
         self.g_optimizer.apply_gradients(
-            zip(gen_gradients, self.generator.trainable_variables)
+            zip(g_gradients, self.generator.trainable_variables)
         )
 
-        d_gradient = d_tape.gradient(critic_loss, self.discriminator.trainable_variables)
+        c_gradient = d_tape.gradient(c_loss, self.critic.trainable_variables)
         # Update the weights of the critic using the optimizer
-        self.critic_optimizer.apply_gradients(
-            zip(d_gradient, self.discriminator.trainable_variables)
+        self.c_optimizer.apply_gradients(
+            zip(c_gradient, self.critic.trainable_variables)
         )
 
-        return critic_loss, g_loss
+        return c_loss, g_loss
 
-    def d_lossfn(self, real, g_loss, noise):
-        """
-        passes through the network and computes the losses
-        """
-        # run noise through generator
-        fake = self.generator(noise)
-        # discriminate x and x_gen
-        logits_real = self.critic(real)
-        logits_fake = self.critic(fake)
+    def g_lossfn(self, real, fake, fake2):
+        """Compute generator loss function according to the CramerGAN paper.
 
-        # gradient penalty
-        gp = self.gradient_penalty(real, fake)
-        # getting the loss of the discriminator.
-        d_loss = (tf.reduce_mean(logits_fake)
-                  - tf.reduce_mean(logits_real)
-                  + gp * self.gradient_penalty_weight)
-        return d_loss
-
-    def g_lossfn(self, real):
-        """
-        :param real: Data batch we are analyzing
+        :param real: A real sample
+        :param fake: A fake sample
+        :param fak2: A second fake sample
         :return: Loss of the generator
         """
-        # generating noise from a uniform distribution
-        noise = tf.random.normal([real.shape[0], self.noise_dim], dtype=tf.dtypes.float32)
+        g_loss = tf.norm(self.critic(real, training=True) - self.critic(fake, training=True), axis=1) + \
+                 tf.norm(self.critic(real, training=True) - self.critic(fake2, training=True), axis=1) - \
+                 tf.norm(self.critic(fake, training=True) - self.critic(fake2, training=True), axis=1)
+        return tf.reduce_mean(g_loss)
 
-        fake = self.generator(noise)
-        logits_fake = self.critic(fake)
-        g_loss = -tf.reduce_mean(logits_fake)
-        return g_loss
+    def f_crit(self, real, fake):
+        """
+        Computes the critic distance function f between two samples
+        :param real: A real sample
+        :param fake: A fake sample
+        :return: Loss of the critic
+        """
+        return tf.norm(self.critic(real, training=True) - self.critic(fake, training=True), axis=1) - tf.norm(self.critic(real, training=True), axis=1)
 
-    def get_data_batch(self, train, batch_size):
-        buffer_size = len(train)
-        train_loader = tf.data.Dataset.from_tensor_slices(train) \
-            .batch(batch_size).shuffle(buffer_size)
-        return train_loader
+    def c_lossfn(self, real, fake, fake2):
+        """
+        :param real: A real sample
+        :param fake: A fake sample
+        :param fak2: A second fake sample
+        :return: Loss of the critic
+        """
+        f_real = self.f_crit(real, fake2)
+        f_fake = self.f_crit(fake, fake2)
+        loss_surrogate = f_real - f_fake
+        gp = self.gradient_penalty(real, [fake, fake2])
+        return tf.reduce_mean(- loss_surrogate + self.gradient_penalty_weight*gp)
+
+    @staticmethod
+    def get_data_batch(train, batch_size, seed=0):
+        # np.random.seed(seed)
+        # x = train.loc[ np.random.choice(train.index, batch_size) ].values
+        # iterate through shuffled indices, so every sample gets covered evenly
+        start_i = (batch_size * seed) % len(train)
+        stop_i = start_i + batch_size
+        shuffle_seed = (batch_size * seed) // len(train)
+        np.random.seed(shuffle_seed)
+        train_ix = np.random.choice(list(train.index), replace=False, size=len(train))  # wasteful to shuffle every time
+        train_ix = list(train_ix) + list(train_ix)  # duplicate to cover ranges past the end of the set
+        x = train.loc[train_ix[start_i: stop_i]].values
+        return np.reshape(x, (batch_size, -1))
 
     def train_step(self, train_data):
         critic_loss, g_loss = self.update_gradients(train_data)
         return critic_loss, g_loss
 
-    def train(self, data, train_arguments):
-        [cache_prefix, iterations, sample_interval] = train_arguments
-        train_loader = self.get_data_batch(data, self.batch_size)
+    def train(self, data, train_arguments: TrainParameters):
+        iterations = int(abs(data.shape[0] / self.batch_size) + 1)
 
         # Create a summary file
-        train_summary_writer = tf.summary.create_file_writer(path.join('..\wgan_gp_test', 'summaries', 'train'))
+        train_summary_writer = tf.summary.create_file_writer(path.join('..\cramergan_test', 'summaries', 'train'))
 
         with train_summary_writer.as_default():
-            for iteration in tqdm.trange(iterations):
-                for batch_data in train_loader:
-                    batch_data = tf.cast(batch_data, dtype=tf.float32)
-                    critic_loss, g_loss = self.train_step(batch_data)
+            for epoch in trange(train_arguments.epochs):
+                for iteration in range(iterations):
+                    batch_data = self.get_data_batch(data, self.batch_size)
+                    c_loss, g_loss = self.train_step(batch_data)
 
-                    print(
-                        "Iteration: {} | critic_loss: {} | gen_loss: {}".format(
-                            iteration, critic_loss, g_loss
-                        ))
-
-                    if iteration % sample_interval == 0:
+                    if iteration % train_arguments.sample_interval == 0:
                         # Test here data generation step
                         # save model checkpoints
                         if path.exists('./cache') is False:
                             os.mkdir('./cache')
-                        model_checkpoint_base_name = './cache/' + cache_prefix + '_{}_model_weights_step_{}.h5'
+                        model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
                         self.generator.save_weights(model_checkpoint_base_name.format('generator', iteration))
-                        self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', iteration))
+                        self.critic.save_weights(model_checkpoint_base_name.format('critic', iteration))
+
+                print(
+                    "Epoch: {} | critic_loss: {} | gen_loss: {}".format(
+                        epoch, c_loss, g_loss
+                    ))
+
+        self.g_optimizer=self.g_optimizer.get_config()
+        self.critic_optimizer=self.c_optimizer.get_config()
+
+    def save(self, path):
+        """Strip down the optimizers from the model then save."""
+        for attr in ['g_optimizer', 'c_optimizer']:
+            try:
+                delattr(self, attr)
+            except AttributeError:
+                continue
+        super().save(path)
 
 
 class Generator(tf.keras.Model):
     def __init__(self, batch_size):
+        """Simple generator with dense feedforward layers."""
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim, data_dim):
-        input = Input(shape=input_shape, batch_size=self.batch_size)
-        x = Dense(dim, activation='relu')(input)
+        input_ = Input(shape=input_shape, batch_size=self.batch_size)
+        x = Dense(dim, activation='relu')(input_)
         x = Dense(dim * 2, activation='relu')(x)
         x = Dense(dim * 4, activation='relu')(x)
         x = Dense(data_dim)(x)
-        return Model(inputs=input, outputs=x)
+        return Model(inputs=input_, outputs=x)
 
-class Discriminator(tf.keras.Model):
+class Critic(tf.keras.Model):
     def __init__(self, batch_size):
+        """Simple critic with dense feedforward and dropout layers."""
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim):
-        input = Input(shape=input_shape, batch_size=self.batch_size)
-        x = Dense(dim * 4, activation='relu')(input)
+        input_ = Input(shape=input_shape, batch_size=self.batch_size)
+        x = Dense(dim * 4, activation='relu')(input_)
         x = Dropout(0.1)(x)
         x = Dense(dim * 2, activation='relu')(x)
         x = Dropout(0.1)(x)
         x = Dense(dim, activation='relu')(x)
         x = Dense(1)(x)
-        return Model(inputs=input, outputs=x)
-
-class Critic(object):
-    def __init__(self, h):
-        self.h = h
-
-    def __call__(self, x, x_):
-        return tf.norm(self.h(x, training=True) - self.h(x_, training=True), axis=1) - tf.norm(self.h(x, training=True), axis=1)
+        return Model(inputs=input_, outputs=x)

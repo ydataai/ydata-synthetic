@@ -32,22 +32,16 @@ def gradient_penalty(f, real, fake, mode):
         gp = reduce_mean((norm - 1.)**2)
         return gp
 
-    def _gradient_penalty_cramer(f, real, fake):
-        def _interpolate(a, b):
-            shape_ = [shape(a)[0]] + [1] * (a.shape.ndims - 1)
-            alpha = random.uniform(shape=shape_, minval=0., maxval=1.)
-            inter = alpha*a + (1-alpha) * b
-            inter.set_shape(a.shape)
-            return inter
-
-        x = _interpolate(real, fake[0])
+    def _gradient_penalty_cramer(f_crit, real, fake):
+        epsilon = random.uniform([real.shape[0], 1], 0.0, 1.0)
+        x_hat = epsilon * real + (1 - epsilon) * fake[0]
         with GradientTape() as t:
-            t.watch(x)
-            pred = f(x, fake[1])
-        grad = t.gradient(pred, x)
-        norm = tfnorm(reshape(grad, [shape(grad)[0], -1]), axis=1)
-        gp = reduce_mean((norm - 1.)**2)
-        return gp
+            t.watch(x_hat)
+            f_x_hat = f_crit(x_hat, fake[1])
+        gradients = t.gradient(f_x_hat, x_hat)
+        c_dx = tfnorm(reshape(gradients, [shape(gradients)[0], -1]), axis=1)
+        c_regularizer = (c_dx - 1.0) ** 2
+        return c_regularizer
 
     if mode == Mode.DRAGAN:
         gp = _gradient_penalty(f, real)

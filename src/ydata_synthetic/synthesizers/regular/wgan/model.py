@@ -1,9 +1,9 @@
-import os
-from os import path
+from os import path, mkdir
 import numpy as np
-from tqdm import tqdm
+from tqdm import trange
 
-from ydata_synthetic.synthesizers import gan
+from ydata_synthetic.synthesizers.gan import BaseModel
+from ydata_synthetic.synthesizers import TrainParameters
 
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Dense, Dropout
@@ -25,12 +25,15 @@ class RandomWeightedAverage(tf.keras.layers.Layer):
     def compute_output_shape(self, input_shape):
         return input_shape[0]
 
-class WGAN(gan.Model):
+class WGAN(BaseModel):
 
-    def __init__(self, model_parameters, n_critic):
+    __MODEL__='WGAN'
+
+    def __init__(self, model_parameters, n_critic, clip_value=0.01):
         # As recommended in WGAN paper - https://arxiv.org/abs/1701.07875
         # WGAN-GP - WGAN with Gradient Penalty
         self.n_critic = n_critic
+        self.clip_value = clip_value
         super().__init__(model_parameters)
 
     def wasserstein_loss(self, y_true, y_pred):
@@ -43,12 +46,12 @@ class WGAN(gan.Model):
         self.critic = Critic(self.batch_size). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
 
-        optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
-        self.critic_optimizer = Adam(self.lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        critic_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
 
         # Build and compile the critic
         self.critic.compile(loss=self.wasserstein_loss,
-                                   optimizer=self.critic_optimizer,
+                                   optimizer=critic_optimizer,
                                    metrics=['accuracy'])
 
         # The generator takes noise as input and generates imgs
@@ -64,7 +67,7 @@ class WGAN(gan.Model):
         # Trains the generator to fool the discriminator
         #For the WGAN model use the Wassertein loss
         self._model = Model(z, validity)
-        self._model.compile(loss=self.wasserstein_loss, optimizer=optimizer)
+        self._model.compile(loss='binary_crossentropy', optimizer=optimizer)
 
     def get_data_batch(self, train, batch_size, seed=0):
         # np.random.seed(seed)
@@ -79,10 +82,11 @@ class WGAN(gan.Model):
         x = train.loc[train_ix[start_i: stop_i]].values
         return np.reshape(x, (batch_size, -1))
 
-    def train(self, data, train_arguments):
-        [cache_prefix, epochs, sample_interval] = train_arguments
-
+    def train(self,
+              data,
+              train_arguments: TrainParameters):
         #Create a summary file
+        iterations = int(abs(data.shape[0]/self.batch_size)+1)
         train_summary_writer = tf.summary.create_file_writer(path.join('.', 'summaries', 'train'))
 
         # Adversarial ground truths
@@ -90,44 +94,44 @@ class WGAN(gan.Model):
         fake = -np.ones((self.batch_size, 1))
 
         with train_summary_writer.as_default():
-            for epoch in tqdm.trange(epochs, desc='Epoch Iterations'):
+            for epoch in trange(train_arguments.epochs, desc='Epoch Iterations'):
+                for _ in range(iterations):
+                    for _ in range(self.n_critic):
+                        # ---------------------
+                        #  Train the Critic
+                        # ---------------------
+                        batch_data = self.get_data_batch(data, self.batch_size)
+                        noise = tf.random.normal((self.batch_size, self.noise_dim))
 
-                for _ in range(self.n_critic):
+                        # Generate a batch of events
+                        gen_data = self.generator(noise)
+
+                        # Train the Critic
+                        d_loss_real = self.critic.train_on_batch(batch_data, valid)
+                        d_loss_fake = self.critic.train_on_batch(gen_data, fake)
+                        d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
+
+                        for l in self.critic.layers:
+                            weights = l.get_weights()
+                            weights = [np.clip(w, -self.clip_value, self.clip_value) for w in weights]
+                            l.set_weights(weights)
+
                     # ---------------------
-                    #  Train the Critic
+                    #  Train Generator
                     # ---------------------
-                    batch_data = self.get_data_batch(data, self.batch_size)
                     noise = tf.random.normal((self.batch_size, self.noise_dim))
-
-                    # Generate a batch of events
-                    gen_data = self.generator(noise)
-
-                    # Train the Critic
-                    d_loss_real = self.critic.train_on_batch(batch_data, valid)
-                    d_loss_fake = self.critic.train_on_batch(gen_data, fake)
-                    d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
-
-                    for l in self.critic.layers:
-                        weights = l.get_weights()
-                        weights = [np.clip(w, -self.clip_value, self.clip_value) for w in weights]
-                        l.set_weights(weights)
-
-                # ---------------------
-                #  Train Generator
-                # ---------------------
-                noise = tf.random.normal((self.batch_size, self.noise_dim))
-                # Train the generator (to have the critic label samples as valid)
-                g_loss = self._model.train_on_batch(noise, valid)
-                # Plot the progress
-                print("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100 * d_loss[1], g_loss))
+                    # Train the generator (to have the critic label samples as valid)
+                    g_loss = self._model.train_on_batch(noise, valid)
+                    # Plot the progress
+                    print("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100 * d_loss[1], g_loss))
 
                 #If at save interval => save generated events
-                if epoch % sample_interval == 0:
+                if epoch % train_arguments.sample_interval == 0:
                     # Test here data generation step
                     # save model checkpoints
                     if path.exists('./cache') is False:
-                        os.mkdir('./cache')
-                    model_checkpoint_base_name = './cache/' + cache_prefix + '_{}_model_weights_step_{}.h5'
+                        mkdir('./cache')
+                    model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
                     self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
                     self.critic.save_weights(model_checkpoint_base_name.format('critic', epoch))
 
