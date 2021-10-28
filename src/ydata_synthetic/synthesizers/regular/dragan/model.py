@@ -125,10 +125,10 @@ class DRAGAN(BaseModel):
                     batch_data = tf.cast(batch_data, dtype=tf.float32)
                     d_loss, g_loss = self.train_step(batch_data)
 
-            print(
-                "Epoch: {} | disc_loss: {} | gen_loss: {}".format(
-                    epoch, d_loss, g_loss
-                ))
+                print(
+                    "Epoch: {} | disc_loss: {} | gen_loss: {}".format(
+                        epoch, d_loss, g_loss
+                    ))
 
             if epoch % train_arguments.sample_interval == 0:
                 # Test here data generation step
