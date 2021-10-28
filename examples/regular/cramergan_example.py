@@ -25,6 +25,7 @@ processed_data = data[ sorted_cols ].copy()
 #To ease here we've applied a PowerTransformation
 _, data, _ = transformations(data)
 
+
 #For the purpose of this example we will only synthesize the minority class
 train_data = data.loc[ data['Class']==1 ].copy()
 

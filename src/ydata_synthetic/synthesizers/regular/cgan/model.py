@@ -93,14 +93,15 @@ class CGAN(BaseModel):
                 # ---------------------
                 batch_x = self.get_data_batch(data, self.batch_size)
                 label = batch_x[:, train_arguments.label_dim]
+                data_cols = [i for i in range(batch_x.shape[1] - 1)]  # All data without the label columns
                 noise = tf.random.normal((self.batch_size, self.noise_dim))
 
                 # Generate a batch of new records
                 gen_records = self.generator([noise, label], training=True)
 
                 # Train the discriminator
-                d_loss_real = self.discriminator.train_on_batch([batch_x, label], valid)
-                d_loss_fake = self.discriminator.train_on_batch([gen_records, label], fake)
+                d_loss_real = self.discriminator.train_on_batch([batch_x[:, data_cols], label], valid)  # Separate labels
+                d_loss_fake = self.discriminator.train_on_batch([gen_records, label], fake)  # Separate labels
                 d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
 
                 # ---------------------
