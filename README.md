@@ -20,7 +20,7 @@ Synthetic data can be used for many applications:
 - Augment datasets
 
 # ydata-synthetic
-This repository contains material related with Generative Adversarial Networks for synthetic data generation, in particular regular tabular data and time-series. 
+This repository contains material related with Generative Adversarial Networks for synthetic data generation, in particular regular tabular data and time-series.
 It consists a set of different GANs architectures developed using Tensorflow 2.0. Several example Jupyter Notebooks and Python scripts are included, to show how to use the different architectures.
 
 # Quickstart
@@ -38,6 +38,16 @@ Here you can find usage examples of the package and models to synthesize tabular
 - Synthesizing the minority class with VanillaGAN on credit fraud dataset  [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/regular/gan_example.ipynb)
 - Time Series synthetic data generation with TimeGAN on stock dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/timeseries/TimeGAN_Synthetic_stock_data.ipynb)
 - More examples are continously added and can be found in `/examples` directory.
+
+### Datasets for you to experiment
+Here are some example datasets for you to try with the synthesizers:
+#### Tabular datasets
+- [Adult census](https://archive.ics.uci.edu/ml/datasets/adult)
+- [Credit card fraud](https://www.kaggle.com/mlg-ulb/creditcardfraud)
+
+#### Sequential datasets
+- [Stock data](https://github.com/ydataai/ydata-synthetic/tree/master/data)
+
 
 # Project Resources
 
