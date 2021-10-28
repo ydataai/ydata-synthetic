@@ -25,7 +25,7 @@ data = transformations(data)
 train_data = data.loc[ data['Class']==1 ].copy()
 
 #Create a new class column using KMeans - This will mainly be useful if we want to leverage conditional GAN
-print("Dataset info: Number of records - {} Number of variables - {}".format(train_data.shape[0], train_data.shape[1]))
+print("Dataset info: Number of records - {} Number of varibles - {}".format(train_data.shape[0], train_data.shape[1]))
 algorithm = cluster.KMeans
 args, kwds = (), {'n_clusters':2, 'random_state':0}
 labels = algorithm(*args, **kwds).fit_predict(train_data[ data_cols ])
@@ -63,7 +63,7 @@ gan_args = ModelParameters(batch_size=batch_size,
                            lr=learning_rate,
                            betas=(beta_1, beta_2),
                            noise_dim=noise_dim,
-                           n_cols=train_sample.shape[1] - len(label_cols),  # Don't count the label columns here
+                           n_cols=train_sample.shape[1],
                            layers_dim=dim)
 
 train_args = TrainParameters(epochs=epochs,
