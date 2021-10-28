@@ -36,17 +36,8 @@ class CRAMERGAN(BaseModel):
 
         # The generator takes noise as input and generates records
         z = Input(shape=(self.noise_dim,), batch_size=self.batch_size)
-        fake = self.generator(z, training=True)
-        logits = self.critic(fake, training=True)
-
-        # Compile the critic
-        self.critic.compile(loss=self.c_lossfn,
-                            optimizer=self.c_optimizer,
-                            metrics=['accuracy'])
-
-        # Generator and critic model
-        _model = Model(z, logits)
-        _model.compile(loss=self.g_lossfn, optimizer=self.g_optimizer)
+        fake = self.generator(z)
+        logits = self.critic(fake)
 
     def gradient_penalty(self, real, fake):
         gp = gradient_penalty(self.f_crit, real, fake, mode=Mode.CRAMER)
