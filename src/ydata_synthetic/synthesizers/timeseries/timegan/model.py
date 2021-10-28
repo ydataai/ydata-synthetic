@@ -34,9 +34,6 @@ def make_net(model, n_layers, hidden_units, output_units, net_type='GRU'):
 
 
 class TimeGAN(BaseModel):
-
-    __MODEL__='TimeGAN'
-
     def __init__(self, model_parameters, hidden_dim, seq_len, n_seq, gamma):
         self.seq_len=seq_len
         self.n_seq=n_seq
