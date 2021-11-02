@@ -6,8 +6,8 @@ import pandas as pd
 
 from ydata_synthetic.preprocessing.timeseries.utils import real_data_loading
 
-def transformations(path, seq_len: int):
-    stock_df = pd.read_csv(path)
+def transformations(path, seq_len: int, col='Open'):
+    stock_df = pd.DataFrame(pd.read_csv(path)[col])
     try:
         stock_df = stock_df.set_index('Date').sort_index()
     except:
