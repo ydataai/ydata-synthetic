@@ -25,6 +25,7 @@ class TSCWGAN(BaseModel):
     def __init__(self, model_parameters, gradient_penalty_weight=10):
         """Create a base TSCWGAN."""
         self.gradient_penalty_weight = gradient_penalty_weight
+        self.cond_dim = model_parameters.condition
         super().__init__(model_parameters)
 
     def define_gan(self):
@@ -170,53 +171,51 @@ class Generator(Model):
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim, data_dim):
-        # Define blocks
-        input_to_latent = Sequential(layers=[
+        # Define input - Expected input shape is (batch_size, seq_len, noise_dim). noise_dim = Z + cond
+        noise_input = Input(shape = input_shape, batch_size = self.batch_size)
+
+        # Compose model
+        proc_input = Sequential(layers=[
             Conv1D(filters=dim, kernel_size=1, input_shape = input_shape),
             LeakyReLU(),
             Conv1D(dim, kernel_size=5, dilation_rate=2, padding="same"),
             LeakyReLU()
-        ], name='input_to_latent')
+        ], name='input_to_latent')(noise_input)
+
         block_cnn = Sequential(layers=[
             Conv1D(filters=dim, kernel_size=3, dilation_rate=2, padding="same"),
             LeakyReLU()
         ], name='block_cnn')
-        block_shift = Sequential(layers=[
+        for i in range(3):
+            if i == 0:
+                cnn_block_i = proc_input
+                cnn_block_o = block_cnn(proc_input)
+            else:
+                cnn_block_o = block_cnn(cnn_block_i)
+            cnn_block_i = Add()([cnn_block_i, cnn_block_o])
+
+        shift = Sequential(layers=[
             Conv1D(filters=10, kernel_size=3, dilation_rate=2, padding="same"),
             LeakyReLU(),
             Flatten(),
             Dense(dim*2),
             LeakyReLU()
-        ], name='block_shift')
+        ], name='block_shift')(cnn_block_i)
+
         block = Sequential(layers=[
             Dense(dim*2),
             LeakyReLU()
         ], name='block')
-        latent_to_output = Sequential([
-            Dense(data_dim)
-        ], name='latent_to_ouput')
+        for i in range(3):
+            if i == 0:
+                block_i = shift
+                block_o = block(shift)
+            else:
+                block_o = block(block_i)
+            block_i = Add()([block_i, block_o])
 
-        # Define input - Expected input shape is (batch_size, seq_len, noise_dim). noise_dim = Z + cond
-        noise_input = Input(shape = input_shape, batch_size = self.batch_size)
-
-        # Compose model
-        x = input_to_latent(noise_input)
-        x_block = block_cnn(x)
-        x = Add()([x_block, x])
-        x_block = block_cnn(x)
-        x = Add()([x_block, x])
-        x_block = block_cnn(x)
-        x = Add()([x_block, x])
-        x = block_shift(x)
-        x_block = block(x)
-        x = Add()([x_block, x])
-        x_block = block(x)
-        x = Add()([x_block, x])
-        x_block = block(x)
-        x = Add()([x_block, x])
-        x = latent_to_output(x)
-        # Output - Expected shape is (batch_size, seq_len, data_dim). data_dim does not include conditions
-        return Model(inputs=noise_input, outputs=x, name='SkipConnectionGenerator')
+        output = Dense(data_dim, name='latent_to_ouput')(block_i)
+        return Model(inputs = noise_input, outputs = output, name='SkipConnectionGenerator')
 
 class Critic(Model):
     """Conditional Wasserstein Critic with skip connections."""
@@ -224,37 +223,26 @@ class Critic(Model):
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim):
-        # Define blocks
-        ts_to_latent = Sequential(layers=[
-            Dense(dim*2,),
-            LeakyReLU()
-        ], name='ts_to_latent')
-        block = Sequential(layers=[
-            Dense(dim*2),
-            LeakyReLU()
-        ], name='block')
-        latent_to_score = Sequential(layers=[
-            Dense(1)
-        ], name='latent_to_score')
-
         # Define input - Expected input shape is X + condition
         record_input = Input(shape = input_shape, batch_size = self.batch_size)
 
         # Compose model
-        x = ts_to_latent(record_input)
-        x_block = block(x)
-        x = Add()([x_block, x])
-        x_block = block(x)
-        x = Add()([x_block, x])
-        x_block = block(x)
-        x = Add()([x_block, x])
-        x_block = block(x)
-        x = Add()([x_block, x])
-        x_block = block(x)
-        x = Add()([x_block, x])
-        x_block = block(x)
-        x = Add()([x_block, x])
-        x_block = block(x)
-        x = Add()([x_block, x])
-        x = latent_to_score(x)
-        return Model(inputs=record_input, outputs=x, name='SkipConnectionCritic')
+        proc_record = Sequential(layers=[
+            Dense(dim*2,),
+            LeakyReLU()
+        ], name='ts_to_latent')(record_input)
+
+        block = Sequential(layers=[
+            Dense(dim*2),
+            LeakyReLU()
+        ], name='block')
+        for i in range(7):
+            if i == 0:
+                block_i = proc_record
+                block_o = block(proc_record)
+            else:
+                block_o = block(block_i)
+            block_i = Add()([block_i, block_o])
+
+        output = Dense(1, name = 'latent_to_score')(block_i)
+        return Model(inputs=record_input, outputs=output, name='SkipConnectionCritic')
