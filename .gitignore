@@ -374,5 +374,3 @@ DerivedData/
 # User created
 VERSION
 version.py
-local_test_*.py
-local_test_*.ipynb
