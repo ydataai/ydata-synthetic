@@ -187,7 +187,7 @@ class CRAMERGAN(BaseModel):
         super().save(path)
 
 
-class Generator(Model):
+class Generator(tf.keras.Model):
     def __init__(self, batch_size):
         """Simple generator with dense feedforward layers."""
         self.batch_size = batch_size
@@ -202,7 +202,7 @@ class Generator(Model):
             x = GumbelSoftmaxActivation(activation_info)(x)
         return Model(inputs=input_, outputs=x)
 
-class Critic(Model):
+class Critic(tf.keras.Model):
     def __init__(self, batch_size):
         """Simple critic with dense feedforward and dropout layers."""
         self.batch_size = batch_size

@@ -4,15 +4,14 @@ Based on: https://www.naun.org/main/NAUN/neural/2020/a082016-004(2020).pdf
 And on: https://github.com/CasperHogenboom/WGAN_financial_time-series
 """
 from tqdm import trange
+from numpy import array, vstack
 from numpy.random import normal
-from pandas import DataFrame
 
 from tensorflow import concat, float32, convert_to_tensor, reshape, GradientTape, reduce_mean, make_ndarray, make_tensor_proto, tile, expand_dims
 from tensorflow import data as tfdata
 from tensorflow.keras import Model, Sequential
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.layers import Input, Conv1D, Dense, LeakyReLU, Flatten, Add
-
 
 from ydata_synthetic.synthesizers.gan import BaseModel
 from ydata_synthetic.synthesizers import TrainParameters
@@ -61,10 +60,7 @@ class TSCWGAN(BaseModel):
 
             g_loss = self.update_generator(real_batch, noise_batch)
 
-            print(
-                "Epoch: {} | critic_loss: {} | gen_loss: {}".format(
-                    epoch, c_loss, g_loss
-                ))
+            print(f"Epoch: {epoch} | critic_loss: {c_loss} | gen_loss: {g_loss}")
 
         self.g_optimizer = self.g_optimizer.get_config()
         self.c_optimizer = self.c_optimizer.get_config()
@@ -148,21 +144,19 @@ class TSCWGAN(BaseModel):
 
     def sample(self, cond_array, n_samples):
         """Provided that cond_array is passed, produce n_samples for each condition vector in cond_array."""
-        assert len(cond_array.shape) == 2, "Condition array should have 2 dimensions."
-        assert cond_array.shape[1] == self.cond_dim, \
-            f"Each sequence in the condition array should have a {self.cond_dim} length."
-        n_conds = cond_array.shape[0]
+        assert len(cond_array.shape) == 1, "Condition array should be one-dimensional."
+        assert cond_array.shape[0] == self.cond_dim, \
+            f"The condition sequence should have a {self.cond_dim} length."
         steps = n_samples // self.batch_size + 1
         data = []
         z_dist = self.get_batch_noise()
-        for seq in range(n_conds):
-            cond_seq = expand_dims(convert_to_tensor(cond_array.iloc[seq], float32), axis=0)
-            cond_seq = tile(cond_seq, multiples=[self.batch_size, 1])
-            for step in trange(steps, desc=f'Synthetic data generation - Condition {seq+1}/{n_conds}'):
-                gen_input = concat([cond_seq, next(z_dist)], axis=1)
-                records = make_ndarray(make_tensor_proto(self.generator(gen_input, training=False)))
-                data.append(records)
-        return DataFrame(concat(data, axis=0))
+        cond_seq = expand_dims(convert_to_tensor(cond_array, float32), axis=0)
+        cond_seq = tile(cond_seq, multiples=[self.batch_size, 1])
+        for step in trange(steps, desc=f'Synthetic data generation'):
+            gen_input = concat([cond_seq, next(z_dist)], axis=1)
+            records = make_ndarray(make_tensor_proto(self.generator(gen_input, training=False)))
+            data.append(records)
+        return array(vstack(data))
 
 
 class Generator(Model):

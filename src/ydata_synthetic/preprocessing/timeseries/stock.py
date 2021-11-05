@@ -2,21 +2,21 @@
     Get the stock data from Yahoo finance data
     Data from the period 01 January 2017 - 24 January 2021
 """
-from typing import Union, List
+from typing import Optional, List
 
 import pandas as pd
+from typeguard import typechecked
 
 from ydata_synthetic.preprocessing.timeseries.utils import real_data_loading
 
-def transformations(path, seq_len: int, cols: Union[str, List] = None):
+@typechecked
+def transformations(path, seq_len: int, cols: Optional[List] = None):
     """Apply min max scaling and roll windows of a temporal dataset.
 
     Args:
         path(str): path to a csv temporal dataframe
         seq_len(int): length of the rolled sequences
         cols (Union[str, List]): Column or list of columns to be used"""
-    if isinstance(cols, str):
-        cols = [cols]
     if isinstance(cols, list):
         stock_df = pd.read_csv(path)[cols]
     else:
