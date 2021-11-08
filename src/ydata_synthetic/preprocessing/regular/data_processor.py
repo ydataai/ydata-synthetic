@@ -1,6 +1,6 @@
 from typing import List
 
-from numpy import concatenate, split, zeros
+from numpy import concatenate, ndarray, split, zeros
 from pandas import concat, DataFrame
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
@@ -48,7 +48,7 @@ class DataProcessor(BaseEstimator, TransformerMixin):
 
         return self
 
-    def transform(self, X):
+    def transform(self, X: DataFrame) -> ndarray:
         num_data = self.num_pipeline.transform(X[self.num_cols]) if self.num_cols else zeros([len(X), 0])
         cat_data = self.cat_pipeline.transform(X[self.cat_cols]) if self.cat_cols else zeros([len(X), 0])
 
@@ -59,10 +59,10 @@ class DataProcessor(BaseEstimator, TransformerMixin):
 
         return transformed
 
-    def fit_transform(self, X, y=None, **fit_params):
+    def fit_transform(self, X: DataFrame, y=None, **fit_params):
         return super().fit_transform(X)
 
-    def inverse_transform(self, X) -> DataFrame:
+    def inverse_transform(self, X: ndarray) -> DataFrame:
         num_data, cat_data, _ = split(X, [self.num_col_idx_, self.cat_col_idx_], axis=1)
 
         num_data = self.num_pipeline.inverse_transform(num_data) if self.num_cols else zeros([len(X), 0])
