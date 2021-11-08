@@ -59,7 +59,7 @@ class DataProcessor(BaseEstimator, TransformerMixin):
 
         return transformed
 
-    def fit_transform(self, X: DataFrame, y=None, **fit_params):
+    def fit_transform(self, X: DataFrame, y=None, **fit_params) -> ndarray:
         return super().fit_transform(X)
 
     def inverse_transform(self, X: ndarray) -> DataFrame:
