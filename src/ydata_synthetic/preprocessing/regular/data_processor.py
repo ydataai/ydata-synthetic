@@ -7,7 +7,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 from typeguard import typechecked
 
-
+@typechecked
 class DataProcessor(BaseEstimator, TransformerMixin):
     """
     Main class for Data Preprocessing. It is a base version.
@@ -18,7 +18,6 @@ class DataProcessor(BaseEstimator, TransformerMixin):
         cat_cols (list of strings):
             List of names of categorical columns
     """
-    @typechecked
     def __init__(self, *, num_cols: List[str] = None, cat_cols: List[str] = None):
 
         self.num_cols = [] if num_cols is None else num_cols
@@ -38,7 +37,6 @@ class DataProcessor(BaseEstimator, TransformerMixin):
         self._types = None
         self.col_order_ = None
 
-    @typechecked
     def fit(self, X: DataFrame):
         self.col_order_ = [c for c in X.columns if c in self.num_cols + self.cat_cols]
         self._types = X.dtypes
