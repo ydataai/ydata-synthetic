@@ -40,7 +40,7 @@ class CRAMERGAN(BaseModel):
         logits = self.critic(fake)
 
     def gradient_penalty(self, real, fake):
-        gp = gradient_penalty(self.f_crit, real, fake, mode=Mode.CRAMER)
+        gp = gradient_penalty(self.f_crit, real, fake, mode=Mode[self.__MODEL__])
         return gp
 
     def update_gradients(self, x):

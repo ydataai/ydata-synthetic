@@ -5,9 +5,9 @@ from tensorflow import norm as tfnorm
 from enum import Enum
 
 class Mode(Enum):
-    WGANGP = 'wgangp'
+    WGAN_GP = 'wgangp'
     DRAGAN = 'dragan'
-    CRAMER = 'cramer'
+    CRAMERGAN = 'cramer'
 
 ## Original code loss from
 ## https://github.com/LynnHo/DCGAN-LSGAN-WGAN-GP-DRAGAN-Tensorflow-2/blob/master/tf2gan/loss.py
@@ -45,9 +45,9 @@ def gradient_penalty(f, real, fake, mode):
 
     if mode == Mode.DRAGAN:
         gp = _gradient_penalty(f, real)
-    elif mode == Mode.CRAMER:
+    elif mode == Mode.CRAMERGAN:
         gp = _gradient_penalty_cramer(f, real, fake)
-    elif mode == Mode.WGANGP:
+    elif mode == Mode.WGAN_GP:
         gp = _gradient_penalty(f, real, fake)
 
     return gp
