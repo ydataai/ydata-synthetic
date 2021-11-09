@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 from numpy import concatenate, ndarray, split, zeros
 from pandas import concat, DataFrame
@@ -13,12 +13,15 @@ class DataProcessor(BaseEstimator, TransformerMixin):
     Main class for Data Preprocessing. It is a base version.
     It works like any other transformer in scikit lear with the methods fit, transform and inverse transform.
     Args:
-        num_cols (list of strings):
-            List of names of numerical columns
-        cat_cols (list of strings):
-            List of names of categorical columns
+        num_cols (list of strings/list of ints):
+            List of names of numerical columns or positional indexes (if pos_idx was set to True).
+        cat_cols (list of strings/list of ints):
+            List of names of categorical columns or positional indexes (if pos_idx was set to True).
+        pos_idx (bool):
+            Specifies if the passed col IDs are names or positional indexes (column numbers).
     """
-    def __init__(self, *, num_cols: List[str] = None, cat_cols: List[str] = None):
+    def __init__(self, *, num_cols: Union[List[str], List[int]] = None, cat_cols: Union[List[str], List[int]] = None,
+                 pos_idx: bool = False):
 
         self.num_cols = [] if num_cols is None else num_cols
         self.cat_cols = [] if cat_cols is None else cat_cols
@@ -36,8 +39,12 @@ class DataProcessor(BaseEstimator, TransformerMixin):
 
         self._types = None
         self.col_order_ = None
+        self.pos_idx = pos_idx
 
     def fit(self, X: DataFrame):
+        if self.pos_idx:
+            self.num_cols = list(X.columns[self.num_cols])
+            self.cat_cols = list(X.columns[self.cat_cols])
         self.col_order_ = [c for c in X.columns if c in self.num_cols + self.cat_cols]
         self._types = X.dtypes
 
