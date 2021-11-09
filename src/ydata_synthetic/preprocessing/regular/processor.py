@@ -1,3 +1,5 @@
+from collections import namedtuple
+from enum import Enum
 from typing import List, Union
 
 from sklearn.pipeline import Pipeline
@@ -5,6 +7,22 @@ from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 from typeguard import typechecked
 
 from ydata_synthetic.preprocessing.base_processor import BaseProcessor
+
+_regular_processor_parameters = ['num_cols', 'cat_cols', 'pos_idx']
+_regular_processor_parameters_df = [[], [], False]
+
+RegProcessorArguments = namedtuple('RegularProcessorParameters',
+                                    _regular_processor_parameters,
+                                    defaults=_regular_processor_parameters_df)
+
+class RegularModels(Enum):
+    "Supported models for the Regular Data Processor."
+    CGAN = 'CGAN'
+    CRAMERGAN = 'CramerGAN'
+    DRAGAN = 'DRAGAN'
+    GAN = 'VanillaGAN'
+    WGAN = 'WGAN'
+    WGAN_GP = 'WGAN_GP'
 
 @typechecked
 class RegularDataProcessor(BaseProcessor):
@@ -19,9 +37,10 @@ class RegularDataProcessor(BaseProcessor):
         pos_idx (bool):
             Specifies if the passed col IDs are names or positional indexes (column numbers).
     """
-    def __init__(self, *, num_cols: Union[List[str], List[int]] = None, cat_cols: Union[List[str], List[int]] = None,
-                 pos_idx: bool = False):
-        super().__init__(num_cols = num_cols, cat_cols = cat_cols, pos_idx = pos_idx)
+    def __init__(self, reg_processor_args: RegProcessorArguments):
+        super().__init__(num_cols = reg_processor_args.num_cols,
+                         cat_cols = reg_processor_args.cat_cols,
+                         pos_idx = reg_processor_args.pos_idx)
 
         self.num_pipeline = Pipeline([
             ("scaler", MinMaxScaler()),
