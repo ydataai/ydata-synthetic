@@ -1,5 +1,5 @@
 from collections import namedtuple
-from typing import Union, Dict, List, Optional
+from typing import Union, Optional
 
 from pandas import DataFrame, concat
 from numpy import array
@@ -86,11 +86,11 @@ class BaseModel():
     def model_name(self):
         return self.__class__.__name__
 
-    def train(self,
-              data: Union[DataFrame, array],
-              processor_arguments: Optional[Union[RegProcessorArguments, TSProcessorArguments]]= None,
-              preprocess: bool = True) -> Union[DataFrame, array]:
-        """Sets up the train session by transforming data using an appropriate processor.
+    def _setup_train(self,
+                     data: Union[DataFrame, array],
+                     processor_arguments: Optional[Union[RegProcessorArguments, TSProcessorArguments]] = None,
+                     preprocess: bool = True) -> Union[DataFrame, array]:
+        """Sets up the train session by instantiating an appropriate processor and transforming the data.
         Returns the data object (preprocessed when applicable) for the child class specific train method to resume.
         Args:
             data (Union[DataFrame, array]): Raw data object.
@@ -107,13 +107,21 @@ class BaseModel():
                 self.processor = TimeSeriesDataProcessor
             else:
                 print(f'A DataProcessor is not available for the {self.__MODEL__}.')
-        if self.processor and preprocess:
+        if self.processor and preprocess and processor_arguments:
             processed_data = self.processor(processor_arguments).fit_transform(data)
 
         self.data_dim = processed_data.shape[1]
         self.define_gan()
 
         return processed_data
+
+    def train(self,
+              data: Union[DataFrame, array],
+              train_arguments: TrainParameters,
+              processor_arguments: Union[RegProcessorArguments, TSProcessorArguments],
+              preprocess: bool = True):
+
+        raise NotImplementedError
 
     def sample(self, n_samples):
         steps = n_samples // self.batch_size + 1

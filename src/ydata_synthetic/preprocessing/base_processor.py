@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import List, Union
 
 from numpy import concatenate, ndarray, split, zeros
@@ -6,7 +7,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from typeguard import typechecked
 
 @typechecked
-class BaseProcessor(BaseEstimator, TransformerMixin):
+class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
     """
     Base class for Data Preprocessing. It is a base version and should not be instantiated directly.
     It works like any other transformer in scikit learn with the methods fit, transform and inverse transform.
@@ -18,6 +19,7 @@ class BaseProcessor(BaseEstimator, TransformerMixin):
         pos_idx (bool):
             Specifies if the passed col IDs are names or positional indexes (column numbers).
     """
+    @abstractmethod
     def __init__(self, *, num_cols: Union[List[str], List[int]] = None, cat_cols: Union[List[str], List[int]] = None,
                  pos_idx: bool = False):
         self.num_cols = [] if num_cols is None else num_cols
@@ -34,6 +36,7 @@ class BaseProcessor(BaseEstimator, TransformerMixin):
         self.col_order_ = None
         self.pos_idx = pos_idx
 
+    @abstractmethod
     def fit(self, X: DataFrame):
         """Fits the DataProcessor to a passed DataFrame.
         Args:
