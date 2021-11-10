@@ -4,7 +4,7 @@ from typing import List, Union
 
 from typeguard import typechecked
 
-from ydata_synthetic.preprocessing.base_processor import BaseProcessor
+from ydata_synthetic.preprocessing.base_processor import AbstractProcessor
 
 #TODO: Ellaborate the ts processor arguments
 _ts_processor_parameters = ['num_cols', 'cat_cols', 'pos_idx']
@@ -22,7 +22,7 @@ class TimeSeriesModels(Enum):
 
 
 @typechecked
-class TimeSeriesDataProcessor(BaseProcessor):
+class TimeSeriesDataProcessor(AbstractProcessor):
     """
     Not implemented.
     """

@@ -86,10 +86,10 @@ class BaseModel():
     def model_name(self):
         return self.__class__.__name__
 
-    def _setup_train(self,
-                     data: Union[DataFrame, array],
-                     processor_arguments: Optional[Union[RegProcessorArguments, TSProcessorArguments]] = None,
-                     preprocess: bool = True) -> Union[DataFrame, array]:
+    def train(self,
+              data: Union[DataFrame, array],
+              processor_arguments: Optional[Union[RegProcessorArguments, TSProcessorArguments]] = None,
+              preprocess: bool = True) -> Union[DataFrame, array]:
         """Sets up the train session by instantiating an appropriate processor and transforming the data.
         Returns the data object (preprocessed when applicable) for the child class specific train method to resume.
         Args:
@@ -114,14 +114,6 @@ class BaseModel():
         self.define_gan()
 
         return processed_data
-
-    def train(self,
-              data: Union[DataFrame, array],
-              train_arguments: TrainParameters,
-              processor_arguments: Union[RegProcessorArguments, TSProcessorArguments],
-              preprocess: bool = True):
-
-        raise NotImplementedError
 
     def sample(self, n_samples):
         steps = n_samples // self.batch_size + 1

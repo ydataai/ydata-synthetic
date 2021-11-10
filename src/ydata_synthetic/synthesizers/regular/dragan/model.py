@@ -114,7 +114,7 @@ class DRAGAN(BaseModel):
         return d_loss, g_loss
 
     def train(self, data, train_arguments, processor_arguments, preprocess: bool = True):
-        data = self._setup_train(data, processor_arguments, preprocess)
+        data = super().train(data, processor_arguments, preprocess)
 
         train_loader = self.get_data_batch(data, self.batch_size)
 
