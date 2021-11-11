@@ -1,4 +1,5 @@
 from collections import namedtuple
+from enum import Enum
 from typing import Union, Optional, List
 
 from pandas import DataFrame, concat
@@ -11,8 +12,8 @@ from tensorflow import config as tfconfig
 from typeguard import typechecked
 
 from ydata_synthetic.synthesizers.saving_keras import make_keras_picklable
-from ydata_synthetic.preprocessing.regular.processor import RegularDataProcessor, RegularModels
-from ydata_synthetic.preprocessing.timeseries.timeseries_processor import TimeSeriesDataProcessor, TimeSeriesModels
+from ydata_synthetic.preprocessing.regular.processor import RegularDataProcessor
+from ydata_synthetic.preprocessing.timeseries.timeseries_processor import TimeSeriesDataProcessor
 
 _model_parameters = ['batch_size', 'lr', 'betas', 'layers_dim', 'noise_dim',
                      'n_cols', 'seq_len', 'condition', 'n_critic', 'n_features']
@@ -23,6 +24,22 @@ _train_parameters = ['cache_prefix', 'label_dim', 'epochs', 'sample_interval', '
 
 ModelParameters = namedtuple('ModelParameters', _model_parameters, defaults=_model_parameters_df)
 TrainParameters = namedtuple('TrainParameters', _train_parameters, defaults=('', None, 300, 50, None))
+
+
+class RegularModels(Enum):
+    "Supported models for the Regular Data Processor."
+    CGAN = 'CGAN'
+    CRAMERGAN = 'CramerGAN'
+    DRAGAN = 'DRAGAN'
+    GAN = 'VanillaGAN'
+    WGAN = 'WGAN'
+    WGAN_GP = 'WGAN_GP'
+
+
+class TimeSeriesModels(Enum):
+    "Supported models for the TimeSeries Data Processor."
+    TIMEGAN = 'TIMEGAN'
+    TSCWGAN = 'TSCWGAN'
 
 @typechecked
 class BaseModel():
@@ -91,17 +108,13 @@ class BaseModel():
               num_cols: Optional[List[str]] = None,
               cat_cols: Optional[List[str]] = None,
               preprocess: bool = True) -> Union[DataFrame, array]:
-        """Sets up the train session by instantiating an appropriate processor and transforming the data.
-        Returns the data object (preprocessed when applicable) for the child class specific train method to resume.
+        """Sets up the train session by instantiating an appropriate processor, fitting and storing it as an attribute.
         Args:
             data (Union[DataFrame, array]): Raw data object.
             num_cols (Optional[List[str]]): List of names of numerical columns.
             cat_cols (Optional[List[str]]): List of names of categorical columns.
             preprocess (bool): Determines if the preprocessor is to be run on the data or not (p.e. preprocessed data).
-        Returns:
-            processed_data (Union[DataFrame, array]): Processed data object (if applicable).
         """
-        processed_data = data
         if preprocess:
             if self.__MODEL__ in RegularModels.__members__:
                 self.processor = RegularDataProcessor
@@ -109,13 +122,7 @@ class BaseModel():
                 self.processor = TimeSeriesDataProcessor
             else:
                 print(f'A DataProcessor is not available for the {self.__MODEL__}.')
-        if self.processor and preprocess:
-            processed_data = self.processor(num_cols, cat_cols).fit_transform(data)
-
-        self.data_dim = processed_data.shape[1]
-        self.define_gan()
-
-        return processed_data
+            self.processor = self.processor(num_cols, cat_cols).fit(data)
 
     def sample(self, n_samples):
         steps = n_samples // self.batch_size + 1

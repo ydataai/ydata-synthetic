@@ -114,9 +114,13 @@ class DRAGAN(BaseModel):
         return d_loss, g_loss
 
     def train(self, data, train_arguments, num_cols, cat_cols, preprocess: bool = True):
-        data = super().train(data, num_cols, cat_cols, preprocess)
+        super().train(data, num_cols, cat_cols, preprocess)
 
-        train_loader = self.get_data_batch(data, self.batch_size)
+        processed_data = self.processor.transform(data)
+        self.data_dim = processed_data.shape[1]
+        self.define_gan()
+
+        train_loader = self.get_data_batch(processed_data, self.batch_size)
 
         # Create a summary file
         train_summary_writer = tf.summary.create_file_writer(path.join('..\dragan_test', 'summaries', 'train'))

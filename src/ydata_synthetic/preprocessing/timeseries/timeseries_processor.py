@@ -1,15 +1,8 @@
-from enum import Enum
 from typing import List, Union
 
 from typeguard import typechecked
 
 from ydata_synthetic.preprocessing.base_processor import BaseProcessor
-
-
-class TimeSeriesModels(Enum):
-    "Supported models for the TimeSeries Data Processor."
-    TIMEGAN = 'TIMEGAN'
-    TSCWGAN = 'TSCWGAN'
 
 
 @typechecked
