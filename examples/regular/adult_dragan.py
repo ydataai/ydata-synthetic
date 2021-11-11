@@ -1,15 +1,12 @@
 from pmlb import fetch_data
 
-from ydata_synthetic.preprocessing.regular.adult import transformations
 from ydata_synthetic.synthesizers.regular import DRAGAN
 from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
-from ydata_synthetic.preprocessing.regular.processor import RegProcessorArguments
 
 #Load data and define the data processor parameters
 data = fetch_data('adult')
-processor_args = RegProcessorArguments(num_cols = ['age', 'fnlwgt', 'capital-gain', 'capital-loss', 'hours-per-week'],
-                                       cat_cols = ['workclass','education', 'marital-status', 'occupation',
-                                                   'relationship', 'race', 'sex'])
+num_cols = ['age', 'fnlwgt', 'capital-gain', 'capital-loss', 'hours-per-week']
+cat_cols = ['workclass','education', 'marital-status', 'occupation', 'relationship', 'race', 'sex']
 
 # WGAN_GP training
 #Defininf the training parameters of WGAN_GP
@@ -35,5 +32,5 @@ train_args = TrainParameters(epochs=epochs,
                              sample_interval=log_step)
 
 synthesizer = DRAGAN(gan_args, n_discriminator=3)
-synthesizer.train(data, train_args, processor_args, preprocess = True)
+synthesizer.train(data, train_args, num_cols, cat_cols, preprocess = True)
 synthesizer.save('adult_synth.pkl')

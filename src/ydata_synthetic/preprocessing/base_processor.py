@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Union
+from typing import List, Optional
 
 from numpy import ndarray
 from pandas import DataFrame
@@ -7,20 +7,17 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from typeguard import typechecked
 
 @typechecked
-class AbstractProcessor(ABC, BaseEstimator, TransformerMixin):
+class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
     """
-    Abstract class for Data Preprocessing.
+    Base class for Data Preprocessing.
     It works like any other transformer in scikit learn with the methods fit, transform and inverse transform.
     Args:
-        num_cols (list of strings/list of ints):
-            List of names of numerical columns or positional indexes (if pos_idx was set to True).
-        cat_cols (list of strings/list of ints):
-            List of names of categorical columns or positional indexes (if pos_idx was set to True).
-        pos_idx (bool):
-            Specifies if the passed col IDs are names or positional indexes (column numbers).
+        num_cols (list of strings):
+            List of names of numerical columns.
+        cat_cols (list of strings):
+            List of names of categorical columns.
     """
-    def __init__(self, *, num_cols: Union[List[str], List[int]] = None, cat_cols: Union[List[str], List[int]] = None,
-                 pos_idx: bool = False):
+    def __init__(self, *, num_cols: Optional[List[str]] = None, cat_cols: Optional[List[str]] = None):
 
         self._col_map = {'numerical': [] if num_cols is None else num_cols,
                          'categorical': [] if cat_cols is None else cat_cols}
@@ -33,7 +30,6 @@ class AbstractProcessor(ABC, BaseEstimator, TransformerMixin):
 
         self._types = None
         self.col_order_ = None
-        self.pos_idx = pos_idx
 
     @abstractmethod
     def fit(self, X: DataFrame):

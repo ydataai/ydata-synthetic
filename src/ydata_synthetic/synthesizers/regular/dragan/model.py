@@ -113,8 +113,8 @@ class DRAGAN(BaseModel):
         d_loss, g_loss = self.update_gradients(train_data)
         return d_loss, g_loss
 
-    def train(self, data, train_arguments, processor_arguments, preprocess: bool = True):
-        data = super().train(data, processor_arguments, preprocess)
+    def train(self, data, train_arguments, num_cols, cat_cols, preprocess: bool = True):
+        data = super().train(data, num_cols, cat_cols, preprocess)
 
         train_loader = self.get_data_batch(data, self.batch_size)
 

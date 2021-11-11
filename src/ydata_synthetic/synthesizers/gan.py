@@ -1,5 +1,5 @@
 from collections import namedtuple
-from typing import Union, Optional
+from typing import Union, Optional, List
 
 from pandas import DataFrame, concat
 from numpy import array
@@ -11,8 +11,8 @@ from tensorflow import config as tfconfig
 from typeguard import typechecked
 
 from ydata_synthetic.synthesizers.saving_keras import make_keras_picklable
-from ydata_synthetic.preprocessing.regular.processor import RegularDataProcessor, RegularModels, RegProcessorArguments
-from ydata_synthetic.preprocessing.timeseries.timeseries_processor import TimeSeriesDataProcessor, TimeSeriesModels, TSProcessorArguments
+from ydata_synthetic.preprocessing.regular.processor import RegularDataProcessor, RegularModels
+from ydata_synthetic.preprocessing.timeseries.timeseries_processor import TimeSeriesDataProcessor, TimeSeriesModels
 
 _model_parameters = ['batch_size', 'lr', 'betas', 'layers_dim', 'noise_dim',
                      'n_cols', 'seq_len', 'condition', 'n_critic', 'n_features']
@@ -88,13 +88,15 @@ class BaseModel():
 
     def train(self,
               data: Union[DataFrame, array],
-              processor_arguments: Optional[Union[RegProcessorArguments, TSProcessorArguments]] = None,
+              num_cols: Optional[List[str]] = None,
+              cat_cols: Optional[List[str]] = None,
               preprocess: bool = True) -> Union[DataFrame, array]:
         """Sets up the train session by instantiating an appropriate processor and transforming the data.
         Returns the data object (preprocessed when applicable) for the child class specific train method to resume.
         Args:
             data (Union[DataFrame, array]): Raw data object.
-            processor_arguments (Union[RegProcessorArguments, TSProcessorArguments]): Defines the data processor.
+            num_cols (Optional[List[str]]): List of names of numerical columns.
+            cat_cols (Optional[List[str]]): List of names of categorical columns.
             preprocess (bool): Determines if the preprocessor is to be run on the data or not (p.e. preprocessed data).
         Returns:
             processed_data (Union[DataFrame, array]): Processed data object (if applicable).
@@ -107,8 +109,8 @@ class BaseModel():
                 self.processor = TimeSeriesDataProcessor
             else:
                 print(f'A DataProcessor is not available for the {self.__MODEL__}.')
-        if self.processor and preprocess and processor_arguments:
-            processed_data = self.processor(processor_arguments).fit_transform(data)
+        if self.processor and preprocess:
+            processed_data = self.processor(num_cols, cat_cols).fit_transform(data)
 
         self.data_dim = processed_data.shape[1]
         self.define_gan()
