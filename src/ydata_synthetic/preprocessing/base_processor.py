@@ -36,11 +36,6 @@ class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
         """Returns a dictionary mapping column type names to its respective pipeline."""
         return self._pipeline
 
-    @property
-    def col_map(self) -> Dict[str, List[str]]:
-        """Returns a dictionary mapping column type names to its respective list of members."""
-        return self._col_map
-
     @abstractmethod
     def fit(self, X: DataFrame):
         """Fits the DataProcessor to a passed DataFrame.
