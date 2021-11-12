@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from numpy import ndarray
 from pandas import DataFrame
@@ -30,6 +30,16 @@ class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
 
         self._types = None
         self.col_order_ = None
+
+    @property
+    def pipeline(self) -> Dict[str, BaseEstimator]:
+        """Returns a dictionary mapping column type names to its respective pipeline."""
+        return self._pipeline
+
+    @property
+    def col_map(self) -> Dict[str, List[str]]:
+        """Returns a dictionary mapping column type names to its respective list of members."""
+        return self._col_map
 
     @abstractmethod
     def fit(self, X: DataFrame):
