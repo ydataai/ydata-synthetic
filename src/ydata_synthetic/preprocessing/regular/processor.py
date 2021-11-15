@@ -21,7 +21,7 @@ class RegularDataProcessor(BaseProcessor):
         cat_cols (list of strings):
             List of names of categorical columns.
     """
-    def __init__(self,num_cols: Optional[List[str]] = None, cat_cols: Optional[List[str]] = None):
+    def __init__(self, num_cols: Optional[List[str]] = None, cat_cols: Optional[List[str]] = None):
         super().__init__(num_cols, cat_cols)
 
         self._col_order_ = None

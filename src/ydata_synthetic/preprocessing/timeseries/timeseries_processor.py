@@ -1,4 +1,5 @@
-from typing import List, Union
+"Implementation of a TimeSeries DataProcessor."
+from typing import List, Optional
 
 from typeguard import typechecked
 
@@ -10,6 +11,5 @@ class TimeSeriesDataProcessor(BaseProcessor):
     """
     Not implemented.
     """
-    def __init__(self, *, num_cols: Union[List[str], List[int]] = None, cat_cols: Union[List[str], List[int]] = None,
-                 pos_idx: bool = False):
+    def __init__(self, num_cols: Optional[List[str]] = None, cat_cols: Optional[List[str]] = None):
         raise NotImplementedError
