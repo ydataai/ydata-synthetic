@@ -122,7 +122,7 @@ class BaseModel():
                 self.processor = TimeSeriesDataProcessor
             else:
                 print(f'A DataProcessor is not available for the {self.__MODEL__}.')
-            self.processor = self.processor(num_cols, cat_cols).fit(data)
+            self.processor = self.processor(num_cols = num_cols, cat_cols = cat_cols).fit(data)
 
     def sample(self, n_samples):
         steps = n_samples // self.batch_size + 1

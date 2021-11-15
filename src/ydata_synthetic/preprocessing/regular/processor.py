@@ -1,3 +1,4 @@
+"Implementation of a Regular DataProcessor."
 from typing import List, Optional
 
 from numpy import concatenate, ndarray, split, zeros
@@ -7,6 +8,7 @@ from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 from typeguard import typechecked
 
 from ydata_synthetic.preprocessing.base_processor import BaseProcessor
+
 
 @typechecked
 class RegularDataProcessor(BaseProcessor):
@@ -19,17 +21,14 @@ class RegularDataProcessor(BaseProcessor):
         cat_cols (list of strings):
             List of names of categorical columns.
     """
-    def __init__(self, num_cols: Optional[List[str]], cat_cols: Optional[List[str]]):
-        super().__init__(num_cols = num_cols, cat_cols = cat_cols)
+    def __init__(self,num_cols: Optional[List[str]] = None, cat_cols: Optional[List[str]] = None):
+        super().__init__(num_cols, cat_cols)
 
-        self._pipeline['numerical'] = Pipeline([
-            ("scaler", MinMaxScaler()),
-        ])
+        self._col_order_ = None
+        self._num_col_idx_ = None
+        self._cat_col_idx_ = None
 
-        self._pipeline['categorical'] = Pipeline([
-            ("encoder", OneHotEncoder(sparse=False, handle_unknown='ignore'))
-        ])
-
+    # pylint: disable=W0106
     def fit(self, X: DataFrame):
         """Fits the DataProcessor to a passed DataFrame.
         Args:
@@ -39,11 +38,19 @@ class RegularDataProcessor(BaseProcessor):
         Returns:
             self (RegularDataProcessor): The fitted data processor.
         """
-        self.col_order_ = [c for c in X.columns if c in sum(self._col_map.values(), [])]
+        self._col_order_ = [c for c in X.columns if c in self.num_cols + self.cat_cols]
+
         self._types = X.dtypes
 
-        for col_type in self._pipeline:
-            self._pipeline[col_type].fit(X[self._col_map[col_type]]) if self._col_map[col_type] else zeros([len(X), 0])
+        self._num_pipeline = Pipeline([
+            ("scaler", MinMaxScaler()),
+        ])
+        self._cat_pipeline = Pipeline([
+            ("encoder", OneHotEncoder(sparse=False, handle_unknown='ignore')),
+        ])
+
+        self.num_pipeline.fit(X[self.num_cols]) if self.num_cols else zeros([len(X), 0])
+        self.cat_pipeline.fit(X[self.cat_cols]) if self.num_cols else zeros([len(X), 0])
 
         return self
 
@@ -57,14 +64,15 @@ class RegularDataProcessor(BaseProcessor):
             transformed (ndarray):
                 Processed version of the passed DataFrame.
         """
-        data = {}
-        i = 0
-        for col_type, pipeline in self._pipeline.items():
-            data[col_type] = pipeline.transform(X[self._col_map[col_type]]) if self._col_map[col_type] else zeros([len(X), 0])
-            self._col_idxs[col_type] = i + data[col_type].shape[1]
-            i += data[col_type].shape[1]
+        self._check_is_fitted()
 
-        transformed = concatenate(list(data.values()), axis=1)
+        num_data = self.num_pipeline.transform(X[self.num_cols]) if self.num_cols else zeros([len(X), 0])
+        cat_data = self.cat_pipeline.transform(X[self.cat_cols]) if self.cat_cols else zeros([len(X), 0])
+
+        self._num_col_idx_ = num_data.shape[1]
+        self._cat_col_idx_ = self._num_col_idx_ + cat_data.shape[1]
+
+        transformed = concatenate([num_data, cat_data], axis=1)
 
         return transformed
 
@@ -79,15 +87,17 @@ class RegularDataProcessor(BaseProcessor):
             result (DataFrame):
                 DataFrame with all performed transformations inverted.
         """
-        data_blocks = split(X, [col_type_idx for col_type_idx in self._col_idxs.values()], axis=1)
+        self._check_is_fitted()
 
-        data = {}
-        for i, (col_type, pipeline) in enumerate(self._pipeline.items()):
-            data[col_type] = pipeline.inverse_transform(data_blocks[i]) if self._col_map[col_type] else zeros([len(X), 0])
+        num_data, cat_data, _ = split(X, [self._num_col_idx_, self._cat_col_idx_], axis=1)
 
-        result = concat([DataFrame(data_, columns=cols) for data_, cols in zip(data.values(), self._col_map.values())], axis=1)
+        num_data = self.num_pipeline.inverse_transform(num_data) if self.num_cols else zeros([len(X), 0])
+        cat_data = self.cat_pipeline.inverse_transform(cat_data) if self.cat_cols else zeros([len(X), 0])
 
-        result = result.loc[:, self.col_order_]
+        result = concat([DataFrame(num_data, columns=self.num_cols),
+                         DataFrame(cat_data, columns=self.cat_cols)], axis=1)
+
+        result = result.loc[:, self._col_order_]
 
         for col in result.columns:
             result[col]=result[col].astype(self._types[col])
