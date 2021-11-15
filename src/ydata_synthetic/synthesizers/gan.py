@@ -1,19 +1,21 @@
+"Implements a GAN BaseModel synthesizer, not meant to be directly instantiated."
 from collections import namedtuple
 from enum import Enum
-from typing import Union, Optional, List
+from typing import List, Optional, Union
 
-from pandas import DataFrame, concat
-from numpy import array
-
+import tensorflow as tf
 import tqdm
 from joblib import dump, load
-import tensorflow as tf
+from numpy import array
+from pandas import DataFrame, concat
 from tensorflow import config as tfconfig
 from typeguard import typechecked
 
+from ydata_synthetic.preprocessing.regular.processor import \
+    RegularDataProcessor
+from ydata_synthetic.preprocessing.timeseries.timeseries_processor import \
+    TimeSeriesDataProcessor
 from ydata_synthetic.synthesizers.saving_keras import make_keras_picklable
-from ydata_synthetic.preprocessing.regular.processor import RegularDataProcessor
-from ydata_synthetic.preprocessing.timeseries.timeseries_processor import TimeSeriesDataProcessor
 
 _model_parameters = ['batch_size', 'lr', 'betas', 'layers_dim', 'noise_dim',
                      'n_cols', 'seq_len', 'condition', 'n_critic', 'n_features']
@@ -41,6 +43,7 @@ class TimeSeriesModels(Enum):
     TIMEGAN = 'TIMEGAN'
     TSCWGAN = 'TSCWGAN'
 
+# pylint: disable=R0902
 @typechecked
 class BaseModel():
     """
@@ -60,11 +63,11 @@ class BaseModel():
         if len(gpu_devices) > 0:
             try:
                 tfconfig.experimental.set_memory_growth(gpu_devices[0], True)
-            except:
+            except (ValueError, RuntimeError):
                 # Invalid device or cannot modify virtual devices once initialized.
                 pass
         #Validate the provided model parameters
-        if model_parameters.betas!=None:
+        if model_parameters.betas is not None:
             assert len(model_parameters.betas) == 2, "Please provide the betas information as a tuple."
 
         self.batch_size = model_parameters.batch_size
@@ -76,31 +79,33 @@ class BaseModel():
         self.layers_dim = model_parameters.layers_dim
         self.processor = None
 
+    # pylint: disable=E1101
     def __call__(self, inputs, **kwargs):
         return self.model(inputs=inputs, **kwargs)
 
+    # pylint: disable=C0103
     def _set_lr(self, lr):
         if isinstance(lr, float):
             self.g_lr=lr
             self.d_lr=lr
-        elif isinstance(lr,list) or isinstance(lr, tuple):
+        elif isinstance(lr,(list, tuple)):
             assert len(lr)==2, "Please provide a tow values array for the learning rates or a float."
             self.g_lr=lr[0]
             self.d_lr=lr[1]
 
     def define_gan(self):
+        """Define the trainable model components.
+        Optionally validate model structure with mock inputs and initialize optimizers."""
         raise NotImplementedError
 
     @property
-    def trainable_variables(self, network):
-        return network.trainable_variables
-
-    @property
     def model_parameters(self):
+        "Returns the parameters of the model."
         return self._model_parameters
 
     @property
     def model_name(self):
+        "Returns the model (class) name."
         return self.__class__.__name__
 
     def train(self,
@@ -125,28 +130,31 @@ class BaseModel():
             self.processor = self.processor(num_cols = num_cols, cat_cols = cat_cols).fit(data)
 
     def sample(self, n_samples):
+        "Generate n_samples synthetic records from the synthesizer."
         steps = n_samples // self.batch_size + 1
         data = []
         for _ in tqdm.trange(steps, desc='Synthetic data generation'):
-            z = tf.random.uniform([self.batch_size, self.noise_dim])
+            z = tf.random.uniform([self.batch_size, self.noise_dim], dtype=tf.dtypes.float32)
             records = tf.make_ndarray(tf.make_tensor_proto(self.generator(z, training=False)))
             data.append(DataFrame(records))
         return concat(data)
 
     def save(self, path):
+        "Saves the pickled synthesizer instance in the given path."
         #Save only the generator?
         if self.__MODEL__=='WGAN' or self.__MODEL__=='WGAN_GP':
-            self.critic=None
+            del self.critic
         make_keras_picklable()
         dump(self, path)
 
     @staticmethod
     def load(path):
+        "Loads a pickled synthesizer from the given path."
         gpu_devices = tf.config.list_physical_devices('GPU')
         if len(gpu_devices) > 0:
             try:
                 tfconfig.experimental.set_memory_growth(gpu_devices[0], True)
-            except:
+            except (ValueError, RuntimeError):
                 # Invalid device or cannot modify virtual devices once initialized.
                 pass
         synth = load(path)
