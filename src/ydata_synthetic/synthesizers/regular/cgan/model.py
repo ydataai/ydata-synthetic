@@ -1,22 +1,25 @@
 import os
 from os import path
 from typing import List, Union
-from tqdm import trange
 
 import numpy as np
+import tensorflow as tf
 from numpy import array, vstack
 from numpy.random import normal
 from pandas import DataFrame
-
-from ydata_synthetic.synthesizers.gan import BaseModel
-from ydata_synthetic.synthesizers import TrainParameters
-
-import tensorflow as tf
-from tensorflow import one_hot, data as tfdata, concat, make_tensor_proto, expand_dims, tile, convert_to_tensor, make_ndarray
-from tensorflow.keras.layers import Input, Dense, Dropout, Flatten, Embedding, multiply
+from tensorflow import concat, convert_to_tensor
+from tensorflow import data as tfdata
+from tensorflow import (expand_dims, make_ndarray, make_tensor_proto, one_hot,
+                        tile)
 from tensorflow.keras import Model
-
+from tensorflow.keras.layers import (Dense, Dropout, Embedding, Flatten, Input,
+                                     multiply)
 from tensorflow.keras.optimizers import Adam
+from tqdm import trange
+
+from ydata_synthetic.synthesizers import TrainParameters
+from ydata_synthetic.synthesizers.gan import BaseModel
+
 
 class CGAN(BaseModel):
 
@@ -88,9 +91,10 @@ class CGAN(BaseModel):
         Args:
             data: A pandas DataFrame or a Numpy array with the data to be synthesized
             label: The name of the column to be used as a label and condition for the training
-            train_arguments: Gan training arguments.
-        Returns:
-            A CGAN model fitted to the provided data
+            train_arguments: GAN training arguments.
+            num_cols: List of columns of the data object to be handled as numerical
+            cat_cols: List of columns of the data object to be handled as categorical
+            preprocess: If True preprocess the data before using in train session
         """
         super().train(data, num_cols, cat_cols, preprocess)
 
