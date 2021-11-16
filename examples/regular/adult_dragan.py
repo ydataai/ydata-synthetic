@@ -11,8 +11,8 @@ num_cols = ['age', 'fnlwgt', 'capital-gain', 'capital-loss', 'hours-per-week']
 cat_cols = ['workclass','education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', 'sex',
             'native-country', 'target']
 
-# WGAN_GP training
-#Defininf the training parameters of WGAN_GP
+# DRAGAN training
+#Defining the training parameters of DRAGAN
 
 noise_dim = 128
 dim = 128
