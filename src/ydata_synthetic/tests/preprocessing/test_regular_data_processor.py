@@ -21,6 +21,18 @@ def regular_data_processor_args(regular_data_example):
     return num_cols, cat_cols
 
 @fixture
+def overlapped_column_lists(regular_data_processor_args):
+    num_cols, cat_cols = regular_data_processor_args
+    cat_cols.append(num_cols[0])
+    return num_cols, cat_cols
+
+@fixture
+def incomplete_column_lists(regular_data_processor_args):
+    num_cols, cat_cols = regular_data_processor_args
+    num_cols.pop()
+    return num_cols, cat_cols
+
+@fixture
 def regular_data_processor(regular_data_processor_args):
     num_cols, cat_cols = regular_data_processor_args
     return RegularDataProcessor(num_cols=num_cols, cat_cols=cat_cols)
@@ -29,6 +41,14 @@ def test_is_fitted(regular_data_processor, regular_data_example):
     "Tests raising NotFittedError in attempting to transform with a non fitted processor."
     with raises(NotFittedError):
         regular_data_processor.transform(regular_data_example)
+
+def test_column_validations(regular_data_example, overlapped_column_lists, incomplete_column_lists):
+    "Tests the column lists validation method."
+    processor = RegularDataProcessor
+    with raises(AssertionError):
+        processor(*overlapped_column_lists).fit(regular_data_example)
+    with raises(AssertionError):
+        processor(*incomplete_column_lists).fit(regular_data_example)
 
 def test_fit(regular_data_processor, regular_data_example):
     "Tests fit method and _check_is_fitted method before and after fitting."

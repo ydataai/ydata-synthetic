@@ -1,4 +1,6 @@
 "Implementation of a Regular DataProcessor."
+from __future__ import annotations
+
 from typing import List, Optional
 
 from numpy import concatenate, ndarray, split, zeros
@@ -29,7 +31,7 @@ class RegularDataProcessor(BaseProcessor):
         self._cat_col_idx_ = None
 
     # pylint: disable=W0106
-    def fit(self, X: DataFrame):
+    def fit(self, X: DataFrame) -> RegularDataProcessor:
         """Fits the DataProcessor to a passed DataFrame.
         Args:
             X (DataFrame):
@@ -38,6 +40,8 @@ class RegularDataProcessor(BaseProcessor):
         Returns:
             self (RegularDataProcessor): The fitted data processor.
         """
+        self._validate_cols(X.columns)
+
         self._col_order_ = [c for c in X.columns if c in self.num_cols + self.cat_cols]
 
         self._types = X.dtypes

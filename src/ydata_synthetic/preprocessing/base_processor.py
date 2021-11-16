@@ -1,4 +1,6 @@
 "Implements a BaseProcessor Class, not meant to be directly instantiated."
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
@@ -51,9 +53,20 @@ class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
         if self._num_pipeline is None:
             raise NotFittedError("This data processor has not yet been fitted.")
 
+    def _validate_cols(self, x_cols):
+        """Ensures validity of the passed numerical and categorical columns.
+        The following is verified:
+            1) Num cols and cat cols are disjoint sets;
+            2) The union of these sets should equal x_cols;.
+        Assertion errors are raised in case any of the tests fails."""
+        missing = set(x_cols).difference(set(self.num_cols).union(set(self.cat_cols)))
+        intersection = set(self.num_cols).intersection(set(self.cat_cols))
+        assert intersection == set(), f"num_cols and cat_cols share columns {intersection} but should be disjoint."
+        assert missing == set(), f"The columns {missing} of the provided dataset were not attributed to a pipeline."
+
     # pylint: disable=C0103
     @abstractmethod
-    def fit(self, X: DataFrame):
+    def fit(self, X: DataFrame) -> BaseProcessor:
         """Fits the DataProcessor to a passed DataFrame.
         Args:
             X (DataFrame):
