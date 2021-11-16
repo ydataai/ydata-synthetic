@@ -3,10 +3,13 @@ from pmlb import fetch_data
 from ydata_synthetic.synthesizers.regular import DRAGAN
 from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
 
+model = DRAGAN
+
 #Load data and define the data processor parameters
 data = fetch_data('adult')
 num_cols = ['age', 'fnlwgt', 'capital-gain', 'capital-loss', 'hours-per-week']
-cat_cols = ['workclass','education', 'marital-status', 'occupation', 'relationship', 'race', 'sex']
+cat_cols = ['workclass','education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', 'sex',
+            'native-country', 'target']
 
 # WGAN_GP training
 #Defininf the training parameters of WGAN_GP
@@ -31,6 +34,9 @@ gan_args = ModelParameters(batch_size=batch_size,
 train_args = TrainParameters(epochs=epochs,
                              sample_interval=log_step)
 
-synthesizer = DRAGAN(gan_args, n_discriminator=3)
+synthesizer = model(gan_args, n_discriminator=3)
 synthesizer.train(data, train_args, num_cols, cat_cols, preprocess = True)
 synthesizer.save('adult_synth.pkl')
+
+synthesizer = model.load('adult_synth.pkl')
+synthesizer.sample(1000)
