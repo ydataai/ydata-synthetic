@@ -1,15 +1,17 @@
-from os import path, mkdir
+from os import mkdir, path
+from typing import List
+
 import numpy as np
-from tqdm import trange
-
-from ydata_synthetic.synthesizers.gan import BaseModel
-from ydata_synthetic.synthesizers import TrainParameters
-
 import tensorflow as tf
-from tensorflow.keras.layers import Input, Dense, Dropout
 import tensorflow.keras.backend as K
 from tensorflow.keras import Model
+from tensorflow.keras.layers import Dense, Dropout, Input
 from tensorflow.keras.optimizers import Adam
+from tqdm import trange
+
+from ydata_synthetic.synthesizers import TrainParameters
+from ydata_synthetic.synthesizers.gan import BaseModel
+
 
 #Auxiliary Keras backend class to calculate the Random Weighted average
 #https://stackoverflow.com/questions/58133430/how-to-substitute-keras-layers-merge-merge-in-tensorflow-keras
@@ -77,14 +79,26 @@ class WGAN(BaseModel):
         stop_i = start_i + batch_size
         shuffle_seed = (batch_size * seed) // len(train)
         np.random.seed(shuffle_seed)
-        train_ix = np.random.choice(list(train.index), replace=False, size=len(train))  # wasteful to shuffle every time
+        train_ix = np.random.choice(train.shape[0], replace=False, size=len(train))  # wasteful to shuffle every time
         train_ix = list(train_ix) + list(train_ix)  # duplicate to cover ranges past the end of the set
-        x = train.loc[train_ix[start_i: stop_i]].values
-        return np.reshape(x, (batch_size, -1))
+        return train[train_ix[start_i: stop_i]]
 
-    def train(self,
-              data,
-              train_arguments: TrainParameters):
+    def train(self, data, train_arguments: TrainParameters, num_cols: List[str],
+              cat_cols: List[str], preprocess: bool = True):
+        """
+        Args:
+            data: A pandas DataFrame or a Numpy array with the data to be synthesized
+            train_arguments: GAN training arguments.
+            num_cols: List of columns of the data object to be handled as numerical
+            cat_cols: List of columns of the data object to be handled as categorical
+            preprocess: If True preprocess the data before using in train session
+        """
+        super().train(data, num_cols, cat_cols, preprocess)
+
+        processed_data = self.processor.transform(data)
+        self.data_dim = processed_data.shape[1]
+        self.define_gan()
+
         #Create a summary file
         iterations = int(abs(data.shape[0]/self.batch_size)+1)
         train_summary_writer = tf.summary.create_file_writer(path.join('.', 'summaries', 'train'))
@@ -100,7 +114,7 @@ class WGAN(BaseModel):
                         # ---------------------
                         #  Train the Critic
                         # ---------------------
-                        batch_data = self.get_data_batch(data, self.batch_size)
+                        batch_data = self.get_data_batch(processed_data, self.batch_size)
                         noise = tf.random.normal((self.batch_size, self.noise_dim))
 
                         # Generate a batch of events
