@@ -56,6 +56,9 @@ class RegularDataProcessor(BaseProcessor):
         self.num_pipeline.fit(X[self.num_cols]) if self.num_cols else zeros([len(X), 0])
         self.cat_pipeline.fit(X[self.cat_cols]) if self.num_cols else zeros([len(X), 0])
 
+        self._num_col_idx_ = len(self.num_pipeline.get_feature_names_out())
+        self._cat_col_idx_ = self._num_col_idx_ + len(self.cat_pipeline.get_feature_names_out())
+
         return self
 
     def transform(self, X: DataFrame) -> ndarray:
@@ -72,9 +75,6 @@ class RegularDataProcessor(BaseProcessor):
 
         num_data = self.num_pipeline.transform(X[self.num_cols]) if self.num_cols else zeros([len(X), 0])
         cat_data = self.cat_pipeline.transform(X[self.cat_cols]) if self.cat_cols else zeros([len(X), 0])
-
-        self._num_col_idx_ = num_data.shape[1]
-        self._cat_col_idx_ = self._num_col_idx_ + cat_data.shape[1]
 
         transformed = concatenate([num_data, cat_data], axis=1)
 
