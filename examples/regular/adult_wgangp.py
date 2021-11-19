@@ -11,8 +11,7 @@ num_cols = ['age', 'fnlwgt', 'capital-gain', 'capital-loss', 'hours-per-week']
 cat_cols = ['workclass','education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', 'sex',
             'native-country', 'target']
 
-# DRAGAN training
-#Defining the training parameters of DRAGAN
+#Defining the training parameters
 
 noise_dim = 128
 dim = 128
@@ -20,7 +19,7 @@ batch_size = 500
 
 log_step = 100
 epochs = 300+1
-learning_rate = 1e-5
+learning_rate = [5e-4, 3e-3]
 beta_1 = 0.5
 beta_2 = 0.9
 models_dir = './cache'
