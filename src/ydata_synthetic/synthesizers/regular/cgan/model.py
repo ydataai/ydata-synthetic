@@ -1,19 +1,18 @@
+"""CGAN implementation"""
 import os
 from os import path
 from typing import List, Union
 
 import numpy as np
 import tensorflow as tf
-from numpy import array, vstack
+from numpy import array, vstack, zeros
 from numpy.random import normal
 from pandas import DataFrame
-from tensorflow import concat, convert_to_tensor
+from tensorflow import convert_to_tensor
 from tensorflow import data as tfdata
-from tensorflow import (expand_dims, make_ndarray, make_tensor_proto, one_hot,
-                        tile)
+from tensorflow import expand_dims, make_ndarray, make_tensor_proto, tile
 from tensorflow.keras import Model
-from tensorflow.keras.layers import (Dense, Dropout, Embedding, Flatten, Input,
-                                     multiply)
+from tensorflow.keras.layers import Dense, Dropout, Input, multiply
 from tensorflow.keras.optimizers import Adam
 from tqdm import trange
 
@@ -74,7 +73,6 @@ class CGAN(BaseModel):
     def get_data_batch(self, train, batch_size, seed=0):
         # # random sampling - some samples will have excessively low or high sampling, but easy to implement
         # np.random.seed(seed)
-        # x = train.loc[ np.random.choice(train.index, batch_size) ].values
         # iterate through shuffled indices, so every sample gets covered evenly
 
         start_i = (batch_size * seed) % len(train)
@@ -85,7 +83,7 @@ class CGAN(BaseModel):
         train_ix = list(train_ix) + list(train_ix)  # duplicate to cover ranges past the end of the set
         return train[train_ix[start_i: stop_i]]
 
-    def train(self, data: Union[DataFrame, array], label:str, train_arguments: TrainParameters, num_cols: List[str],
+    def train(self, data: Union[DataFrame, array], label_col: str, train_arguments: TrainParameters, num_cols: List[str],
               cat_cols: List[str], preprocess: bool = True):
         """
         Args:
@@ -102,6 +100,9 @@ class CGAN(BaseModel):
         self.data_dim = processed_data.shape[1] - len(self.processor.cat_pipeline.get_feature_names_out())
         self.define_gan()
 
+        mask = zeros(processed_data.shape[1], bool)  # Identify column indexes that carry the processed label feature
+        mask[[i for i, col in enumerate(list(self.processor._num_pipeline.get_feature_names_out()) + list(self.processor._cat_pipeline.get_feature_names_out())) if ''.join(col.split('_')[:-1]) == label_col]] = True
+
         noise_batches = self.get_batch_noise()
 
         iterations = int(abs(processed_data.shape[0] / self.batch_size) + 1)
@@ -115,15 +116,14 @@ class CGAN(BaseModel):
                 #  Train Discriminator
                 # ---------------------
                 batch_x = self.get_data_batch(processed_data, self.batch_size)
-                label = batch_x[:, self.processor._num_col_idx_: self.processor._cat_col_idx_]
-                data_cols = list(range(self.processor._num_col_idx_))  # All data without the label columns
+                batch_x, label = batch_x[:, ~mask], batch_x[:, mask]
                 noise = next(noise_batches)
 
                 # Generate a batch of new records
                 gen_records = self.generator([noise, label], training=True)
 
                 # Train the discriminator
-                d_loss_real = self.discriminator.train_on_batch([batch_x[:, data_cols], label], valid)  # Separate labels
+                d_loss_real = self.discriminator.train_on_batch([batch_x, label], valid)  # Separate labels
                 d_loss_fake = self.discriminator.train_on_batch([gen_records, label], fake)  # Separate labels
                 d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
 
@@ -172,8 +172,8 @@ class Generator():
     def build_model(self, input_shape, dim, data_dim):
         noise = Input(shape=input_shape, batch_size=self.batch_size)
         label = Input(shape=(self.num_classes,), batch_size=self.batch_size, dtype='int32')
-        label_embedding = Embedding(2, 1)(label)
-        input = Flatten()(multiply([noise, label_embedding]))
+        label_dense = Dense(1)(label)
+        input = multiply([noise, label_dense])
 
         x = Dense(dim, activation='relu')(input)
         x = Dense(dim * 2, activation='relu')(x)
@@ -189,8 +189,8 @@ class Discriminator():
     def build_model(self, input_shape, dim):
         events = Input(shape=input_shape, batch_size=self.batch_size)
         label = Input(shape=(self.num_classes,), batch_size=self.batch_size, dtype='int32')
-        label_embedding = Embedding(2, 1)(label)
-        input = Flatten()(multiply([events, label_embedding]))
+        label_embedding = Dense(1)(label)
+        input = multiply([events, label_embedding])
 
         x = Dense(dim * 4, activation='relu')(input)
         x = Dropout(0.1)(x)

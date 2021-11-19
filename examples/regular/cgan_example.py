@@ -65,8 +65,8 @@ train_args = TrainParameters(epochs=epochs,
 synthesizer = model(model_parameters=gan_args, num_classes=2)
 
 #Training the Conditional GAN
-synthesizer.train(data=fraud_w_classes, label="Class",train_arguments=train_args,
-                  num_cols = num_cols, cat_cols = cat_cols)
+synthesizer.train(data=fraud_w_classes, label_col="Class", train_arguments=train_args,
+                  num_cols=num_cols, cat_cols=cat_cols)
 
 #Saving the synthesizer
 synthesizer.save('cgan_synthtrained.pkl')
