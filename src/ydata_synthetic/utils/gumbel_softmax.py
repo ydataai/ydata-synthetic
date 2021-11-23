@@ -52,8 +52,8 @@ class ActivationInterface(Layer):
             name (Optional[str]): Name of the layer"""
         super().__init__(name)
 
-        self._cat_names = metadata.categorical.feat_names_in_
-        self._num_names = metadata.numerical.feat_names_in_
+        self._cat_names = metadata.categorical.feat_names_in
+        self._num_names = metadata.numerical.feat_names_in
 
         self._cat_lens = [len([col for col in metadata.categorical.feat_names_out \
             if ''.join(col.split('_')[:-1]) == cat_feat]) for cat_feat in self._cat_names]
