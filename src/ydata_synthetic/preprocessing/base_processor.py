@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections import namedtuple
 from typing import List, Optional
 
 from numpy import ndarray
@@ -9,6 +10,9 @@ from pandas import DataFrame, Series
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.exceptions import NotFittedError
 from typeguard import typechecked
+
+ProcessorInfo = namedtuple("ProcessorInfo", ["numerical", "categorical"])
+PipelineInfo = namedtuple("PipelineInfo", ["pipeline_name", "feat_names_in", "feat_names_out"])
 
 
 @typechecked
@@ -32,6 +36,8 @@ class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
 
         self._types = None
 
+        self._col_transform_info = None  # Metadata object mapping inputs/outputs of each pipeline
+
     @property
     def num_pipeline(self) -> BaseEstimator:
         """Returns the pipeline applied to numerical columns."""
@@ -46,6 +52,31 @@ class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
     def types(self) -> Series:
         """Returns a Series with the dtypes of each column in the fitted DataFrame."""
         return self._types
+
+    @property
+    def col_transform_info(self) -> PipelineInfo:
+        """Returns a PipelineInfo object specifying input/output feature mappings of this processor's pipelines."""
+        self._check_is_fitted()
+        if self._col_transform_info is None:
+            self._col_transform_info = self.__create_metadata_synth()
+        return self._col_transform_info
+
+    def __create_metadata_synth(self):
+        num_info = None
+        cat_info = None
+        # Numerical ls named tuple
+        if self.num_cols:
+            num_info = PipelineInfo(
+                                    'numeric',
+                                    self.num_pipeline.feature_names_in,
+                                    self.num_pipeline.get_feature_names_out())
+        # Categorical ls named tuple
+        if self.cat_cols:
+            cat_info = PipelineInfo(
+                                    'categorical',
+                                    self.cat_pipeline.feature_names_in,
+                                    self.cat_pipeline.get_feature_names_out())
+        return ProcessorInfo(num_info, cat_info)
 
     def _check_is_fitted(self):
         """Checks if the processor is fitted by testing the numerical pipeline.
