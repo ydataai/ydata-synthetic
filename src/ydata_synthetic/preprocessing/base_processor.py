@@ -68,13 +68,13 @@ class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
         if self.num_cols:
             num_info = PipelineInfo(
                                     'numeric',
-                                    self.num_pipeline.feature_names_in,
+                                    self.num_pipeline.feature_names_in_,
                                     self.num_pipeline.get_feature_names_out())
         # Categorical ls named tuple
         if self.cat_cols:
             cat_info = PipelineInfo(
                                     'categorical',
-                                    self.cat_pipeline.feature_names_in,
+                                    self.cat_pipeline.feature_names_in_,
                                     self.cat_pipeline.get_feature_names_out())
         return ProcessorInfo(num_info, cat_info)
 
