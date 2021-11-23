@@ -3,13 +3,14 @@ Reference: https://arxiv.org/pdf/1611.04051.pdf"""
 from typing import Optional
 
 # pylint: disable=E0401
-from tensorflow import Tensor, TensorShape, concat, one_hot, split, squeeze, stop_gradient
+from tensorflow import (Tensor, TensorShape, concat, one_hot, split, squeeze,
+                        stop_gradient)
 from tensorflow.keras.layers import Activation, Layer
 from tensorflow.math import log
 from tensorflow.nn import softmax
 from tensorflow.random import categorical, uniform
 
-from ydata_synthetic.preprocessing.base_processor import BaseProcessor
+from ydata_synthetic.preprocessing.base_processor import ProcessorInfo
 
 TOL = 1e-20
 
@@ -45,18 +46,18 @@ class ActivationInterface(Layer):
 
     The parts of an incoming tensor are qualified by leveraging a data processor object (from the synthesizer)."""
 
-    def __init__(self, processor: BaseProcessor, name: Optional[str] = None):
+    def __init__(self, metadata: ProcessorInfo, name: Optional[str] = None):
         """Arguments:
-            processor (BaseProcessor): The data processor object of the GAN synthesizer that is defining the generator.
+            metadata (ProcessorInfo): A metadata object defining the processor pipelines input/output features.
             name (Optional[str]): Name of the layer"""
         super().__init__(name)
 
-        self._cat_names = processor._cat_pipeline.feature_names_in_
-        self._num_names = processor._num_pipeline.feature_names_in_
+        self._cat_names = metadata.categorical.feat_names_in_
+        self._num_names = metadata.numerical.feat_names_in_
 
-        self._cat_lens = [len([col for col in processor._cat_pipeline.get_feature_names_out() \
+        self._cat_lens = [len([col for col in metadata.categorical.feat_names_out \
             if ''.join(col.split('_')[:-1]) == cat_feat]) for cat_feat in self._cat_names]
-        self._num_lens = processor._num_col_idx_
+        self._num_lens = len(metadata.numerical.feat_names_out)
 
     def call(self, _input):  # pylint: disable=W0221
         num_cols, cat_cols = split(_input, [self._num_lens, -1], 1, name='split_num_cats')
