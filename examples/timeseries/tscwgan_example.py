@@ -1,4 +1,4 @@
-from numpy import squeeze
+from numpy import reshape
 
 from ydata_synthetic.preprocessing.timeseries import processed_stock
 from ydata_synthetic.synthesizers.timeseries import TSCWGAN
@@ -51,9 +51,9 @@ synth = model.load(path='./tscwgan_stock.pkl')
 #Sampling the data
 #Note that the data returned is not inverse processed.
 cond_index = 100  # Arbitrary sequence for conditioning
-cond_array = squeeze(processed_data[cond_index][:cond_dim], axis=1)
+cond_array = reshape(processed_data[cond_index][:cond_dim], (1,-1))
 
-data_sample = synth.sample(cond_array, 1000)
+data_sample = synth.sample(cond_array, 1000, 100)
 
 # Inverting the scaling of the synthetic samples
 data_sample = inverse_transform(data_sample, scaler)
