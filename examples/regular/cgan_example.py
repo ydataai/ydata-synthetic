@@ -76,5 +76,5 @@ synthesizer = model.load('cgan_synthtrained.pkl')
 
 #Sampling from the synthesizer
 cond_array = np.array([0,1])
-# Synthesizer samples are returned in the original format (inverse_transform of processing already took place)
+# Synthesizer samples are returned in the original format (inverse_transform of internal processing already took place)
 synthesizer = synthesizer.sample(cond_array, 1000)

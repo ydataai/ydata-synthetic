@@ -154,7 +154,7 @@ class CGAN(BaseModel):
                 #Here is generating synthetic data from an arbitrary condition
                 gen_data = self.sample(label[0], 1000)
 
-    def sample(self, cond_array, n_samples, inverse_transform: bool = True):
+    def sample(self, cond_array, n_samples,):
         """Produce n_samples by conditioning the generator with cond_array."""
         assert cond_array.shape[0] == self.num_classes, \
             f"The condition sequence should have a {self.num_classes} length."
@@ -168,10 +168,7 @@ class CGAN(BaseModel):
             records[:, ~self._mask] = self.generator([next(z_dist), cond_seq], training=False)
             records[:, self._mask] = cond_seq
             data.append(records)
-        data = array(vstack(data))
-        if inverse_transform:
-            return self.processor.inverse_transform(data)
-        return data
+        return self.processor.inverse_transform(array(vstack(data)))
 
 class Generator():
     def __init__(self, batch_size, num_classes):
