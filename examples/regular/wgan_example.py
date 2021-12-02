@@ -6,7 +6,6 @@ import numpy as np
 
 from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
 from ydata_synthetic.synthesizers.regular import WGAN
-from ydata_synthetic.preprocessing.regular.credit_fraud import *
 
 model = WGAN
 

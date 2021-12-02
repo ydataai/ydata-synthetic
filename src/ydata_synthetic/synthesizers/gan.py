@@ -6,8 +6,8 @@ from typing import List, Optional, Union
 import tensorflow as tf
 import tqdm
 from joblib import dump, load
-from numpy import array
-from pandas import DataFrame, concat
+from numpy import array, vstack
+from pandas import DataFrame
 from tensorflow import config as tfconfig
 from typeguard import typechecked
 
@@ -129,15 +129,21 @@ class BaseModel():
                 print(f'A DataProcessor is not available for the {self.__MODEL__}.')
             self.processor = self.processor(num_cols = num_cols, cat_cols = cat_cols).fit(data)
 
-    def sample(self, n_samples):
-        "Generate n_samples synthetic records from the synthesizer."
+    def sample(self, n_samples: int):
+        """Generate n_samples synthetic records from the synthesizer.
+        The records returned are always a multiple of batch_size (can return excess of up to batch_size - 1 records).
+        The samples are returned in the original data format, with any internal preprocessing inverted.
+
+        Args:
+            n_samples (int): Intended size of the synthetic sample.
+        """
         steps = n_samples // self.batch_size + 1
         data = []
         for _ in tqdm.trange(steps, desc='Synthetic data generation'):
             z = tf.random.uniform([self.batch_size, self.noise_dim], dtype=tf.dtypes.float32)
-            records = tf.make_ndarray(tf.make_tensor_proto(self.generator(z, training=False)))
-            data.append(DataFrame(records))
-        return concat(data)
+            records = self.generator(z, training=False).numpy()
+            data.append(records)
+        return self.processor.inverse_transform(array(vstack(data)))
 
     def save(self, path):
         "Saves the pickled synthesizer instance in the given path."

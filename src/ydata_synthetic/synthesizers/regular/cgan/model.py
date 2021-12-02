@@ -4,15 +4,13 @@ from os import path
 from typing import List, Union
 
 import numpy as np
-import tensorflow as tf
-from numpy import array, vstack, zeros
+from numpy import array, vstack, zeros, empty
 from numpy.random import normal
 from pandas import DataFrame
-from tensorflow import convert_to_tensor
+from tensorflow import convert_to_tensor, dtypes, expand_dims, tile, concat, constant
 from tensorflow import data as tfdata
-from tensorflow import expand_dims, make_ndarray, make_tensor_proto, tile
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Dense, Dropout, Input, multiply
+from tensorflow.keras.layers import Dense, Dropout, Input
 from tensorflow.keras.optimizers import Adam
 from tqdm import trange
 
@@ -27,6 +25,7 @@ class CGAN(BaseModel):
     def __init__(self, model_parameters, num_classes):
         self.num_classes = num_classes
         super().__init__(model_parameters)
+        self._mask = None
 
     def define_gan(self):
         self.generator = Generator(self.batch_size, self.num_classes). \
@@ -66,7 +65,7 @@ class CGAN(BaseModel):
 
     def get_batch_noise(self):
         "Create a batch iterator for the generator gaussian noise input."
-        return iter(tfdata.Dataset.from_generator(self._generate_noise, output_types=tf.dtypes.float32)
+        return iter(tfdata.Dataset.from_generator(self._generate_noise, output_types=dtypes.float32)
                                 .batch(self.batch_size)
                                 .repeat())
 
@@ -80,8 +79,14 @@ class CGAN(BaseModel):
         shuffle_seed = (batch_size * seed) // len(train)
         np.random.seed(shuffle_seed)
         train_ix = np.random.choice(train.shape[0], replace=False, size=len(train))  # wasteful to shuffle every time
-        train_ix = list(train_ix) + list(train_ix)  # duplicate to cover ranges past the end of the set
         return train[train_ix[start_i: stop_i]]
+
+    def __build_mask(self, label_col: str):
+        num_vars = list(self.processor._num_pipeline.get_feature_names_out())
+        cat_vars = list(self.processor._cat_pipeline.get_feature_names_out())
+        mask = zeros(len(num_vars) + len(cat_vars), bool)
+        mask[[i for i, col in enumerate(num_vars + cat_vars) if ''.join(col.split('_')[:-1]) == label_col]] = True
+        self._mask = constant(mask)
 
     def train(self, data: Union[DataFrame, array], label_col: str, train_arguments: TrainParameters, num_cols: List[str],
               cat_cols: List[str], preprocess: bool = True):
@@ -100,8 +105,7 @@ class CGAN(BaseModel):
         self.data_dim = processed_data.shape[1] - len(self.processor.cat_pipeline.get_feature_names_out())
         self.define_gan()
 
-        mask = zeros(processed_data.shape[1], bool)  # Identify column indexes that carry the processed label feature
-        mask[[i for i, col in enumerate(list(self.processor._num_pipeline.get_feature_names_out()) + list(self.processor._cat_pipeline.get_feature_names_out())) if ''.join(col.split('_')[:-1]) == label_col]] = True
+        self.__build_mask(label_col)
 
         noise_batches = self.get_batch_noise()
 
@@ -116,7 +120,7 @@ class CGAN(BaseModel):
                 #  Train Discriminator
                 # ---------------------
                 batch_x = self.get_data_batch(processed_data, self.batch_size)
-                batch_x, label = batch_x[:, ~mask], batch_x[:, mask]
+                batch_x, label = batch_x[:, ~self._mask ], batch_x[:, self._mask ]
                 noise = next(noise_batches)
 
                 # Generate a batch of new records
@@ -150,19 +154,24 @@ class CGAN(BaseModel):
                 #Here is generating synthetic data from an arbitrary condition
                 gen_data = self.sample(label[0], 1000)
 
-    def sample(self, cond_array, n_samples):
+    def sample(self, cond_array, n_samples, inverse_transform: bool = True):
         """Produce n_samples by conditioning the generator with cond_array."""
         assert cond_array.shape[0] == self.num_classes, \
             f"The condition sequence should have a {self.num_classes} length."
         steps = n_samples // self.batch_size + 1
         data = []
         z_dist = self.get_batch_noise()
-        cond_seq = expand_dims(convert_to_tensor(cond_array, tf.dtypes.float32), axis=0)
+        cond_seq = expand_dims(convert_to_tensor(cond_array, dtypes.float32), axis=0)
         cond_seq = tile(cond_seq, multiples=[self.batch_size, 1])
         for step in trange(steps, desc=f'Synthetic data generation'):
-            records = make_ndarray(make_tensor_proto(self.generator([next(z_dist), cond_seq], training=False)))
+            records = empty(shape=(self.batch_size, self._mask.shape[0]))
+            records[:, ~self._mask] = self.generator([next(z_dist), cond_seq], training=False)
+            records[:, self._mask] = cond_seq
             data.append(records)
-        return array(vstack(data))
+        data = array(vstack(data))
+        if inverse_transform:
+            return self.processor.inverse_transform(data)
+        return data
 
 class Generator():
     def __init__(self, batch_size, num_classes):
@@ -172,9 +181,11 @@ class Generator():
     def build_model(self, input_shape, dim, data_dim):
         noise = Input(shape=input_shape, batch_size=self.batch_size)
         label = Input(shape=(self.num_classes,), batch_size=self.batch_size, dtype='int32')
-        label_dense = Dense(1)(label)
-        input = multiply([noise, label_dense])
+        label_dense = Dense(dim, activation ='relu')(label)
+        noise_dense = Dense(dim, activation = 'relu')(noise)
+        input = concat([noise_dense, label_dense], axis=1)
 
+        x = Dropout(0.5)(input)
         x = Dense(dim, activation='relu')(input)
         x = Dense(dim * 2, activation='relu')(x)
         x = Dense(dim * 4, activation='relu')(x)
@@ -189,13 +200,15 @@ class Discriminator():
     def build_model(self, input_shape, dim):
         events = Input(shape=input_shape, batch_size=self.batch_size)
         label = Input(shape=(self.num_classes,), batch_size=self.batch_size, dtype='int32')
-        label_embedding = Dense(1)(label)
-        input = multiply([events, label_embedding])
+        label_dense = Dense(dim)(label)
+        events_dense = Dense(dim)(events)
+        input = concat([events_dense, label_dense], axis = 1)
 
+        x = Dropout(0.5)(input)
         x = Dense(dim * 4, activation='relu')(input)
-        x = Dropout(0.1)(x)
+        x = Dropout(0.5)(x)
         x = Dense(dim * 2, activation='relu')(x)
-        x = Dropout(0.1)(x)
+        x = Dropout(0.5)(x)
         x = Dense(dim, activation='relu')(x)
         x = Dense(1, activation='sigmoid')(x)
         return Model(inputs=[events, label], outputs=x)
