@@ -12,7 +12,7 @@ data = pd.read_csv('data/creditcard.csv', index_col=[0])
 
 #List of columns different from the Class column
 num_cols = list(data.columns[ data.columns != 'Class' ])
-cat_cols = ['Class']
+cat_cols = []  # Condition features are not preprocessed and therefore not listed here
 
 print('Dataset columns: {}'.format(num_cols))
 sorted_cols = ['V14', 'V4', 'V10', 'V17', 'V12', 'V26', 'Amount', 'V21', 'V8', 'V11', 'V7', 'V28', 'V19', 'V3', 'V22', 'V6', 'V20', 'V27', 'V16', 'V13', 'V25', 'V24', 'V18', 'V2', 'V1', 'V5', 'V15', 'V9', 'V23', 'Class']
@@ -75,6 +75,6 @@ synthesizer.save('cgan_synthtrained.pkl')
 synthesizer = model.load('cgan_synthtrained.pkl')
 
 #Sampling from the synthesizer
-cond_array = np.array([0,1])
+cond_array = np.array([0])
 # Synthesizer samples are returned in the original format (inverse_transform of internal processing already took place)
 synthesizer = synthesizer.sample(cond_array, 1000)

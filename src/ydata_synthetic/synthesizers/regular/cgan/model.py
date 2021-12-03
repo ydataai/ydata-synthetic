@@ -4,13 +4,13 @@ from os import path
 from typing import List, Union
 
 import numpy as np
-from numpy import array, vstack, zeros, empty
+from numpy import array, vstack, zeros, empty, hstack, ndarray
 from numpy.random import normal
 from pandas import DataFrame
 from tensorflow import convert_to_tensor, dtypes, expand_dims, tile, concat, constant
 from tensorflow import data as tfdata
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Dense, Dropout, Input
+from tensorflow.keras.layers import Dense, Dropout, Input, Flatten, Embedding, multiply
 from tensorflow.keras.optimizers import Adam
 from tqdm import trange
 
@@ -24,8 +24,8 @@ class CGAN(BaseModel):
 
     def __init__(self, model_parameters, num_classes):
         self.num_classes = num_classes
+        self.label_col = None
         super().__init__(model_parameters)
-        self._mask = None
 
     def define_gan(self):
         self.generator = Generator(self.batch_size, self.num_classes). \
@@ -44,7 +44,7 @@ class CGAN(BaseModel):
 
         # The generator takes noise as input and generates imgs
         z = Input(shape=(self.noise_dim,))
-        label = Input(shape=(self.num_classes,))
+        label = Input(shape=(1,))  # A label vector is expected
         record = self.generator([z, label])
 
         # For the combined model we will only train the generator
@@ -81,13 +81,6 @@ class CGAN(BaseModel):
         train_ix = np.random.choice(train.shape[0], replace=False, size=len(train))  # wasteful to shuffle every time
         return train[train_ix[start_i: stop_i]]
 
-    def __build_mask(self, label_col: str):
-        num_vars = list(self.processor._num_pipeline.get_feature_names_out())
-        cat_vars = list(self.processor._cat_pipeline.get_feature_names_out())
-        mask = zeros(len(num_vars) + len(cat_vars), bool)
-        mask[[i for i, col in enumerate(num_vars + cat_vars) if ''.join(col.split('_')[:-1]) == label_col]] = True
-        self._mask = constant(mask)
-
     def train(self, data: Union[DataFrame, array], label_col: str, train_arguments: TrainParameters, num_cols: List[str],
               cat_cols: List[str], preprocess: bool = True):
         """
@@ -99,13 +92,18 @@ class CGAN(BaseModel):
             cat_cols: List of columns of the data object to be handled as categorical
             preprocess: If True preprocess the data before using in train session
         """
+        # Separating labels from the rest of the data to fit the data processor
+        data, label = data.loc[:, data.columns != label_col], expand_dims(data[label_col], 1)
+        self.label_col = label_col
+
         super().train(data, num_cols, cat_cols, preprocess)
 
         processed_data = self.processor.transform(data)
-        self.data_dim = processed_data.shape[1] - len(self.processor.cat_pipeline.get_feature_names_out())
+        self.data_dim = processed_data.shape[1]
         self.define_gan()
 
-        self.__build_mask(label_col)
+        # Merging labels with processed data
+        processed_data = hstack([processed_data, label])
 
         noise_batches = self.get_batch_noise()
 
@@ -119,8 +117,8 @@ class CGAN(BaseModel):
                 # ---------------------
                 #  Train Discriminator
                 # ---------------------
-                batch_x = self.get_data_batch(processed_data, self.batch_size)
-                batch_x, label = batch_x[:, ~self._mask ], batch_x[:, self._mask ]
+                batch_x = self.get_data_batch(processed_data, self.batch_size)  # Batches are retrieved with labels
+                batch_x, label = batch_x[:, :-1], batch_x[:, -1]  # Separate labels from batch
                 noise = next(noise_batches)
 
                 # Generate a batch of new records
@@ -141,6 +139,7 @@ class CGAN(BaseModel):
             # Plot the progress
             print("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100 * d_loss[1], g_loss))
 
+
             # If at save interval => save generated image samples
             if epoch % train_arguments.sample_interval == 0:
                 # Test here data generation step
@@ -152,23 +151,26 @@ class CGAN(BaseModel):
                 self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
 
                 #Here is generating synthetic data from an arbitrary condition
-                gen_data = self.sample(label[0], 1000)
+                gen_data = self.sample(array([label[0]]), 1000)
 
-    def sample(self, cond_array, n_samples,):
-        """Produce n_samples by conditioning the generator with cond_array."""
-        assert cond_array.shape[0] == self.num_classes, \
-            f"The condition sequence should have a {self.num_classes} length."
+
+    def sample(self, condition: ndarray, n_samples: int,):
+        """Produce n_samples by conditioning the generator with condition."""
+        assert condition.shape[0] == 1, \
+            "A condition with cardinality one is expected."
         steps = n_samples // self.batch_size + 1
         data = []
         z_dist = self.get_batch_noise()
-        cond_seq = expand_dims(convert_to_tensor(cond_array, dtypes.float32), axis=0)
-        cond_seq = tile(cond_seq, multiples=[self.batch_size, 1])
+        condition = expand_dims(convert_to_tensor(condition, dtypes.float32), axis=0)
+        cond_seq = tile(condition, multiples=[self.batch_size, 1])
         for step in trange(steps, desc=f'Synthetic data generation'):
-            records = empty(shape=(self.batch_size, self._mask.shape[0]))
-            records[:, ~self._mask] = self.generator([next(z_dist), cond_seq], training=False)
-            records[:, self._mask] = cond_seq
+            records = empty(shape=(self.batch_size, self.data_dim))
+            records = self.generator([next(z_dist), cond_seq], training=False)
             data.append(records)
-        return self.processor.inverse_transform(array(vstack(data)))
+        data = self.processor.inverse_transform(array(vstack(data)))
+        data[self.label_col] = tile(condition, multiples=[data.shape[0], 1])
+        return data
+
 
 class Generator():
     def __init__(self, batch_size, num_classes):
@@ -177,17 +179,16 @@ class Generator():
 
     def build_model(self, input_shape, dim, data_dim):
         noise = Input(shape=input_shape, batch_size=self.batch_size)
-        label = Input(shape=(self.num_classes,), batch_size=self.batch_size, dtype='int32')
-        label_dense = Dense(dim, activation ='relu')(label)
-        noise_dense = Dense(dim, activation = 'relu')(noise)
-        input = concat([noise_dense, label_dense], axis=1)
+        label = Input(shape=(1,), batch_size=self.batch_size, dtype='int32')
+        label_embedding = Flatten()(Embedding(self.num_classes, 1)(label))
+        input = multiply([noise, label_embedding])
 
-        x = Dropout(0.5)(input)
         x = Dense(dim, activation='relu')(input)
         x = Dense(dim * 2, activation='relu')(x)
         x = Dense(dim * 4, activation='relu')(x)
         x = Dense(data_dim)(x)
         return Model(inputs=[noise, label], outputs=x)
+
 
 class Discriminator():
     def __init__(self, batch_size, num_classes):
@@ -196,16 +197,15 @@ class Discriminator():
 
     def build_model(self, input_shape, dim):
         events = Input(shape=input_shape, batch_size=self.batch_size)
-        label = Input(shape=(self.num_classes,), batch_size=self.batch_size, dtype='int32')
-        label_dense = Dense(dim)(label)
-        events_dense = Dense(dim)(events)
-        input = concat([events_dense, label_dense], axis = 1)
+        label = Input(shape=(1,), batch_size=self.batch_size, dtype='int32')
+        label_embedding = Flatten()(Embedding(self.num_classes, 1)(label))
+        events_flat = Flatten()(events)
+        input = multiply([events_flat, label_embedding])
 
-        x = Dropout(0.5)(input)
         x = Dense(dim * 4, activation='relu')(input)
-        x = Dropout(0.5)(x)
+        x = Dropout(0.1)(x)
         x = Dense(dim * 2, activation='relu')(x)
-        x = Dropout(0.5)(x)
+        x = Dropout(0.1)(x)
         x = Dense(dim, activation='relu')(x)
         x = Dense(1, activation='sigmoid')(x)
         return Model(inputs=[events, label], outputs=x)
