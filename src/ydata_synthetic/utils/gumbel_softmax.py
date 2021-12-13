@@ -7,6 +7,7 @@ from typing import NamedTuple, Optional
 from tensorflow import (Tensor, TensorShape, concat, one_hot, split, squeeze,
                         stop_gradient)
 from tensorflow.keras.layers import Activation, Layer
+from tensorflow.keras.utils import register_keras_serializable
 from tensorflow.math import log
 from tensorflow.nn import softmax
 from tensorflow.random import categorical, uniform
@@ -19,12 +20,12 @@ def gumbel_noise(shape: TensorShape) -> Tensor:
     uniform_sample = uniform(shape, seed=0)
     return -log(-log(uniform_sample + TOL) + TOL)
 
-
+@register_keras_serializable(package='Synthetic Data', name='GumbelSoftmaxLayer')
 class GumbelSoftmaxLayer(Layer):
     "A Gumbel-Softmax layer implementation that should be stacked on top of a categorical feature logits."
 
-    def __init__(self, tau: float = 0.2, name: Optional[str] = None):
-        super().__init__(name = name)
+    def __init__(self, tau: float = 0.2, name: Optional[str] = None, **kwargs):
+        super().__init__(name=name, **kwargs)
         self.tau = tau
 
     # pylint: disable=W0221, E1120
@@ -34,6 +35,11 @@ class GumbelSoftmaxLayer(Layer):
         soft_sample = softmax(noised_input/self.tau, -1)
         hard_sample = stop_gradient(squeeze(one_hot(categorical(log(soft_sample), 1), _input.shape[-1]), 1))
         return hard_sample, soft_sample
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({'tau': self.tau})
+        return config
 
 
 class ActivationInterface(Layer):
@@ -53,6 +59,8 @@ class ActivationInterface(Layer):
             name (Optional[str]): Name of the layer"""
         super().__init__(name)
 
+        self._processor_info = processor_info
+
         self.cat_feats = processor_info.categorical
         self.num_feats = processor_info.numerical
 
@@ -60,13 +68,16 @@ class ActivationInterface(Layer):
             for cat_feat in self.cat_feats.feat_names_in]
         self._num_lens = len(self.num_feats.feat_names_out)
 
-        self._num_activ = Activation('tanh', name='num_cols_activation')
-        self._cat_activ = [GumbelSoftmaxLayer(name=name) for name in self.cat_feats.feat_names_in]
-
     def call(self, _input):  # pylint: disable=W0221
         num_cols, cat_cols = split(_input, [self._num_lens, -1], 1, name='split_num_cats')
         cat_cols = split(cat_cols, self._cat_lens, 1, name='split_cats')
 
-        num_cols = [self._num_activ(num_cols)]
-        cat_cols = [activ(col)[0] for (activ, col) in zip(self._cat_activ, cat_cols)]
+        num_cols = [Activation('tanh', name='num_cols_activation')(num_cols)]
+        cat_cols = [GumbelSoftmaxLayer(name=name)(col)[0] for name, col in \
+            zip(self.cat_feats.feat_names_in, cat_cols)]
         return concat(num_cols+cat_cols, 1)
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({'processor_info': self._processor_info})
+        return config
