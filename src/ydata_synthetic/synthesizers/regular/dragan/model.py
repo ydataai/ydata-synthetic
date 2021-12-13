@@ -1,6 +1,7 @@
 import os
 from os import path
 
+from typing import Optional, NamedTuple
 import tensorflow as tf
 import tqdm
 from tensorflow.keras import Model, initializers
@@ -9,6 +10,7 @@ from tensorflow.keras.optimizers import Adam
 
 from ydata_synthetic.synthesizers.gan import BaseModel
 from ydata_synthetic.synthesizers.loss import Mode, gradient_penalty
+from ydata_synthetic.utils.gumbel_softmax import ActivationInterface
 
 
 class DRAGAN(BaseModel):
@@ -21,10 +23,11 @@ class DRAGAN(BaseModel):
         self.gradient_penalty_weight = gradient_penalty_weight
         super().__init__(model_parameters)
 
-    def define_gan(self):
+    def define_gan(self, col_transform_info: Optional[NamedTuple] = None):
         # define generator/discriminator
         self.generator = Generator(self.batch_size). \
-            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim)
+            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,
+                        processor_info=col_transform_info)
 
         self.discriminator = Discriminator(self.batch_size). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
@@ -125,7 +128,7 @@ class DRAGAN(BaseModel):
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]
-        self.define_gan()
+        self.define_gan(self.processor.col_transform_info if preprocess else None)
 
         train_loader = self.get_data_batch(processed_data, self.batch_size)
 
@@ -174,10 +177,12 @@ class Generator(Model):
     def __init__(self, batch_size):
         self.batch_size = batch_size
 
-    def build_model(self, input_shape, dim, data_dim):
+    def build_model(self, input_shape, dim, data_dim, processor_info: NamedTuple = None):
         input = Input(shape=input_shape, batch_size = self.batch_size)
         x = Dense(dim, kernel_initializer=initializers.TruncatedNormal(mean=0., stddev=0.5), activation='relu')(input)
         x = Dense(dim * 2, activation='relu')(x)
         x = Dense(dim * 4, activation='relu')(x)
         x = Dense(data_dim)(x)
+        if processor_info:
+            x = ActivationInterface(processor_info)(x)
         return Model(inputs=input, outputs=x)

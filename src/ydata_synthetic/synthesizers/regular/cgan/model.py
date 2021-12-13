@@ -19,6 +19,7 @@ from tqdm import trange
 
 from ydata_synthetic.synthesizers import TrainParameters
 from ydata_synthetic.synthesizers.gan import BaseModel
+from ydata_synthetic.utils.gumbel_softmax import ActivationInterface
 
 
 class CGAN(BaseModel):
@@ -52,7 +53,8 @@ class CGAN(BaseModel):
 
     def define_gan(self):
         self.generator = Generator(self.batch_size, self.num_classes). \
-            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim)
+            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,
+                        processor_info = processor_info)
 
         self.discriminator = Discriminator(self.batch_size, self.num_classes). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
@@ -121,7 +123,7 @@ class CGAN(BaseModel):
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]
-        self.define_gan()
+        self.define_gan(self.processor.col_transform_info if preprocess else None)
 
         # Merging labels with processed data
         processed_data = hstack([processed_data, label])
@@ -198,7 +200,7 @@ class Generator():
         self.batch_size = batch_size
         self.num_classes = num_classes
 
-    def build_model(self, input_shape, dim, data_dim):
+    def build_model(self, input_shape, dim, data_dim, processor_info: Optional[NamedTuple] = None):
         noise = Input(shape=input_shape, batch_size=self.batch_size)
         label = Input(shape=(1,), batch_size=self.batch_size, dtype='int32')
         label_embedding = Flatten()(Embedding(self.num_classes, 1)(label))
@@ -208,6 +210,8 @@ class Generator():
         x = Dense(dim * 2, activation='relu')(x)
         x = Dense(dim * 4, activation='relu')(x)
         x = Dense(data_dim)(x)
+        if processor_info:
+            x = ActivationInterface(processor_info).call(x)
         return Model(inputs=[noise, label], outputs=x)
 
 
