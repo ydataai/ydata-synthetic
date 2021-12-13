@@ -56,15 +56,17 @@ class ActivationInterface(Layer):
         self.cat_feats = processor_info.categorical
         self.num_feats = processor_info.numerical
 
-        self._cat_lens = [len([col for col in self.cat_feats.feat_names_out if \
-            col.startswith(cat_feat) and search('_[0-9]*$', col)]) for cat_feat in self.cat_feats.feat_names_in]
+        self._cat_lens = [len([col for col in self.cat_feats.feat_names_out if search(f'^{cat_feat}_.*$', col)]) \
+            for cat_feat in self.cat_feats.feat_names_in]
         self._num_lens = len(self.num_feats.feat_names_out)
+
+        self._num_activ = Activation('tanh', name='num_cols_activation')
+        self._cat_activ = [GumbelSoftmaxLayer(name=name) for name in self.cat_feats.feat_names_in]
 
     def call(self, _input):  # pylint: disable=W0221
         num_cols, cat_cols = split(_input, [self._num_lens, -1], 1, name='split_num_cats')
         cat_cols = split(cat_cols, self._cat_lens, 1, name='split_cats')
 
-        num_cols = [Activation('tanh', name='num_cols_activation')(num_cols)]
-        cat_cols = [GumbelSoftmaxLayer(name=name)(col)[0] for name, col in \
-            zip(self.cat_feats.feat_names_in, cat_cols)]
+        num_cols = [self._num_activ(num_cols)]
+        cat_cols = [activ(col)[0] for (activ, col) in zip(self._cat_activ, cat_cols)]
         return concat(num_cols+cat_cols, 1)
