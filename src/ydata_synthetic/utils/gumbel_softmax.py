@@ -42,6 +42,7 @@ class GumbelSoftmaxLayer(Layer):
         return config
 
 
+@register_keras_serializable(package='Synthetic Data', name='ActivationInterface')
 class ActivationInterface(Layer):
     """An interface layer connecting different parts of an incoming tensor to adequate activation functions.
     The tensor parts are qualified according to the passed processor object.
@@ -53,11 +54,11 @@ class ActivationInterface(Layer):
         processor's pipelines in/out feature maps. For simplicity this object can be taken directly from the data \
         processor col_transform_info."""
 
-    def __init__(self, processor_info: NamedTuple, name: Optional[str] = None):
+    def __init__(self, processor_info: NamedTuple, name: Optional[str] = None, **kwargs):
         """Arguments:
             col_map (NamedTuple): Defines each of the processor pipelines input/output features.
             name (Optional[str]): Name of the layer"""
-        super().__init__(name)
+        super().__init__(name=name, **kwargs)
 
         self._processor_info = processor_info
 
@@ -70,7 +71,7 @@ class ActivationInterface(Layer):
 
     def call(self, _input):  # pylint: disable=W0221
         num_cols, cat_cols = split(_input, [self._num_lens, -1], 1, name='split_num_cats')
-        cat_cols = split(cat_cols, self._cat_lens, 1, name='split_cats')
+        cat_cols = split(cat_cols, self._cat_lens if self._cat_lens else [0], 1, name='split_cats')
 
         num_cols = [Activation('tanh', name='num_cols_activation')(num_cols)]
         cat_cols = [GumbelSoftmaxLayer(name=name)(col)[0] for name, col in \

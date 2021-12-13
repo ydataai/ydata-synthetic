@@ -58,8 +58,8 @@ class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
         return self._col_transform_info
 
     def __create_metadata_synth(self):
-        num_info = None
-        cat_info = None
+        num_info = PipelineInfo([], [])
+        cat_info = PipelineInfo([], [])
         # Numerical ls named tuple
         if self.num_cols:
             num_info = PipelineInfo(self.num_pipeline.feature_names_in_, self.num_pipeline.get_feature_names_out())
