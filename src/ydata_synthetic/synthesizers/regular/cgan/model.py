@@ -99,7 +99,7 @@ class CGAN(BaseModel):
         return data[data_ix[start_i: stop_i]]
 
     def train(self, data: Union[DataFrame, array], label_col: str, train_arguments: TrainParameters, num_cols: List[str],
-              cat_cols: List[str], preprocess: bool = True):
+              cat_cols: List[str]):
         """
         Args:
             data: A pandas DataFrame or a Numpy array with the data to be synthesized
@@ -107,7 +107,6 @@ class CGAN(BaseModel):
             train_arguments: GAN training arguments.
             num_cols: List of columns of the data object to be handled as numerical
             cat_cols: List of columns of the data object to be handled as categorical
-            preprocess: If True preprocess the data before using in train session
         """
         # Validating the label column
         self.label_col = (data, label_col)

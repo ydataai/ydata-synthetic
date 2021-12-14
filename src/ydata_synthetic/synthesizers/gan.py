@@ -95,23 +95,20 @@ class BaseModel():
     def train(self,
               data: Union[DataFrame, array],
               num_cols: Optional[List[str]] = None,
-              cat_cols: Optional[List[str]] = None,
-              preprocess: bool = True) -> Union[DataFrame, array]:
+              cat_cols: Optional[List[str]] = None) -> Union[DataFrame, array]:
         """Sets up the train session by instantiating an appropriate processor, fitting and storing it as an attribute.
         Args:
             data (Union[DataFrame, array]): Raw data object.
             num_cols (Optional[List[str]]): List of names of numerical columns.
             cat_cols (Optional[List[str]]): List of names of categorical columns.
-            preprocess (bool): Determines if the preprocessor is to be run on the data or not (p.e. preprocessed data).
         """
-        if preprocess:
-            if self.__MODEL__ in RegularModels.__members__:
-                self.processor = RegularDataProcessor
-            elif self.__MODEL__ in TimeSeriesModels.__members__:
-                self.processor = TimeSeriesDataProcessor
-            else:
-                print(f'A DataProcessor is not available for the {self.__MODEL__}.')
-            self.processor = self.processor(num_cols = num_cols, cat_cols = cat_cols).fit(data)
+        if self.__MODEL__ in RegularModels.__members__:
+            self.processor = RegularDataProcessor
+        elif self.__MODEL__ in TimeSeriesModels.__members__:
+            self.processor = TimeSeriesDataProcessor
+        else:
+            print(f'A DataProcessor is not available for the {self.__MODEL__}.')
+        self.processor = self.processor(num_cols = num_cols, cat_cols = cat_cols).fit(data)
 
     def sample(self, n_samples: int):
         """Generate n_samples synthetic records from the synthesizer.

@@ -1,6 +1,7 @@
 "Implementation of a Regular DataProcessor."
 from __future__ import annotations
 
+from enum import Enum
 from typing import List, Optional
 
 from numpy import concatenate, ndarray, split, zeros

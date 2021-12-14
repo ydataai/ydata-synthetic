@@ -127,17 +127,15 @@ class WGAN_GP(BaseModel):
         cri_loss, ge_loss = self.update_gradients(train_data)
         return cri_loss, ge_loss
 
-    def train(self, data, train_arguments: TrainParameters, num_cols: List[str],
-              cat_cols: List[str], preprocess: bool = True):
+    def train(self, data, train_arguments: TrainParameters, num_cols: List[str], cat_cols: List[str]):
         """
         Args:
             data: A pandas DataFrame or a Numpy array with the data to be synthesized
             train_arguments: GAN training arguments.
             num_cols: List of columns of the data object to be handled as numerical
             cat_cols: List of columns of the data object to be handled as categorical
-            preprocess: If True preprocess the data before using in train session
         """
-        super().train(data, num_cols, cat_cols, preprocess)
+        super().train(data, num_cols, cat_cols)
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]

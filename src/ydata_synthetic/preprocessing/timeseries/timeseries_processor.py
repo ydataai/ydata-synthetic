@@ -1,4 +1,5 @@
 "Implementation of a TimeSeries DataProcessor."
+from enum import Enum
 from typing import List, Optional
 
 from typeguard import typechecked

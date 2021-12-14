@@ -34,7 +34,7 @@ train_args = TrainParameters(epochs=epochs,
                              sample_interval=log_step)
 
 synthesizer = model(gan_args, n_critic=2)
-synthesizer.train(data, train_args, num_cols, cat_cols, preprocess = True)
+synthesizer.train(data, train_args, num_cols, cat_cols)
 
 synthesizer.save('test.pkl')
 

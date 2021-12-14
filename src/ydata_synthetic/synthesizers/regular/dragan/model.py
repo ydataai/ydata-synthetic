@@ -113,8 +113,15 @@ class DRAGAN(BaseModel):
         d_loss, g_loss = self.update_gradients(train_data)
         return d_loss, g_loss
 
-    def train(self, data, train_arguments, num_cols, cat_cols, preprocess: bool = True):
-        super().train(data, num_cols, cat_cols, preprocess)
+    def train(self, data, train_arguments, num_cols, cat_cols):
+        """
+        Args:
+            data: A pandas DataFrame or a Numpy array with the data to be synthesized
+            train_arguments: GAN training arguments.
+            num_cols: List of columns of the data object to be handled as numerical
+            cat_cols: List of columns of the data object to be handled as categorical
+        """
+        super().train(data, num_cols, cat_cols)
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]
