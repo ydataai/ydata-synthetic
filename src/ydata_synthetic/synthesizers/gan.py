@@ -1,6 +1,5 @@
 "Implements a GAN BaseModel synthesizer, not meant to be directly instantiated."
 from collections import namedtuple
-from enum import Enum
 from typing import List, Optional, Union
 
 import tensorflow as tf
@@ -11,10 +10,10 @@ from pandas import DataFrame
 from tensorflow import config as tfconfig
 from typeguard import typechecked
 
-from ydata_synthetic.preprocessing.regular.processor import \
-    RegularDataProcessor
-from ydata_synthetic.preprocessing.timeseries.timeseries_processor import \
-    TimeSeriesDataProcessor
+from ydata_synthetic.preprocessing.regular.processor import (
+    RegularDataProcessor, RegularModels)
+from ydata_synthetic.preprocessing.timeseries.timeseries_processor import (
+    TimeSeriesDataProcessor, TimeSeriesModels)
 from ydata_synthetic.synthesizers.saving_keras import make_keras_picklable
 
 _model_parameters = ['batch_size', 'lr', 'betas', 'layers_dim', 'noise_dim',
@@ -27,21 +26,6 @@ _train_parameters = ['cache_prefix', 'label_dim', 'epochs', 'sample_interval', '
 ModelParameters = namedtuple('ModelParameters', _model_parameters, defaults=_model_parameters_df)
 TrainParameters = namedtuple('TrainParameters', _train_parameters, defaults=('', None, 300, 50, None))
 
-
-class RegularModels(Enum):
-    "Supported models for the Regular Data Processor."
-    CGAN = 'CGAN'
-    CRAMERGAN = 'CramerGAN'
-    DRAGAN = 'DRAGAN'
-    GAN = 'VanillaGAN'
-    WGAN = 'WGAN'
-    WGAN_GP = 'WGAN_GP'
-
-
-class TimeSeriesModels(Enum):
-    "Supported models for the TimeSeries Data Processor."
-    TIMEGAN = 'TIMEGAN'
-    TSCWGAN = 'TSCWGAN'
 
 # pylint: disable=R0902
 @typechecked

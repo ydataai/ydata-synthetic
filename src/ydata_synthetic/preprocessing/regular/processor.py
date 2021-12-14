@@ -11,6 +11,17 @@ from typeguard import typechecked
 
 from ydata_synthetic.preprocessing.base_processor import BaseProcessor
 
+
+class RegularModels(Enum):
+    "Supported models for the Regular Data Processor."
+    CGAN = 'CGAN'
+    CRAMERGAN = 'CramerGAN'
+    DRAGAN = 'DRAGAN'
+    GAN = 'VanillaGAN'
+    WGAN = 'WGAN'
+    WGAN_GP = 'WGAN_GP'
+
+
 @typechecked
 class RegularDataProcessor(BaseProcessor):
     """

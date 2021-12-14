@@ -6,6 +6,12 @@ from typeguard import typechecked
 from ydata_synthetic.preprocessing.base_processor import BaseProcessor
 
 
+class TimeSeriesModels(Enum):
+    "Supported models for the TimeSeries Data Processor."
+    TIMEGAN = 'TIMEGAN'
+    TSCWGAN = 'TSCWGAN'
+
+
 @typechecked
 class TimeSeriesDataProcessor(BaseProcessor):
     """
