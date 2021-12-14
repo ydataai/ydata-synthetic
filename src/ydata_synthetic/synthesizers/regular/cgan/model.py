@@ -45,7 +45,7 @@ class CGAN(BaseModel):
             cannot be used as condition."
         assert data[label_col].isna().sum() == 0, "The label column contains NaN values, please impute or drop the \
             respective records before proceeding."
-        assert is_float_dtype(data[label_col]) or is_integer_dtype(float), "The label column is expected to be an \
+        assert is_float_dtype(data[label_col]) or is_integer_dtype(data[label_col]), "The label column is expected to be an \
             integer or a float dtype to ensure the function of the embedding layer."
         unique_frac = data[label_col].nunique()/len(data.index)
         assert unique_frac < 1, "The provided column {label_col} is constituted by unique values and is not suitable \
