@@ -7,6 +7,7 @@ import numpy as np
 from numpy import array, empty, hstack, ndarray, vstack, save
 from numpy.random import normal
 from pandas import DataFrame
+from pandas.api.types import is_float_dtype, is_integer_dtype
 from tensorflow import convert_to_tensor
 from tensorflow import data as tfdata
 from tensorflow import dtypes, expand_dims, tile
@@ -43,6 +44,8 @@ class CGAN(BaseModel):
             cannot be used as condition."
         assert data[label_col].isna().sum() == 0, "The label column contains NaN values, please impute or drop the \
             respective records before proceeding."
+        assert is_float_dtype(data[label_col]) or is_integer_dtype(float), "The label column is expected to be an \
+            integer or a float dtype to ensure the function of the embedding layer."
         unique_frac = data[label_col].nunique()/len(data.index)
         assert unique_frac < 1, "The provided column {label_col} is constituted by unique values and is not suitable \
             to be used as condition."
@@ -229,3 +232,22 @@ class Discriminator():
         x = Dense(dim, activation='relu')(x)
         x = Dense(1, activation='sigmoid')(x)
         return Model(inputs=[events, label], outputs=x)
+
+import tensorflow as tf
+import numpy as np
+
+model = tf.keras.Sequential()
+model.add(tf.keras.layers.Embedding(10, 64, input_length=10, dtype=str))
+# The model will take as input an integer matrix of size (batch,
+# input_length), and the largest integer (i.e. word index) in the input
+# should be no larger than 999 (vocabulary size).
+# Now model.output_shape is (None, 10, 64), where `None` is the batch
+# dimension.
+test_phrase = "Eu gosto é de comer laranjas e bananas com nutella".split(' ')
+input_array = np.random.randint(10, size=(32, 10))
+to_text = lambda x: test_phrase[x]
+vfunc = np.vectorize(to_text)
+input_array = vfunc(input_array)
+model.compile('rmsprop', 'mse')
+output_array = model.predict(input_array)
+print(output_array.shape)
