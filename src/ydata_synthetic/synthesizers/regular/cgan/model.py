@@ -1,16 +1,18 @@
 """CGAN implementation"""
 import os
 from os import path
-from typing import List, Union
+from typing import List, Tuple, Union
 
 import numpy as np
-from numpy import array, vstack, zeros, empty, hstack, ndarray
+from numpy import array, empty, hstack, ndarray, vstack, save
 from numpy.random import normal
 from pandas import DataFrame
-from tensorflow import convert_to_tensor, dtypes, expand_dims, tile, concat, constant
+from tensorflow import convert_to_tensor
 from tensorflow import data as tfdata
+from tensorflow import dtypes, expand_dims, tile
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Dense, Dropout, Input, Flatten, Embedding, multiply
+from tensorflow.keras.layers import (Dense, Dropout, Embedding, Flatten, Input,
+                                     multiply)
 from tensorflow.keras.optimizers import Adam
 from tqdm import trange
 
@@ -19,13 +21,31 @@ from ydata_synthetic.synthesizers.gan import BaseModel
 
 
 class CGAN(BaseModel):
+    "CGAN model for discrete conditions."
 
     __MODEL__='CGAN'
 
     def __init__(self, model_parameters, num_classes):
         self.num_classes = num_classes
-        self.label_col = None
+        self._label_col = None
         super().__init__(model_parameters)
+
+    @property
+    def label_col(self) -> str:
+        "Returns the name of the label used for conditioning the model."
+        return self._label_col
+
+    @label_col.setter
+    def label_col(self, data_label: Tuple[Union[DataFrame, array], str]):
+        "Validates the label_col format, raises ValueError if invalid."
+        data, label_col = data_label
+        assert label_col in data.columns, f"The column {label_col} could not be found on the provided dataset and \
+            cannot be used as condition."
+        assert data[label_col].isna().sum() == 0, "The label column contains NaN values, please impute or drop the \
+            respective records before proceeding."
+        unique_frac = data[label_col].nunique()/len(data.index)
+        assert unique_frac < 1, "The provided column {label_col} is constituted by unique values and is not suitable \
+            to be used as condition."
 
     def define_gan(self):
         self.generator = Generator(self.batch_size, self.num_classes). \
@@ -43,9 +63,9 @@ class CGAN(BaseModel):
                                    metrics=['accuracy'])
 
         # The generator takes noise as input and generates imgs
-        z = Input(shape=(self.noise_dim,))
+        noise = Input(shape=(self.noise_dim,))
         label = Input(shape=(1,))  # A label vector is expected
-        record = self.generator([z, label])
+        record = self.generator([noise, label])
 
         # For the combined model we will only train the generator
         self.discriminator.trainable = False
@@ -55,7 +75,7 @@ class CGAN(BaseModel):
 
         # The combined model  (stacked generator and discriminator)
         # Trains the generator to fool the discriminator
-        self._model = Model([z, label], validity)
+        self._model = Model([noise, label], validity)
         self._model.compile(loss='binary_crossentropy', optimizer=g_optimizer)
 
     def _generate_noise(self):
@@ -69,17 +89,14 @@ class CGAN(BaseModel):
                                 .batch(self.batch_size)
                                 .repeat())
 
-    def get_data_batch(self, train, batch_size, seed=0):
-        # # random sampling - some samples will have excessively low or high sampling, but easy to implement
-        # np.random.seed(seed)
-        # iterate through shuffled indices, so every sample gets covered evenly
-
-        start_i = (batch_size * seed) % len(train)
+    def get_data_batch(self, data, batch_size, seed=0):
+        "Produce real data batches from the passed data object."
+        start_i = (batch_size * seed) % len(data)
         stop_i = start_i + batch_size
-        shuffle_seed = (batch_size * seed) // len(train)
+        shuffle_seed = (batch_size * seed) // len(data)
         np.random.seed(shuffle_seed)
-        train_ix = np.random.choice(train.shape[0], replace=False, size=len(train))  # wasteful to shuffle every time
-        return train[train_ix[start_i: stop_i]]
+        data_ix = np.random.choice(data.shape[0], replace=False, size=len(data))  # wasteful to shuffle every time
+        return data[data_ix[start_i: stop_i]]
 
     def train(self, data: Union[DataFrame, array], label_col: str, train_arguments: TrainParameters, num_cols: List[str],
               cat_cols: List[str], preprocess: bool = True):
@@ -92,9 +109,11 @@ class CGAN(BaseModel):
             cat_cols: List of columns of the data object to be handled as categorical
             preprocess: If True preprocess the data before using in train session
         """
+        # Validating the label column
+        self.label_col = (data, label_col)
+
         # Separating labels from the rest of the data to fit the data processor
         data, label = data.loc[:, data.columns != label_col], expand_dims(data[label_col], 1)
-        self.label_col = label_col
 
         super().train(data, num_cols, cat_cols, preprocess)
 
@@ -139,22 +158,20 @@ class CGAN(BaseModel):
             # Plot the progress
             print("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100 * d_loss[1], g_loss))
 
-
-            # If at save interval => save generated image samples
+            # If at save interval => save model state and generated image samples
             if epoch % train_arguments.sample_interval == 0:
-                # Test here data generation step
-                # save model checkpoints
-                if path.exists('./cache') is False:
-                    os.mkdir('./cache')
-                model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
-                self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
-                self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
+                self._run_checkpoint(train_arguments, epoch, label)
 
-                #Here is generating synthetic data from an arbitrary condition
-                gen_data = self.sample(array([label[0]]), 1000)
+    def _run_checkpoint(self, train_arguments, epoch, label):
+        "Run checkpoint. Store model state and generated samples."
+        if path.exists('./cache') is False:
+            os.mkdir('./cache')
+        model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
+        self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
+        self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
+        save('./cache/' + train_arguments.cache_prefix + f'_sample_{epoch}.npy', self.sample(array([label[0]]), 1000))
 
-
-    def sample(self, condition: ndarray, n_samples: int,):
+    def sample(self, condition: ndarray, n_samples: int,) -> ndarray:
         """Produce n_samples by conditioning the generator with condition."""
         assert condition.shape[0] == 1, \
             "A condition with cardinality one is expected."
@@ -163,7 +180,7 @@ class CGAN(BaseModel):
         z_dist = self.get_batch_noise()
         condition = expand_dims(convert_to_tensor(condition, dtypes.float32), axis=0)
         cond_seq = tile(condition, multiples=[self.batch_size, 1])
-        for step in trange(steps, desc=f'Synthetic data generation'):
+        for _ in trange(steps, desc='Synthetic data generation'):
             records = empty(shape=(self.batch_size, self.data_dim))
             records = self.generator([next(z_dist), cond_seq], training=False)
             data.append(records)
@@ -172,7 +189,9 @@ class CGAN(BaseModel):
         return data
 
 
+# pylint: disable=R0903
 class Generator():
+    "Standard discrete conditional generator."
     def __init__(self, batch_size, num_classes):
         self.batch_size = batch_size
         self.num_classes = num_classes
@@ -190,7 +209,9 @@ class Generator():
         return Model(inputs=[noise, label], outputs=x)
 
 
+# pylint: disable=R0903
 class Discriminator():
+    "Standard discrete conditional discriminator."
     def __init__(self, batch_size, num_classes):
         self.batch_size = batch_size
         self.num_classes = num_classes
