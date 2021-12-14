@@ -98,7 +98,7 @@ class WGAN(BaseModel):
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]
-        self.define_gan(self.processor.col_transform_info if preprocess else None)
+        self.define_gan(self.processor.col_transform_info)
 
         #Create a summary file
         iterations = int(abs(data.shape[0]/self.batch_size)+1)

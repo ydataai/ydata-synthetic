@@ -1,7 +1,7 @@
 """CGAN implementation"""
 import os
 from os import path
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional, NamedTuple
 
 import numpy as np
 from numpy import array, empty, hstack, ndarray, vstack, save
@@ -51,7 +51,7 @@ class CGAN(BaseModel):
         assert unique_frac < 1, "The provided column {label_col} is constituted by unique values and is not suitable \
             to be used as condition."
 
-    def define_gan(self):
+    def define_gan(self, activation_info: Optional[NamedTuple] = None):
         self.generator = Generator(self.batch_size, self.num_classes). \
             build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,
                         activation_info = activation_info)
@@ -123,7 +123,7 @@ class CGAN(BaseModel):
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]
-        self.define_gan(self.processor.col_transform_info if preprocess else None)
+        self.define_gan(self.processor.col_transform_info)
 
         # Merging labels with processed data
         processed_data = hstack([processed_data, label])

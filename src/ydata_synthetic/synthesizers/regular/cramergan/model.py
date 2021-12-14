@@ -147,7 +147,7 @@ class CRAMERGAN(BaseModel):
 
         data = self.processor.transform(data)
         self.data_dim = data.shape[1]
-        self.define_gan(self.processor.col_transform_info if preprocess else None)
+        self.define_gan(self.processor.col_transform_info)
 
         iterations = int(abs(data.shape[0] / self.batch_size) + 1)
 

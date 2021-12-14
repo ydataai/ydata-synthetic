@@ -128,7 +128,7 @@ class DRAGAN(BaseModel):
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]
-        self.define_gan(self.processor.col_transform_info if preprocess else None)
+        self.define_gan(self.processor.col_transform_info)
 
         train_loader = self.get_data_batch(processed_data, self.batch_size)
 
