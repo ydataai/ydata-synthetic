@@ -42,8 +42,8 @@ class GumbelSoftmaxLayer(Layer):
         return config
 
 
-@register_keras_serializable(package='Synthetic Data', name='ActivationInterface')
-class ActivationInterface(Layer):
+@register_keras_serializable(package='Synthetic Data', name='GumbelSoftmaxActivation')
+class GumbelSoftmaxActivation(Layer):
     """An interface layer connecting different parts of an incoming tensor to adequate activation functions.
     The tensor parts are qualified according to the passed processor object.
     Processed categorical features are sent to specific Gumbel-Softmax layers.
@@ -54,16 +54,16 @@ class ActivationInterface(Layer):
         processor's pipelines in/out feature maps. For simplicity this object can be taken directly from the data \
         processor col_transform_info."""
 
-    def __init__(self, processor_info: NamedTuple, name: Optional[str] = None, **kwargs):
+    def __init__(self, activation_info: NamedTuple, name: Optional[str] = None, **kwargs):
         """Arguments:
             col_map (NamedTuple): Defines each of the processor pipelines input/output features.
             name (Optional[str]): Name of the layer"""
         super().__init__(name=name, **kwargs)
 
-        self._processor_info = processor_info
+        self._activation_info = activation_info
 
-        self.cat_feats = processor_info.categorical
-        self.num_feats = processor_info.numerical
+        self.cat_feats = activation_info.categorical
+        self.num_feats = activation_info.numerical
 
         self._cat_lens = [len([col for col in self.cat_feats.feat_names_out if search(f'^{cat_feat}_.*$', col)]) \
             for cat_feat in self.cat_feats.feat_names_in]
@@ -80,5 +80,5 @@ class ActivationInterface(Layer):
 
     def get_config(self):
         config = super().get_config().copy()
-        config.update({'processor_info': self._processor_info})
+        config.update({'activation_info': self._activation_info})
         return config

@@ -1,4 +1,4 @@
-"Activation Interface layer test suite."
+"GumbelSoftmaxActivation layer test suite."
 from itertools import cycle, islice
 from re import search
 
@@ -12,7 +12,7 @@ from tensorflow.keras.layers import Dense, Input
 
 from ydata_synthetic.preprocessing.regular.processor import \
     RegularDataProcessor
-from ydata_synthetic.utils.gumbel_softmax import ActivationInterface
+from ydata_synthetic.utils.gumbel_softmax import GumbelSoftmaxActivation
 
 BATCH_SIZE = 10
 
@@ -47,7 +47,7 @@ def fixture_mock_generator(noise_batch, mock_processor):
     x = Dense(dim * 2, activation='relu')(x)
     x = Dense(dim * 4, activation='relu')(x)
     x = Dense(data_dim)(x)
-    x = ActivationInterface(processor_info=mock_processor.col_transform_info, name='act_itf')(x)
+    x = GumbelSoftmaxActivation(activation_info=mock_processor.col_transform_info, name='act_itf')(x)
     return Model(inputs=input_, outputs=x)
 
 @fixture(name='mock_output')
