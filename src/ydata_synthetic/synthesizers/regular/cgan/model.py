@@ -114,7 +114,7 @@ class CGAN(BaseModel):
         # Separating labels from the rest of the data to fit the data processor
         data, label = data.loc[:, data.columns != label_col], expand_dims(data[label_col], 1)
 
-        super().train(data, num_cols, cat_cols, preprocess)
+        super().train(data, num_cols, cat_cols)
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]
