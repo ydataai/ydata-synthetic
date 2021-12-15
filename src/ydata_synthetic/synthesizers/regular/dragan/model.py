@@ -1,15 +1,15 @@
 import os
 from os import path
 
-import tqdm
-
 import tensorflow as tf
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.layers import Input, Dense, Dropout
+import tqdm
 from tensorflow.keras import Model, initializers
+from tensorflow.keras.layers import Dense, Dropout, Input
+from tensorflow.keras.optimizers import Adam
 
 from ydata_synthetic.synthesizers.gan import BaseModel
 from ydata_synthetic.synthesizers.loss import Mode, gradient_penalty
+
 
 class DRAGAN(BaseModel):
 
@@ -113,8 +113,21 @@ class DRAGAN(BaseModel):
         d_loss, g_loss = self.update_gradients(train_data)
         return d_loss, g_loss
 
-    def train(self, data, train_arguments):
-        train_loader = self.get_data_batch(data, self.batch_size)
+    def train(self, data, train_arguments, num_cols, cat_cols):
+        """
+        Args:
+            data: A pandas DataFrame or a Numpy array with the data to be synthesized
+            train_arguments: GAN training arguments.
+            num_cols: List of columns of the data object to be handled as numerical
+            cat_cols: List of columns of the data object to be handled as categorical
+        """
+        super().train(data, num_cols, cat_cols)
+
+        processed_data = self.processor.transform(data)
+        self.data_dim = processed_data.shape[1]
+        self.define_gan()
+
+        train_loader = self.get_data_batch(processed_data, self.batch_size)
 
         # Create a summary file
         train_summary_writer = tf.summary.create_file_writer(path.join('..\dragan_test', 'summaries', 'train'))
@@ -144,28 +157,27 @@ class DRAGAN(BaseModel):
 
 
 class Discriminator(Model):
-  def __init__(self, batch_size):
-    self.batch_size = batch_size
+    def __init__(self, batch_size):
+        self.batch_size = batch_size
 
-  def build_model(self, input_shape, dim):
-    input = Input(shape=input_shape, batch_size=self.batch_size)
-    x = Dense(dim * 4, kernel_initializer=initializers.TruncatedNormal(mean=0., stddev=0.5), activation='relu')(input)
-    x = Dropout(0.1)(x)
-    x = Dense(dim * 2, activation='relu')(x)
-    x = Dropout(0.1)(x)
-    x = Dense(dim, activation='relu')(x)
-    x = Dense(1, activation='sigmoid')(x)
-    return Model(inputs=input, outputs=x)
+    def build_model(self, input_shape, dim):
+        input = Input(shape=input_shape, batch_size=self.batch_size)
+        x = Dense(dim * 4, kernel_initializer=initializers.TruncatedNormal(mean=0., stddev=0.5), activation='relu')(input)
+        x = Dropout(0.1)(x)
+        x = Dense(dim * 2, activation='relu')(x)
+        x = Dropout(0.1)(x)
+        x = Dense(dim, activation='relu')(x)
+        x = Dense(1, activation='sigmoid')(x)
+        return Model(inputs=input, outputs=x)
 
 class Generator(Model):
-  def __init__(self, batch_size):
-    self.batch_size = batch_size
+    def __init__(self, batch_size):
+        self.batch_size = batch_size
 
-  def build_model(self, input_shape, dim, data_dim):
-    input = Input(shape=input_shape, batch_size = self.batch_size)
-    x = Dense(dim, kernel_initializer=initializers.TruncatedNormal(mean=0., stddev=0.5), activation='relu')(input)
-    x = Dense(dim * 2, activation='relu')(x)
-    x = Dense(dim * 4, activation='relu')(x)
-    x = Dense(data_dim)(x)
-    return Model(inputs=input, outputs=x)
-
+    def build_model(self, input_shape, dim, data_dim):
+        input = Input(shape=input_shape, batch_size = self.batch_size)
+        x = Dense(dim, kernel_initializer=initializers.TruncatedNormal(mean=0., stddev=0.5), activation='relu')(input)
+        x = Dense(dim * 2, activation='relu')(x)
+        x = Dense(dim * 4, activation='relu')(x)
+        x = Dense(data_dim)(x)
+        return Model(inputs=input, outputs=x)

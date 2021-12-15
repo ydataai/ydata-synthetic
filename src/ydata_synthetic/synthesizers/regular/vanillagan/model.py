@@ -1,6 +1,7 @@
 import os
 from os import path
 import numpy as np
+from typing import List
 from tqdm import trange
 
 from ydata_synthetic.synthesizers.gan import BaseModel
@@ -58,14 +59,25 @@ class VanilllaGAN(BaseModel):
         stop_i = start_i + batch_size
         shuffle_seed = (batch_size * seed) // len(train)
         np.random.seed(shuffle_seed)
-        train_ix = np.random.choice(list(train.index), replace=False, size=len(train))  # wasteful to shuffle every time
+        train_ix = np.random.choice(train.shape[0], replace=False, size=len(train))  # wasteful to shuffle every time
         train_ix = list(train_ix) + list(train_ix)  # duplicate to cover ranges past the end of the set
-        x = train.loc[train_ix[start_i: stop_i]].values
-        return np.reshape(x, (batch_size, -1))
+        return train[train_ix[start_i: stop_i]]
 
-    def train(self,
-              data,
-              train_arguments: TrainParameters):
+    def train(self, data, train_arguments: TrainParameters, num_cols: List[str],
+              cat_cols: List[str]):
+        """
+        Args:
+            data: A pandas DataFrame or a Numpy array with the data to be synthesized
+            train_arguments: GAN training arguments.
+            num_cols: List of columns of the data object to be handled as numerical
+            cat_cols: List of columns of the data object to be handled as categorical
+        """
+        super().train(data, num_cols, cat_cols)
+
+        processed_data = self.processor.transform(data)
+        self.data_dim = processed_data.shape[1]
+        self.define_gan()
+
         iterations = int(abs(data.shape[0]/self.batch_size)+1)
 
         # Adversarial ground truths
@@ -77,7 +89,7 @@ class VanilllaGAN(BaseModel):
                 # ---------------------
                 #  Train Discriminator
                 # ---------------------
-                batch_data = self.get_data_batch(data, self.batch_size)
+                batch_data = self.get_data_batch(processed_data, self.batch_size)
                 noise = tf.random.normal((self.batch_size, self.noise_dim))
 
                 # Generate a batch of events

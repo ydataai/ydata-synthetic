@@ -1,16 +1,18 @@
 import os
 from os import path
+from typing import List
+
 import numpy as np
+import tensorflow as tf
+from tensorflow.keras import Model
+from tensorflow.keras.layers import Dense, Dropout, Input
+from tensorflow.keras.optimizers import Adam
 from tqdm import trange
 
+from ydata_synthetic.synthesizers import TrainParameters
 from ydata_synthetic.synthesizers.gan import BaseModel
 from ydata_synthetic.synthesizers.loss import Mode, gradient_penalty
-from ydata_synthetic.synthesizers import TrainParameters
 
-import tensorflow as tf
-from tensorflow.keras.layers import Input, Dense, Dropout
-from tensorflow.keras import Model
-from tensorflow.keras.optimizers import Adam
 
 class CRAMERGAN(BaseModel):
 
@@ -123,16 +125,28 @@ class CRAMERGAN(BaseModel):
         stop_i = start_i + batch_size
         shuffle_seed = (batch_size * seed) // len(train)
         np.random.seed(shuffle_seed)
-        train_ix = np.random.choice(list(train.index), replace=False, size=len(train))  # wasteful to shuffle every time
+        train_ix = np.random.choice(train.shape[0], replace=False, size=len(train))  # wasteful to shuffle every time
         train_ix = list(train_ix) + list(train_ix)  # duplicate to cover ranges past the end of the set
-        x = train.loc[train_ix[start_i: stop_i]].values
-        return np.reshape(x, (batch_size, -1))
+        return train[train_ix[start_i: stop_i]]
 
     def train_step(self, train_data):
         critic_loss, g_loss = self.update_gradients(train_data)
         return critic_loss, g_loss
 
-    def train(self, data, train_arguments: TrainParameters):
+    def train(self, data, train_arguments: TrainParameters, num_cols: List[str], cat_cols: List[str]):
+        """
+        Args:
+            data: A pandas DataFrame or a Numpy array with the data to be synthesized
+            train_arguments: GAN training arguments.
+            num_cols: List of columns of the data object to be handled as numerical
+            cat_cols: List of columns of the data object to be handled as categorical
+        """
+        super().train(data, num_cols, cat_cols)
+
+        data = self.processor.transform(data)
+        self.data_dim = data.shape[1]
+        self.define_gan()
+
         iterations = int(abs(data.shape[0] / self.batch_size) + 1)
 
         # Create a summary file
