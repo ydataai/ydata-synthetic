@@ -63,8 +63,7 @@ class VanilllaGAN(BaseModel):
         train_ix = list(train_ix) + list(train_ix)  # duplicate to cover ranges past the end of the set
         return train[train_ix[start_i: stop_i]]
 
-    def train(self, data, train_arguments: TrainParameters, num_cols: List[str],
-              cat_cols: List[str]):
+    def train(self, data, train_arguments: TrainParameters, num_cols: List[str], cat_cols: List[str]):
         """
         Args:
             data: A pandas DataFrame or a Numpy array with the data to be synthesized

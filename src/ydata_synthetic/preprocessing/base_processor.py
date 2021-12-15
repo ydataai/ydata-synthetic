@@ -1,21 +1,24 @@
-"Implements a BaseProcessor Class, not meant to be directly instantiated."
+"Base class of Data Preprocessors, do not instantiate this class directly."
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections import namedtuple
 from typing import List, Optional
 
-from numpy import ndarray
-from pandas import DataFrame, Series
+from numpy import concatenate, ndarray, split, zeros
+from pandas import DataFrame, Series, concat
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.exceptions import NotFittedError
 from typeguard import typechecked
 
+ProcessorInfo = namedtuple("ProcessorInfo", ["numerical", "categorical"])
+PipelineInfo = namedtuple("PipelineInfo", ["feat_names_in", "feat_names_out"])
 
+# pylint: disable=R0902
 @typechecked
 class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
     """
-    Base class for Data Preprocessing.
-    It works like any other transformer in scikit learn with the methods fit, transform and inverse transform.
+    This data processor works like a scikit learn transformer in with the methods fit, transform and inverse transform.
     Args:
         num_cols (list of strings):
             List of names of numerical columns.
@@ -23,14 +26,13 @@ class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
             List of names of categorical columns.
     """
     def __init__(self, num_cols: Optional[List[str]] = None, cat_cols: Optional[List[str]] = None):
-
         self.num_cols = [] if num_cols is None else num_cols
         self.cat_cols = [] if cat_cols is None else cat_cols
 
-        self._num_pipeline = None
-        self._cat_pipeline = None
+        self._num_pipeline = None  # To be overriden by child processors
+        self._cat_pipeline = None  # To be overriden by child processors
 
-        self._types = None
+        self._col_transform_info = None  # Metadata object mapping inputs/outputs of each pipeline
 
     @property
     def num_pipeline(self) -> BaseEstimator:
@@ -46,6 +48,25 @@ class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
     def types(self) -> Series:
         """Returns a Series with the dtypes of each column in the fitted DataFrame."""
         return self._types
+
+    @property
+    def col_transform_info(self) -> ProcessorInfo:
+        """Returns a ProcessorInfo object specifying input/output feature mappings of this processor's pipelines."""
+        self._check_is_fitted()
+        if self._col_transform_info is None:
+            self._col_transform_info = self.__create_metadata_synth()
+        return self._col_transform_info
+
+    def __create_metadata_synth(self):
+        num_info = None
+        cat_info = None
+        # Numerical ls named tuple
+        if self.num_cols:
+            num_info = PipelineInfo(self.num_pipeline.feature_names_in_, self.num_pipeline.get_feature_names_out())
+        # Categorical ls named tuple
+        if self.cat_cols:
+            cat_info = PipelineInfo(self.cat_pipeline.feature_names_in_, self.cat_pipeline.get_feature_names_out())
+        return ProcessorInfo(num_info, cat_info)
 
     def _check_is_fitted(self):
         """Checks if the processor is fitted by testing the numerical pipeline.
@@ -86,8 +107,7 @@ class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
                 DataFrame used to fit the processor parameters.
                 Should be aligned with the columns types defined in initialization.
         Returns:
-            transformed (ndarray):
-                Processed version of the passed DataFrame.
+            transformed (ndarray): Processed version of the passed DataFrame.
         """
         raise NotImplementedError
 
