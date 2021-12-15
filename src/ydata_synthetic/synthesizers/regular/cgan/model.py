@@ -1,7 +1,7 @@
 """CGAN implementation"""
 import os
 from os import path
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional, NamedTuple
 
 import numpy as np
 from numpy import array, empty, hstack, ndarray, vstack, save
@@ -19,6 +19,7 @@ from tqdm import trange
 
 from ydata_synthetic.synthesizers import TrainParameters
 from ydata_synthetic.synthesizers.gan import BaseModel
+from ydata_synthetic.utils.gumbel_softmax import GumbelSoftmaxActivation
 
 
 class CGAN(BaseModel):
@@ -44,15 +45,16 @@ class CGAN(BaseModel):
             cannot be used as condition."
         assert data[label_col].isna().sum() == 0, "The label column contains NaN values, please impute or drop the \
             respective records before proceeding."
-        assert is_float_dtype(data[label_col]) or is_integer_dtype(float), "The label column is expected to be an \
+        assert is_float_dtype(data[label_col]) or is_integer_dtype(data[label_col]), "The label column is expected to be an \
             integer or a float dtype to ensure the function of the embedding layer."
         unique_frac = data[label_col].nunique()/len(data.index)
         assert unique_frac < 1, "The provided column {label_col} is constituted by unique values and is not suitable \
             to be used as condition."
 
-    def define_gan(self):
+    def define_gan(self, activation_info: Optional[NamedTuple] = None):
         self.generator = Generator(self.batch_size, self.num_classes). \
-            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim)
+            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,
+                        activation_info = activation_info)
 
         self.discriminator = Discriminator(self.batch_size, self.num_classes). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
@@ -121,7 +123,7 @@ class CGAN(BaseModel):
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]
-        self.define_gan()
+        self.define_gan(self.processor.col_transform_info)
 
         # Merging labels with processed data
         processed_data = hstack([processed_data, label])
@@ -198,7 +200,7 @@ class Generator():
         self.batch_size = batch_size
         self.num_classes = num_classes
 
-    def build_model(self, input_shape, dim, data_dim):
+    def build_model(self, input_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None):
         noise = Input(shape=input_shape, batch_size=self.batch_size)
         label = Input(shape=(1,), batch_size=self.batch_size, dtype='int32')
         label_embedding = Flatten()(Embedding(self.num_classes, 1)(label))
@@ -208,6 +210,8 @@ class Generator():
         x = Dense(dim * 2, activation='relu')(x)
         x = Dense(dim * 4, activation='relu')(x)
         x = Dense(data_dim)(x)
+        if activation_info:
+            x = GumbelSoftmaxActivation(activation_info).call(x)
         return Model(inputs=[noise, label], outputs=x)
 
 

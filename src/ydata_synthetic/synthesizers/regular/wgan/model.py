@@ -1,5 +1,5 @@
 from os import mkdir, path
-from typing import List
+from typing import List, Optional, NamedTuple
 
 import numpy as np
 import tensorflow as tf
@@ -11,6 +11,7 @@ from tqdm import trange
 
 from ydata_synthetic.synthesizers import TrainParameters
 from ydata_synthetic.synthesizers.gan import BaseModel
+from ydata_synthetic.utils.gumbel_softmax import GumbelSoftmaxActivation
 
 
 #Auxiliary Keras backend class to calculate the Random Weighted average
@@ -41,9 +42,10 @@ class WGAN(BaseModel):
     def wasserstein_loss(self, y_true, y_pred):
         return K.mean(y_true * y_pred)
 
-    def define_gan(self):
+    def define_gan(self, activation_info: Optional[NamedTuple] = None):
         self.generator = Generator(self.batch_size). \
-            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim)
+            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,
+                        activation_info=activation_info)
 
         self.critic = Critic(self.batch_size). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
@@ -96,7 +98,7 @@ class WGAN(BaseModel):
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]
-        self.define_gan()
+        self.define_gan(self.processor.col_transform_info)
 
         #Create a summary file
         iterations = int(abs(data.shape[0]/self.batch_size)+1)
@@ -153,12 +155,14 @@ class Generator(tf.keras.Model):
     def __init__(self, batch_size):
         self.batch_size = batch_size
 
-    def build_model(self, input_shape, dim, data_dim):
+    def build_model(self, input_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None):
         input = Input(shape=input_shape, batch_size=self.batch_size)
         x = Dense(dim, activation='relu')(input)
         x = Dense(dim * 2, activation='relu')(x)
         x = Dense(dim * 4, activation='relu')(x)
         x = Dense(data_dim)(x)
+        if activation_info:
+            x = GumbelSoftmaxActivation(activation_info)(x)
         return Model(inputs=input, outputs=x)
 
 class Critic(tf.keras.Model):
