@@ -226,6 +226,9 @@ class TimeGAN(BaseModel):
                                 .repeat())
 
     def train(self, data, train_steps):
+        # Assemble the model
+        self.define_gan()
+
         ## Embedding network training
         autoencoder_opt = Adam(learning_rate=self.g_lr)
         for _ in tqdm(range(train_steps), desc='Emddeding network training'):
