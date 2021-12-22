@@ -24,7 +24,7 @@ def gumbel_noise(shape: TensorShape) -> Tensor:
 class GumbelSoftmaxLayer(Layer):
     "A Gumbel-Softmax layer implementation that should be stacked on top of a categorical feature logits."
 
-    def __init__(self, tau: float = 0.02, name: Optional[str] = None, **kwargs):
+    def __init__(self, tau: float = 0.2, name: Optional[str] = None, **kwargs):
         super().__init__(name=name, **kwargs)
         self.tau = tau
 
