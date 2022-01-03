@@ -1,12 +1,11 @@
 from math import log
 from typing import List
 
-from tensorflow import GradientTape, concat, expand_dims, ones_like, zeros, zeros_like
+from tensorflow import GradientTape, ones_like, zeros_like
 from tensorflow.dtypes import cast, float64
 from tensorflow.keras.losses import BinaryCrossentropy
 from tensorflow.keras.optimizers import Adam
 from tensorflow.random import uniform
-from tensorflow_probability import distributions
 
 from ydata_synthetic.synthesizers import TrainParameters
 from ydata_synthetic.synthesizers.gan import BaseModel
