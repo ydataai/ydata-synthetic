@@ -7,7 +7,7 @@ from tqdm import trange
 from numpy import array, vstack, hstack
 from numpy.random import normal
 
-from tensorflow import concat, float32, convert_to_tensor, reshape, GradientTape, reduce_mean, tile
+from tensorflow import concat, float32, convert_to_tensor, GradientTape, reduce_mean, tile, squeeze
 from tensorflow import data as tfdata
 from tensorflow.keras import Model, Sequential
 from tensorflow.keras.optimizers import Adam
@@ -26,6 +26,7 @@ class TSCWGAN(BaseModel):
         self.gradient_penalty_weight = gradient_penalty_weight
         self.cond_dim = model_parameters.condition
         super().__init__(model_parameters)
+        self.data_dim = model_parameters.n_cols
 
     def define_gan(self):
         self.generator = Generator(self.batch_size). \
@@ -45,6 +46,7 @@ class TSCWGAN(BaseModel):
         score = self.critic(score)
 
     def train(self, data, train_arguments: TrainParameters):
+        self.define_gan()
         real_batches = self.get_batch_data(data)
         noise_batches = self.get_batch_noise()
 
@@ -137,7 +139,7 @@ class TSCWGAN(BaseModel):
     def get_batch_data(self, data, n_windows= None):
         if not n_windows:
             n_windows = len(data)
-        data = reshape(convert_to_tensor(data, dtype=float32), shape=(-1, self.data_dim))
+        data = squeeze(convert_to_tensor(data, dtype=float32))
         return iter(tfdata.Dataset.from_tensor_slices(data)
                                 .shuffle(buffer_size=n_windows)
                                 .batch(self.batch_size).repeat())

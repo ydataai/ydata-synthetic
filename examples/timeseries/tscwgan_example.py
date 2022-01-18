@@ -56,4 +56,4 @@ cond_array = reshape(processed_data[cond_index][:cond_dim], (1,-1))
 data_sample = synth.sample(cond_array, 1000, 100)
 
 # Inverting the scaling of the synthetic samples
-data_sample = inverse_transform(data_sample, scaler)
+inv_data_sample = inverse_transform(data_sample, scaler)
