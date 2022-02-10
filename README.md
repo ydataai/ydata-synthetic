@@ -74,4 +74,4 @@ We are open to collaboration! If you want to start contributing you only need to
 For support in using this library, please join the #help Slack channel. The Slack community is very friendly and great about quickly answering questions about the use and development of the library. [Click here to join our Slack community!](http://slack.ydata.ai/)
 
 # License
-[GNU General Public License v3.0](https://github.com/ydataai/ydata-synthetic/blob/master/LICENSE)
+[MIT License](https://github.com/ydataai/ydata-synthetic/blob/master/LICENSE)
