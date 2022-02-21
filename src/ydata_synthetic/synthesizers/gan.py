@@ -17,9 +17,9 @@ from ydata_synthetic.preprocessing.timeseries.timeseries_processor import (
 from ydata_synthetic.synthesizers.saving_keras import make_keras_picklable
 
 _model_parameters = ['batch_size', 'lr', 'betas', 'layers_dim', 'noise_dim',
-                     'n_cols', 'seq_len', 'condition', 'n_critic', 'n_features']
+                     'n_cols', 'seq_len', 'condition', 'n_critic', 'n_features', 'tau_gs']
 _model_parameters_df = [128, 1e-4, (None, None), 128, 264,
-                        None, None, None, 1, None]
+                        None, None, None, 1, None, 0.2]
 
 _train_parameters = ['cache_prefix', 'label_dim', 'epochs', 'sample_interval', 'labels']
 
@@ -62,6 +62,7 @@ class BaseModel():
         self.data_dim = None
         self.layers_dim = model_parameters.layers_dim
         self.processor = None
+        self.tau = model_parameters.tau_gs
 
     # pylint: disable=E1101
     def __call__(self, inputs, **kwargs):
