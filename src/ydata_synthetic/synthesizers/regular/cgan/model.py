@@ -54,7 +54,7 @@ class CGAN(BaseModel):
     def define_gan(self, activation_info: Optional[NamedTuple] = None):
         self.generator = Generator(self.batch_size, self.num_classes). \
             build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,
-                        activation_info = activation_info)
+                        activation_info = activation_info, tau = self.tau)
 
         self.discriminator = Discriminator(self.batch_size, self.num_classes). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
@@ -200,7 +200,7 @@ class Generator():
         self.batch_size = batch_size
         self.num_classes = num_classes
 
-    def build_model(self, input_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None):
+    def build_model(self, input_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None):
         noise = Input(shape=input_shape, batch_size=self.batch_size)
         label = Input(shape=(1,), batch_size=self.batch_size, dtype='int32')
         label_embedding = Flatten()(Embedding(self.num_classes, 1)(label))
@@ -211,7 +211,7 @@ class Generator():
         x = Dense(dim * 4, activation='relu')(x)
         x = Dense(data_dim)(x)
         if activation_info:
-            x = GumbelSoftmaxActivation(activation_info).call(x)
+            x = GumbelSoftmaxActivation(activation_info, tau=tau)(x)
         return Model(inputs=[noise, label], outputs=x)
 
 
