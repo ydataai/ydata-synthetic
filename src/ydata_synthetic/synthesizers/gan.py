@@ -120,6 +120,8 @@ class BaseModel():
         Args:
             n_samples (int): Intended size of the synthetic sample.
         """
+        self.generator.trainable = False  # Use generator inference mode
+
         steps = n_samples // self.batch_size + 1
         data = []
         for _ in tqdm.trange(steps, desc='Synthetic data generation'):

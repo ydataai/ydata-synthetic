@@ -82,6 +82,8 @@ class WGAN_GP(BaseModel):
         """
         passes through the network and computes the losses
         """
+        self.generator.trainable = False  # Use generator inference mode
+
         # generating noise from a uniform distribution
         noise = tf.random.normal([real.shape[0], self.noise_dim], dtype=tf.dtypes.float32)
         # run noise through generator
@@ -104,6 +106,8 @@ class WGAN_GP(BaseModel):
         :param real: Data batch we are analyzing
         :return: Loss of the generator
         """
+        self.generator.trainable = True  # Use generator train mode
+
         # generating noise from a uniform distribution
         noise = tf.random.normal([real.shape[0], self.noise_dim], dtype=tf.dtypes.float32)
 
