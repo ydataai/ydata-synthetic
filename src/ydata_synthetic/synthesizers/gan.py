@@ -62,7 +62,8 @@ class BaseModel():
         self.data_dim = None
         self.layers_dim = model_parameters.layers_dim
         self.processor = None
-        self.tau = model_parameters.tau_gs
+        if self.__MODEL__ in RegularModels.__members__:
+            self.tau = model_parameters.tau_gs
 
     # pylint: disable=E1101
     def __call__(self, inputs, **kwargs):
