@@ -37,9 +37,11 @@ class GumbelSoftmaxLayer(Layer):
     def call(self, _input):
         """Computes Gumbel-Softmax for the logits output of a particular categorical feature."""
         noised_input = _input + gumbel_noise(_input.shape)
-        soft_sample = softmax(noised_input/self.tau, -1)
-        hard_sample = stop_gradient(squeeze(one_hot(categorical(log(soft_sample), 1), _input.shape[-1]), 1))
-        return hard_sample, soft_sample
+        categorical_dist = softmax(noised_input/self.tau, -1)
+        if self._trainable:  # GS layer in train mode, returns the approximated categorical distribution
+            return categorical_dist
+        else:  # GS layer in inference mode, returns sampled values
+            return stop_gradient(squeeze(one_hot(categorical(log(categorical_dist), 1), _input.shape[-1]), 1))
 
     def get_config(self):
         config = super().get_config().copy()
@@ -83,7 +85,7 @@ bigger than 0."
         cat_cols = split(cat_cols, self._cat_lens if self._cat_lens else [0], 1, name='split_cats')
 
         num_cols = [Activation('tanh', name='num_cols_activation')(num_cols)]
-        cat_cols = [GumbelSoftmaxLayer(tau=self.tau, name=name)(col)[0] for name, col in \
+        cat_cols = [GumbelSoftmaxLayer(tau=self.tau, name=name)(col) for name, col in \
             zip(self.cat_feats.feat_names_in, cat_cols)]
         return concat(num_cols+cat_cols, 1)
 
