@@ -27,7 +27,7 @@ class DRAGAN(BaseModel):
         # define generator/discriminator
         self.generator = Generator(self.batch_size). \
             build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,
-                        activation_info=col_transform_info)
+                        activation_info=col_transform_info, tau = self.tau)
 
         self.discriminator = Discriminator(self.batch_size). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
@@ -177,12 +177,12 @@ class Generator(Model):
     def __init__(self, batch_size):
         self.batch_size = batch_size
 
-    def build_model(self, input_shape, dim, data_dim, activation_info: NamedTuple = None):
+    def build_model(self, input_shape, dim, data_dim, activation_info: NamedTuple = None, tau: Optional[float] = None):
         input = Input(shape=input_shape, batch_size = self.batch_size)
         x = Dense(dim, kernel_initializer=initializers.TruncatedNormal(mean=0., stddev=0.5), activation='relu')(input)
         x = Dense(dim * 2, activation='relu')(x)
         x = Dense(dim * 4, activation='relu')(x)
         x = Dense(data_dim)(x)
         if activation_info:
-            x = GumbelSoftmaxActivation(activation_info)(x)
+            x = GumbelSoftmaxActivation(activation_info, tau=tau)(x)
         return Model(inputs=input, outputs=x)
