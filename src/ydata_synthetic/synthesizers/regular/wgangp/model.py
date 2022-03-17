@@ -56,7 +56,7 @@ class WGAN_GP(BaseModel):
         # Update the gradients of critic for n_critic times (Training the critic)
         for _ in range(self.n_critic):
             with tf.GradientTape() as d_tape:
-                critic_loss = self.d_lossfn(x)
+                critic_loss = self.c_lossfn(x)
             # Get the gradients of the critic
             d_gradient = d_tape.gradient(critic_loss, self.critic.trainable_variables)
             # Update the weights of the critic using the optimizer
@@ -78,7 +78,7 @@ class WGAN_GP(BaseModel):
 
         return critic_loss, gen_loss
 
-    def d_lossfn(self, real):
+    def c_lossfn(self, real):
         """
         passes through the network and computes the losses
         """
@@ -92,12 +92,11 @@ class WGAN_GP(BaseModel):
 
         # gradient penalty
         gp = self.gradient_penalty(real, fake)
-        # getting the loss of the discriminator.
-        d_loss = (tf.reduce_mean(logits_fake)
+        # getting the loss of the critic.
+        c_loss = (tf.reduce_mean(logits_fake)
                   - tf.reduce_mean(logits_real)
                   + gp * self.gradient_penalty_weight)
-        return d_loss
-
+        return c_loss
 
     def g_lossfn(self, real):
         """
