@@ -1,7 +1,7 @@
 """CGAN implementation"""
 import os
 from os import path
-from typing import List, Tuple, Union, Optional, NamedTuple
+from typing import List, Optional, NamedTuple
 
 import numpy as np
 from numpy import array, empty, hstack, ndarray, vstack, save
@@ -30,6 +30,7 @@ class CGAN(BaseModel):
     def __init__(self, model_parameters, num_classes):
         self.num_classes = num_classes
         self._label_col = None
+        self._col_order = None
         super().__init__(model_parameters)
 
     @property
@@ -38,18 +39,9 @@ class CGAN(BaseModel):
         return self._label_col
 
     @label_col.setter
-    def label_col(self, data_label: Tuple[Union[DataFrame, array], str]):
-        "Validates the label_col format, raises ValueError if invalid."
-        data, label_col = data_label
-        assert label_col in data.columns, f"The column {label_col} could not be found on the provided dataset and \
-            cannot be used as condition."
-        assert data[label_col].isna().sum() == 0, "The label column contains NaN values, please impute or drop the \
-            respective records before proceeding."
-        assert is_float_dtype(data[label_col]) or is_integer_dtype(data[label_col]), "The label column is expected to be an \
-            integer or a float dtype to ensure the function of the embedding layer."
-        unique_frac = data[label_col].nunique()/len(data.index)
-        assert unique_frac < 1, "The provided column {label_col} is constituted by unique values and is not suitable \
-            to be used as condition."
+    def label_col(self, label_col: str):
+        "Set the label_col property."
+        self._label_col = label_col
 
     def define_gan(self, activation_info: Optional[NamedTuple] = None):
         self.generator = Generator(self.batch_size, self.num_classes). \
@@ -103,18 +95,20 @@ class CGAN(BaseModel):
         data_ix = np.random.choice(data.shape[0], replace=False, size=len(data))  # wasteful to shuffle every time
         return data[data_ix[start_i: stop_i]]
 
-    def train(self, data: Union[DataFrame, array], label_col: str, train_arguments: TrainParameters, num_cols: List[str],
+    def train(self, data: DataFrame, label_col: str, train_arguments: TrainParameters, num_cols: List[str],
               cat_cols: List[str]):
         """
         Args:
-            data: A pandas DataFrame or a Numpy array with the data to be synthesized
+            data: A pandas DataFrame with the data to be synthesized
             label: The name of the column to be used as a label and condition for the training
             train_arguments: GAN training arguments.
             num_cols: List of columns of the data object to be handled as numerical
             cat_cols: List of columns of the data object to be handled as categorical
         """
         # Validating the label column
-        self.label_col = (data, label_col)
+        self._validate_label_col(data, label_col)
+        self._col_order = data.columns
+        self.label_col = label_col
 
         # Separating labels from the rest of the data to fit the data processor
         data, label = data.loc[:, data.columns != label_col], expand_dims(data[label_col], 1)
@@ -182,15 +176,27 @@ class CGAN(BaseModel):
         steps = n_samples // self.batch_size + 1
         data = []
         z_dist = self.get_batch_noise()
-        condition = expand_dims(convert_to_tensor(condition, dtypes.float32), axis=0)
-        cond_seq = tile(condition, multiples=[self.batch_size, 1])
+        cond_seq = expand_dims(convert_to_tensor(condition, dtypes.float32), axis=0)
+        cond_seq = tile(cond_seq, multiples=[self.batch_size, 1])
         for _ in trange(steps, desc='Synthetic data generation'):
             records = empty(shape=(self.batch_size, self.data_dim))
             records = self.generator([next(z_dist), cond_seq], training=False)
             data.append(records)
         data = self.processor.inverse_transform(array(vstack(data)))
-        data[self.label_col] = tile(condition, multiples=[data.shape[0], 1])
-        return data
+        data[self.label_col] = condition[0]
+        return data[self._col_order]
+
+    def _validate_label_col(self, data: DataFrame, label_col: str):
+        "Validates the label_col format, raises ValueError if invalid."
+        assert label_col in data.columns, f"The column {label_col} could not be found on the provided dataset and \
+            cannot be used as condition."
+        assert data[label_col].isna().sum() == 0, "The label column contains NaN values, please impute or drop the \
+            respective records before proceeding."
+        assert is_float_dtype(data[label_col]) or is_integer_dtype(data[label_col]), "The label column is expected to be an \
+            integer or a float dtype to ensure the function of the embedding layer."
+        unique_frac = data[label_col].nunique()/len(data.index)
+        assert unique_frac < 1, "The provided column {label_col} is constituted by unique values and is not suitable \
+            to be used as condition."
 
 
 # pylint: disable=R0903

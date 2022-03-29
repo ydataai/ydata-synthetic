@@ -1,7 +1,7 @@
 """CWGANGP implementation"""
 import os
 from os import path
-from typing import List, Union, Optional, NamedTuple
+from typing import List, Optional, NamedTuple
 
 import numpy as np
 from numpy import array, hstack, save
@@ -102,18 +102,20 @@ class CWGANGP(CGAN, WGAN_GP):
         g_loss = -reduce_mean(logits_fake)
         return g_loss
 
-    def train(self, data: Union[DataFrame, array], label_col: str, train_arguments: TrainParameters, num_cols: List[str],
+    def train(self, data: DataFrame, label_col: str, train_arguments: TrainParameters, num_cols: List[str],
               cat_cols: List[str]):
         """
         Args:
-            data: A pandas DataFrame or a Numpy array with the data to be synthesized
+            data: A pandas DataFrame with the data to be synthesized
             label: The name of the column to be used as a label and condition for the training
             train_arguments: GAN training arguments.
             num_cols: List of columns of the data object to be handled as numerical
             cat_cols: List of columns of the data object to be handled as categorical
         """
         # Validating the label column
-        self.label_col = (data, label_col)
+        self._validate_label_col(data, label_col)
+        self._col_order = data.columns
+        self.label_col = label_col
 
         # Separating labels from the rest of the data to fit the data processor
         data, label = data.loc[:, data.columns != label_col], expand_dims(data[label_col], 1)
