@@ -40,7 +40,7 @@ class CGAN(BaseModel):
 
     @label_col.setter
     def label_col(self, label_col: str):
-        "Set the label_col property."
+        """Set the label_col property."""
         self._label_col = label_col
 
     def define_gan(self, activation_info: Optional[NamedTuple] = None):
@@ -186,7 +186,8 @@ class CGAN(BaseModel):
         data[self.label_col] = condition[0]
         return data[self._col_order]
 
-    def _validate_label_col(self, data: DataFrame, label_col: str):
+    @staticmethod
+    def _validate_label_col(data: DataFrame, label_col: str):
         "Validates the label_col format, raises ValueError if invalid."
         assert label_col in data.columns, f"The column {label_col} could not be found on the provided dataset and \
             cannot be used as condition."

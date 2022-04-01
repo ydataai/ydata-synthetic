@@ -1,4 +1,4 @@
-"""CWGANGP implementation"""
+"""CWGANGP implementation."""
 import os
 from os import path
 from typing import List, Optional, NamedTuple
@@ -23,11 +23,11 @@ class CWGANGP(CGAN, WGAN_GP):
     __MODEL__='CWGAN_GP'
 
     def __init__(self, model_parameters, num_classes, n_critic, gradient_penalty_weight=10):
-        # Adapts the WGAN_GP implementation to be conditional
-        # Several conditional WGAN implementations can be found online, here are a few:
-        # https://cameronfabbri.github.io/papers/conditionalWGAN.pdf
-        # https://www.sciencedirect.com/science/article/abs/pii/S0020025519309715
-        # https://arxiv.org/pdf/2008.09202.pdf
+        """Adapts the WGAN_GP implementation to be conditional
+        Several conditional WGAN implementations can be found online, here are a few:
+            https://cameronfabbri.github.io/papers/conditionalWGAN.pdf
+            https://www.sciencedirect.com/science/article/abs/pii/S0020025519309715
+            https://arxiv.org/pdf/2008.09202.pdf"""
         self.n_critic = n_critic
         self.gradient_penalty_weight = gradient_penalty_weight
         self.num_classes = num_classes
@@ -56,8 +56,9 @@ class CWGANGP(CGAN, WGAN_GP):
         d_regularizer = reduce_mean((ddx - 1.0) ** 2)
         return d_regularizer
 
-    def get_data_batch(self, data, batch_size, seed=0):
-        "Produce real data batches from the passed data object."
+    @staticmethod
+    def get_data_batch(data, batch_size, seed=0):
+        """Produce real data batches from the passed data object."""
         start_i = (batch_size * seed) % len(data)
         stop_i = start_i + batch_size
         shuffle_seed = (batch_size * seed) // len(data)
@@ -66,9 +67,7 @@ class CWGANGP(CGAN, WGAN_GP):
         return dtypes.cast(data[data_ix[start_i: stop_i]], dtype=dtypes.float32)
 
     def c_lossfn(self, real):
-        """
-        passes through the network and computes the losses
-        """
+        """Forward pass on the critic and computes the loss."""
         real, label = real
 
         # generating noise from a uniform distribution
@@ -151,7 +150,7 @@ class CWGANGP(CGAN, WGAN_GP):
                 self._run_checkpoint(train_arguments, epoch, label)
 
     def _run_checkpoint(self, train_arguments, epoch, label):
-        "Run checkpoint. Store model state and generated samples."
+        """Run checkpoint. Store model state and generated samples."""
         if path.exists('./cache') is False:
             os.mkdir('./cache')
         model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
@@ -162,8 +161,10 @@ class CWGANGP(CGAN, WGAN_GP):
 
 # pylint: disable=R0903
 class Generator():
+
     "Standard discrete conditional generator."
     def __init__(self, batch_size, num_classes):
+        """Sets the properties of the generator."""
         self.batch_size = batch_size
         self.num_classes = num_classes
 
@@ -171,9 +172,9 @@ class Generator():
         noise = Input(shape=input_shape, batch_size=self.batch_size)
         label = Input(shape=(1,), batch_size=self.batch_size, dtype='int32')
         label_embedding = Flatten()(Embedding(self.num_classes, 1)(label))
-        input = multiply([noise, label_embedding])
+        input_ = multiply([noise, label_embedding])
 
-        x = Dense(dim, activation='relu')(input)
+        x = Dense(dim, activation='relu')(input_)
         x = Dense(dim * 2, activation='relu')(x)
         x = Dense(dim * 4, activation='relu')(x)
         x = Dense(data_dim)(x)
@@ -184,8 +185,10 @@ class Generator():
 
 # pylint: disable=R0903
 class Critic():
+
     "Conditional Critic."
     def __init__(self, batch_size, num_classes):
+        """Sets the properties of the critic."""
         self.batch_size = batch_size
         self.num_classes = num_classes
 
@@ -194,9 +197,9 @@ class Critic():
         label = Input(shape=(1,), batch_size=self.batch_size, dtype='int32')
         label_embedding = Flatten()(Embedding(self.num_classes, 1)(label))
         events_flat = Flatten()(events)
-        input = multiply([events_flat, label_embedding])
+        input_ = multiply([events_flat, label_embedding])
 
-        x = Dense(dim * 4, activation='relu')(input)
+        x = Dense(dim * 4, activation='relu')(input_)
         x = Dropout(0.1)(x)
         x = Dense(dim * 2, activation='relu')(x)
         x = Dropout(0.1)(x)
