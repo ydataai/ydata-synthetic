@@ -23,7 +23,8 @@ class CWGANGP(CGAN, WGAN_GP):
     __MODEL__='CWGAN_GP'
 
     def __init__(self, model_parameters, num_classes, n_critic, gradient_penalty_weight=10):
-        """Adapts the WGAN_GP implementation to be conditional
+        """Adapts the WGAN_GP synthesizer implementation to be conditional.
+
         Several conditional WGAN implementations can be found online, here are a few:
             https://cameronfabbri.github.io/papers/conditionalWGAN.pdf
             https://www.sciencedirect.com/science/article/abs/pii/S0020025519309715
@@ -87,7 +88,8 @@ class CWGANGP(CGAN, WGAN_GP):
         return c_loss
 
     def g_lossfn(self, real):
-        """
+        """Forward pass on the generator and computes the loss.
+
         :param real: Data batch we are analyzing
         :return: Loss of the generator
         """
@@ -159,9 +161,8 @@ class CWGANGP(CGAN, WGAN_GP):
         save('./cache/' + train_arguments.cache_prefix + f'_sample_{epoch}.npy', self.sample(array([label[0]]), 1000))
 
 
-# pylint: disable=R0903
+# pylint: disable=R0903,D203
 class Generator():
-
     "Standard discrete conditional generator."
     def __init__(self, batch_size, num_classes):
         """Sets the properties of the generator."""
@@ -183,9 +184,8 @@ class Generator():
         return Model(inputs=[noise, label], outputs=x)
 
 
-# pylint: disable=R0903
+# pylint: disable=R0903,D203
 class Critic():
-
     "Conditional Critic."
     def __init__(self, batch_size, num_classes):
         """Sets the properties of the critic."""
