@@ -23,12 +23,14 @@ class CWGANGP(CGAN, WGAN_GP):
     __MODEL__='CWGAN_GP'
 
     def __init__(self, model_parameters, num_classes, n_critic, gradient_penalty_weight=10):
-        """Adapts the WGAN_GP synthesizer implementation to be conditional.
+        """
+        Adapts the WGAN_GP synthesizer implementation to be conditional.
 
         Several conditional WGAN implementations can be found online, here are a few:
             https://cameronfabbri.github.io/papers/conditionalWGAN.pdf
             https://www.sciencedirect.com/science/article/abs/pii/S0020025519309715
-            https://arxiv.org/pdf/2008.09202.pdf"""
+            https://arxiv.org/pdf/2008.09202.pdf
+        """
         self.n_critic = n_critic
         self.gradient_penalty_weight = gradient_penalty_weight
         self.num_classes = num_classes
@@ -59,7 +61,7 @@ class CWGANGP(CGAN, WGAN_GP):
 
     @staticmethod
     def get_data_batch(data, batch_size, seed=0):
-        """Produce real data batches from the passed data object."""
+        "Produce real data batches from the passed data object."
         start_i = (batch_size * seed) % len(data)
         stop_i = start_i + batch_size
         shuffle_seed = (batch_size * seed) // len(data)
@@ -68,7 +70,7 @@ class CWGANGP(CGAN, WGAN_GP):
         return dtypes.cast(data[data_ix[start_i: stop_i]], dtype=dtypes.float32)
 
     def c_lossfn(self, real):
-        """Forward pass on the critic and computes the loss."""
+        "Forward pass on the critic and computes the loss."
         real, label = real
 
         # generating noise from a uniform distribution
@@ -88,7 +90,8 @@ class CWGANGP(CGAN, WGAN_GP):
         return c_loss
 
     def g_lossfn(self, real):
-        """Forward pass on the generator and computes the loss.
+        """
+        Forward pass on the generator and computes the loss.
 
         :param real: Data batch we are analyzing
         :return: Loss of the generator
@@ -106,6 +109,8 @@ class CWGANGP(CGAN, WGAN_GP):
     def train(self, data: DataFrame, label_col: str, train_arguments: TrainParameters, num_cols: List[str],
               cat_cols: List[str]):
         """
+        Train the synthesizer on a provided dataset based on a specified condition column.
+
         Args:
             data: A pandas DataFrame with the data to be synthesized
             label: The name of the column to be used as a label and condition for the training
@@ -152,7 +157,7 @@ class CWGANGP(CGAN, WGAN_GP):
                 self._run_checkpoint(train_arguments, epoch, label)
 
     def _run_checkpoint(self, train_arguments, epoch, label):
-        """Run checkpoint. Store model state and generated samples."""
+        "Run checkpoint. Store model state and generated samples."
         if path.exists('./cache') is False:
             os.mkdir('./cache')
         model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
@@ -163,9 +168,10 @@ class CWGANGP(CGAN, WGAN_GP):
 
 # pylint: disable=R0903,D203
 class Generator():
+
     "Standard discrete conditional generator."
     def __init__(self, batch_size, num_classes):
-        """Sets the properties of the generator."""
+        "Sets the properties of the generator."
         self.batch_size = batch_size
         self.num_classes = num_classes
 
@@ -186,9 +192,10 @@ class Generator():
 
 # pylint: disable=R0903,D203
 class Critic():
+
     "Conditional Critic."
     def __init__(self, batch_size, num_classes):
-        """Sets the properties of the critic."""
+        "Sets the properties of the critic."
         self.batch_size = batch_size
         self.num_classes = num_classes
 
