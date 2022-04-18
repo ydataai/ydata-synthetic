@@ -1,11 +1,11 @@
-from ydata_synthetic.synthesizers.regular import CGAN
+from ydata_synthetic.synthesizers.regular import CWGANGP
 from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
 
 import pandas as pd
 import numpy as np
 from sklearn import cluster
 
-model = CGAN
+model = CWGANGP
 
 #Read the original data and have it preprocessed
 data = pd.read_csv('data/creditcard.csv', index_col=[0])
@@ -21,7 +21,7 @@ data = data[ sorted_cols ].copy()
 #For the purpose of this example we will only synthesize the minority class
 train_data = data.loc[ data['Class']==1 ].copy()
 
-#Create a new class column using KMeans - This will mainly be useful if we want to leverage conditional GAN
+#Create a new class column using KMeans - This will mainly be useful if we want to leverage conditional WGANGP
 print("Dataset info: Number of records - {} Number of variables - {}".format(train_data.shape[0], train_data.shape[1]))
 algorithm = cluster.KMeans
 args, kwds = (), {'n_clusters':2, 'random_state':0}
@@ -36,7 +36,7 @@ fraud_w_classes['Class'] = labels
 #    GAN Training
 #----------------------------
 
-#Define the Conditional GAN and training parameters
+#Define the Conditional WGANGP and training parameters
 noise_dim = 32
 dim = 128
 batch_size = 128
@@ -61,18 +61,18 @@ train_args = TrainParameters(epochs=epochs,
                              label_dim=-1,
                              labels=(0,1))
 
-#Init the Conditional GAN providing the index of the label column as one of the arguments
-synthesizer = model(model_parameters=gan_args, num_classes=2)
+#Init the Conditional WGANGP providing the index of the label column as one of the arguments
+synthesizer = model(model_parameters=gan_args, num_classes=2, n_critic=3)
 
-#Training the Conditional GAN
+#Training the Conditional WGANGP
 synthesizer.train(data=fraud_w_classes, label_col="Class", train_arguments=train_args,
                   num_cols=num_cols, cat_cols=cat_cols)
 
 #Saving the synthesizer
-synthesizer.save('cgan_synthtrained.pkl')
+synthesizer.save('cwgangp_synthtrained.pkl')
 
 #Loading the synthesizer
-synthesizer = model.load('cgan_synthtrained.pkl')
+synthesizer = model.load('cwgangp_synthtrained.pkl')
 
 #Sampling from the synthesizer
 cond_array = np.array([0])

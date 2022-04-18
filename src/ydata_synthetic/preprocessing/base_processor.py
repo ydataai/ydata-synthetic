@@ -2,17 +2,15 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections import namedtuple
+from types import SimpleNamespace
 from typing import List, Optional
 
-from numpy import concatenate, ndarray, split, zeros
-from pandas import DataFrame, Series, concat
+from numpy import ndarray
+from pandas import DataFrame, Series
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.exceptions import NotFittedError
 from typeguard import typechecked
 
-ProcessorInfo = namedtuple("ProcessorInfo", ["numerical", "categorical"])
-PipelineInfo = namedtuple("PipelineInfo", ["feat_names_in", "feat_names_out"])
 
 # pylint: disable=R0902
 @typechecked
@@ -50,23 +48,25 @@ class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
         return self._types
 
     @property
-    def col_transform_info(self) -> ProcessorInfo:
+    def col_transform_info(self) -> SimpleNamespace:
         """Returns a ProcessorInfo object specifying input/output feature mappings of this processor's pipelines."""
         self._check_is_fitted()
         if self._col_transform_info is None:
             self._col_transform_info = self.__create_metadata_synth()
         return self._col_transform_info
 
-    def __create_metadata_synth(self):
-        num_info = PipelineInfo([], [])
-        cat_info = PipelineInfo([], [])
-        # Numerical ls named tuple
+    def __create_metadata_synth(self) -> SimpleNamespace:
+        def new_pipeline_info(feat_in, feat_out):
+            return SimpleNamespace(feat_names_in = feat_in, feat_names_out = feat_out)
         if self.num_cols:
-            num_info = PipelineInfo(self.num_pipeline.feature_names_in_, self.num_pipeline.get_feature_names_out())
-        # Categorical ls named tuple
+            num_info = new_pipeline_info(self.num_pipeline.feature_names_in_, self.num_pipeline.get_feature_names_out())
+        else:
+            num_info = new_pipeline_info([], [])
         if self.cat_cols:
-            cat_info = PipelineInfo(self.cat_pipeline.feature_names_in_, self.cat_pipeline.get_feature_names_out())
-        return ProcessorInfo(num_info, cat_info)
+            cat_info = new_pipeline_info(self.cat_pipeline.feature_names_in_, self.cat_pipeline.get_feature_names_out())
+        else:
+            cat_info = new_pipeline_info([], [])
+        return SimpleNamespace(numerical=num_info, categorical=cat_info)
 
     def _check_is_fitted(self):
         """Checks if the processor is fitted by testing the numerical pipeline.
