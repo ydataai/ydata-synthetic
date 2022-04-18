@@ -21,6 +21,7 @@ class RegularModels(Enum):
     GAN = 'VanillaGAN'
     WGAN = 'WGAN'
     WGAN_GP = 'WGAN_GP'
+    CWGAN_GP = 'CWGAN_GP'
 
 
 @typechecked
