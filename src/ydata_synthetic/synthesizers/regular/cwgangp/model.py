@@ -45,8 +45,9 @@ class CWGANGP(CGAN, WGAN_GP):
         self.critic = Critic(self.batch_size, self.num_classes). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
 
-        self.g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
-        self.critic_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        c_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        return g_optimizer, c_optimizer
 
     def gradient_penalty(self, real, fake, label):
         epsilon = random.uniform([real.shape[0], 1], 0.0, 1.0, dtype=dtypes.float32)
@@ -130,7 +131,7 @@ class CWGANGP(CGAN, WGAN_GP):
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]
-        self.define_gan(self.processor.col_transform_info)
+        optimizers = self.define_gan(self.processor.col_transform_info)
 
         # Merging labels with processed data
         processed_data = hstack([processed_data, label])
@@ -145,7 +146,7 @@ class CWGANGP(CGAN, WGAN_GP):
                 batch_x = self.get_data_batch(processed_data, self.batch_size)  # Batches are retrieved with labels
                 batch_x, label = batch_x[:, :-1], batch_x[:, -1]  # Separate labels from batch
 
-                cri_loss, ge_loss = self.train_step((batch_x, label))
+                cri_loss, ge_loss = self.train_step((batch_x, label), optimizers)
 
             print(
                 "Epoch: {} | critic_loss: {} | gen_loss: {}".format(
