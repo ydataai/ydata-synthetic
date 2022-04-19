@@ -35,19 +35,21 @@ class CRAMERGAN(BaseModel):
         self.critic = Critic(self.batch_size). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
 
-        self.g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
-        self.c_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        c_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
 
         # The generator takes noise as input and generates records
         z = Input(shape=(self.noise_dim,), batch_size=self.batch_size)
         fake = self.generator(z)
         logits = self.critic(fake)
 
+        return g_optimizer, c_optimizer
+
     def gradient_penalty(self, real, fake):
         gp = gradient_penalty(self.f_crit, real, fake, mode=Mode.CRAMER)
         return gp
 
-    def update_gradients(self, x):
+    def update_gradients(self, x, g_optimizer, c_optimizer):
         """Compute and apply the gradients for both the Generator and the Critic.
 
         :param x: real data event
@@ -71,13 +73,13 @@ class CRAMERGAN(BaseModel):
         g_gradients = g_tape.gradient(g_loss, self.generator.trainable_variables)
 
         # Update the weights of the generator
-        self.g_optimizer.apply_gradients(
+        g_optimizer.apply_gradients(
             zip(g_gradients, self.generator.trainable_variables)
         )
 
         c_gradient = d_tape.gradient(c_loss, self.critic.trainable_variables)
         # Update the weights of the critic using the optimizer
-        self.c_optimizer.apply_gradients(
+        c_optimizer.apply_gradients(
             zip(c_gradient, self.critic.trainable_variables)
         )
 
@@ -131,8 +133,8 @@ class CRAMERGAN(BaseModel):
         train_ix = list(train_ix) + list(train_ix)  # duplicate to cover ranges past the end of the set
         return train[train_ix[start_i: stop_i]]
 
-    def train_step(self, train_data):
-        critic_loss, g_loss = self.update_gradients(train_data)
+    def train_step(self, train_data, optimizers):
+        critic_loss, g_loss = self.update_gradients(train_data, *optimizers)
         return critic_loss, g_loss
 
     def train(self, data, train_arguments: TrainParameters, num_cols: List[str], cat_cols: List[str]):
@@ -147,7 +149,7 @@ class CRAMERGAN(BaseModel):
 
         data = self.processor.transform(data)
         self.data_dim = data.shape[1]
-        self.define_gan(self.processor.col_transform_info)
+        optimizers = self.define_gan(self.processor.col_transform_info)
 
         iterations = int(abs(data.shape[0] / self.batch_size) + 1)
 
@@ -158,7 +160,7 @@ class CRAMERGAN(BaseModel):
             for epoch in trange(train_arguments.epochs):
                 for iteration in range(iterations):
                     batch_data = self.get_data_batch(data, self.batch_size)
-                    c_loss, g_loss = self.train_step(batch_data)
+                    c_loss, g_loss = self.train_step(batch_data, optimizers)
 
                     if iteration % train_arguments.sample_interval == 0:
                         # Test here data generation step
@@ -168,23 +170,7 @@ class CRAMERGAN(BaseModel):
                         model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
                         self.generator.save_weights(model_checkpoint_base_name.format('generator', iteration))
                         self.critic.save_weights(model_checkpoint_base_name.format('critic', iteration))
-
-                print(
-                    "Epoch: {} | critic_loss: {} | gen_loss: {}".format(
-                        epoch, c_loss, g_loss
-                    ))
-
-        self.g_optimizer=self.g_optimizer.get_config()
-        self.critic_optimizer=self.c_optimizer.get_config()
-
-    def save(self, path):
-        """Strip down the optimizers from the model then save."""
-        for attr in ['g_optimizer', 'c_optimizer']:
-            try:
-                delattr(self, attr)
-            except AttributeError:
-                continue
-        super().save(path)
+                print(f"Epoch: {epoch} | critic_loss: {c_loss} | gen_loss: {g_loss}")
 
 
 class Generator(tf.keras.Model):

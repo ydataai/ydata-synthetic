@@ -32,17 +32,19 @@ class DRAGAN(BaseModel):
         self.discriminator = Discriminator(self.batch_size). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
 
-        self.g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2, clipvalue=0.001)
-        self.d_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2, clipvalue=0.001)
+        g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2, clipvalue=0.001)
+        d_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2, clipvalue=0.001)
+        return g_optimizer, d_optimizer
 
     def gradient_penalty(self, real, fake):
         gp = gradient_penalty(self.discriminator, real, fake, mode= Mode.DRAGAN)
         return gp
 
-    def update_gradients(self, x):
+    def update_gradients(self, x, g_optimizer, d_optimizer):
         """
         Compute the gradients for both the Generator and the Discriminator
-        :param x: real data event
+            x (tf.tensor): real data event
+            *_optimizer (tf.OptimizerV2): Optimizer for the * model
         :return: generator gradients, discriminator gradients
         """
         # Update the gradients of critic for n_critic times (Training the critic)
@@ -52,7 +54,7 @@ class DRAGAN(BaseModel):
             # Get the gradients of the critic
             d_gradient = d_tape.gradient(d_loss, self.discriminator.trainable_variables)
             # Update the weights of the critic using the optimizer
-            self.d_optimizer.apply_gradients(
+            d_optimizer.apply_gradients(
                 zip(d_gradient, self.discriminator.trainable_variables)
             )
 
@@ -64,7 +66,7 @@ class DRAGAN(BaseModel):
         gen_gradients = g_tape.gradient(gen_loss, self.generator.trainable_variables)
 
         # Update the weights of the generator
-        self.g_optimizer.apply_gradients(
+        g_optimizer.apply_gradients(
             zip(gen_gradients, self.generator.trainable_variables)
         )
 
@@ -112,8 +114,8 @@ class DRAGAN(BaseModel):
             .batch(batch_size).shuffle(buffer_size)
         return train_loader
 
-    def train_step(self, train_data):
-        d_loss, g_loss = self.update_gradients(train_data)
+    def train_step(self, train_data, optimizers):
+        d_loss, g_loss = self.update_gradients(train_data, *optimizers)
         return d_loss, g_loss
 
     def train(self, data, train_arguments, num_cols, cat_cols):
@@ -128,7 +130,7 @@ class DRAGAN(BaseModel):
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]
-        self.define_gan(self.processor.col_transform_info)
+        optimizers = self.define_gan(self.processor.col_transform_info)
 
         train_loader = self.get_data_batch(processed_data, self.batch_size)
 
@@ -139,7 +141,7 @@ class DRAGAN(BaseModel):
             for epoch in tqdm.trange(train_arguments.epochs):
                 for batch_data in train_loader:
                     batch_data = tf.cast(batch_data, dtype=tf.float32)
-                    d_loss, g_loss = self.train_step(batch_data)
+                    d_loss, g_loss = self.train_step(batch_data, optimizers)
 
                 print(
                     "Epoch: {} | disc_loss: {} | gen_loss: {}".format(
@@ -154,9 +156,6 @@ class DRAGAN(BaseModel):
                     model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
                     self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
                     self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
-
-            self.g_optimizer=self.g_optimizer.get_config()
-            self.d_optimizer=self.d_optimizer.get_config()
 
 
 class Discriminator(Model):
