@@ -33,7 +33,7 @@ jobs:
       run: make package version=${{ steps.version.outputs.value }}
 
     - name: Upload Pipeline Artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: built-artifacts
         path: dist/
