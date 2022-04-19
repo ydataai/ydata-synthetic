@@ -33,8 +33,9 @@ class WGAN_GP(BaseModel):
         self.critic = Critic(self.batch_size). \
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
 
-        self.g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
-        self.critic_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        c_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        return g_optimizer, c_optimizer
 
     def gradient_penalty(self, real, fake):
         epsilon = tf.random.uniform([real.shape[0], 1], 0.0, 1.0, dtype=tf.dtypes.float32)
@@ -47,7 +48,7 @@ class WGAN_GP(BaseModel):
         d_regularizer = tf.reduce_mean((ddx - 1.0) ** 2)
         return d_regularizer
 
-    def update_gradients(self, x):
+    def update_gradients(self, x, g_optimizer, c_optimizer):
         """
         Compute the gradients for both the Generator and the Critic
         :param x: real data event
@@ -60,7 +61,7 @@ class WGAN_GP(BaseModel):
             # Get the gradients of the critic
             d_gradient = d_tape.gradient(critic_loss, self.critic.trainable_variables)
             # Update the weights of the critic using the optimizer
-            self.critic_optimizer.apply_gradients(
+            c_optimizer.apply_gradients(
                 zip(d_gradient, self.critic.trainable_variables)
             )
 
@@ -72,7 +73,7 @@ class WGAN_GP(BaseModel):
         gen_gradients = g_tape.gradient(gen_loss, self.generator.trainable_variables)
 
         # Update the weights of the generator
-        self.g_optimizer.apply_gradients(
+        g_optimizer.apply_gradients(
             zip(gen_gradients, self.generator.trainable_variables)
         )
 
@@ -124,8 +125,8 @@ class WGAN_GP(BaseModel):
         return train[train_ix[start_i: stop_i]]
 
     @tf.function
-    def train_step(self, train_data):
-        cri_loss, ge_loss = self.update_gradients(train_data)
+    def train_step(self, train_data, optimizers):
+        cri_loss, ge_loss = self.update_gradients(train_data, *optimizers)
         return cri_loss, ge_loss
 
     def train(self, data, train_arguments: TrainParameters, num_cols: List[str], cat_cols: List[str]):
@@ -140,7 +141,7 @@ class WGAN_GP(BaseModel):
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]
-        self.define_gan(self.processor.col_transform_info)
+        optimizers = self.define_gan(self.processor.col_transform_info)
 
         iterations = int(abs(data.shape[0]/self.batch_size)+1)
 
@@ -151,7 +152,7 @@ class WGAN_GP(BaseModel):
             for epoch in trange(train_arguments.epochs):
                 for _ in range(iterations):
                     batch_data = self.get_data_batch(processed_data, self.batch_size).astype(np.float32)
-                    cri_loss, ge_loss = self.train_step(batch_data)
+                    cri_loss, ge_loss = self.train_step(batch_data, optimizers)
 
                 print(
                     "Epoch: {} | disc_loss: {} | gen_loss: {}".format(
@@ -166,9 +167,6 @@ class WGAN_GP(BaseModel):
                     model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
                     self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
                     self.critic.save_weights(model_checkpoint_base_name.format('critic', epoch))
-
-        self.g_optimizer=self.g_optimizer.get_config()
-        self.critic_optimizer=self.critic_optimizer.get_config()
 
 
 class Generator(tf.keras.Model):
