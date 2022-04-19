@@ -44,6 +44,7 @@ Here are some example datasets for you to try with the synthesizers:
 #### Tabular datasets
 - [Adult census](https://archive.ics.uci.edu/ml/datasets/adult)
 - [Credit card fraud](https://www.kaggle.com/mlg-ulb/creditcardfraud)
+- [Cardiovascular Disease dataset](https://www.kaggle.com/datasets/sulianova/cardiovascular-disease-dataset)
 
 #### Sequential datasets
 - [Stock data](https://github.com/ydataai/ydata-synthetic/tree/master/data)
@@ -60,6 +61,7 @@ In this repository you can find the several GAN architectures that are used to c
 - [WGAN-GP (Wassertein GAN with Gradient Penalty)](https://arxiv.org/abs/1704.00028)
 - [DRAGAN (On Convergence and stability of GANS)](https://arxiv.org/pdf/1705.07215.pdf)
 - [Cramer GAN (The Cramer Distance as a Solution to Biased Wasserstein Gradients)](https://arxiv.org/abs/1705.10743)
+- [CWGAN-GP (Conditional Wassertein GAN with Gradient Penalty)](https://cameronfabbri.github.io/papers/conditionalWGAN.pdf)
 
 #### Sequential data
 - [TimeGAN](https://papers.nips.cc/paper/2019/file/c9efe5f26cd17ba6216bbe2a7d26d490-Paper.pdf)
