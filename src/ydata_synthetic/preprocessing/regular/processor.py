@@ -22,6 +22,7 @@ class RegularModels(Enum):
     WGAN = 'WGAN'
     WGAN_GP = 'WGAN_GP'
     CWGAN_GP = 'CWGAN_GP'
+    PATEGAN = 'PATEGAN'
 
 
 @typechecked
