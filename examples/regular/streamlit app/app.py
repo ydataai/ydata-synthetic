@@ -54,12 +54,9 @@ def run():
         synthesizer = model.load('data_synth.pkl')
         data_syn = synthesizer.sample(samples)
         return data_syn
-    
     @st.cache
     def convert_df(df):
         return df.to_csv().encode('utf-8')
-
-    
     if data is not None:
         data = pd.read_csv(data)
         data.dropna(inplace=True)
@@ -92,11 +89,6 @@ def run():
             beta_1 = st.slider('Select first beta co-efficient', 0.0, 1.0, 0.5)
             beta_2 = st.slider('Select second beta co-efficient', 0.0, 1.0, 0.9)
             samples = st.number_input('Select the number of synthetic samples to be generated', 0, 400000, step=1000)
-
-
-
-
-
     if st.button('Click here to start the training process'):
         if data is not None:
             st.write('Model Training is in progress. It may take a few minutes. Please wait for a while.')
@@ -117,7 +109,5 @@ def run():
             st.balloons()
         else:
             st.write('Upload a dataset to train!!')
-
-
 if __name__== '__main__':
     run()
