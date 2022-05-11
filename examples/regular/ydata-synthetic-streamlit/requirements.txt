@@ -1,6 +1,0 @@
-pandas
-matplotlib
-numpy
-seaborn
-streamlit
-ydata-synthetic
