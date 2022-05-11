@@ -39,7 +39,7 @@ def run():
 
     @st.cache
     def train(df):
-        models_dir = './cache'
+        #models_dir = './cache'
         gan_args = ModelParameters(batch_size=batch_size,
                            lr=learning_rate*0.001,
                            betas=(beta_1, beta_2),
@@ -48,7 +48,6 @@ def run():
 
         train_args = TrainParameters(epochs=epochs,
                              sample_interval=log_step)
-            
         synthesizer = model(gan_args, n_discriminator=3)
         synthesizer.train(data, train_args, num_cols, cat_cols)
         synthesizer.save('data_synth.pkl')
