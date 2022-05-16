@@ -14,6 +14,6 @@ __all__ = [
     "WGAN_GP",
     "DRAGAN",
     "CRAMERGAN",
-    "CWGANGP"
+    "CWGANGP",
     "PATEGAN"
 ]

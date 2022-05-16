@@ -8,14 +8,13 @@ from tensorflow import (GradientTape, clip_by_value, constant, expand_dims, ones
 from tensorflow.data import Dataset
 from tensorflow.dtypes import cast, float64, int64
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Dense, Input, ReLU
+from tensorflow.keras.layers import Dense, Input, Activation
 from tensorflow.keras.losses import BinaryCrossentropy
 from tensorflow.keras.optimizers import Adam
 from tensorflow.math import abs, exp, pow, reduce_sum, square
 from tensorflow.random import uniform
 from tensorflow_probability import distributions
 
-from ydata_synthetic.synthesizers import TrainParameters
 from ydata_synthetic.synthesizers.gan import BaseModel
 from ydata_synthetic.utils.gumbel_softmax import GumbelSoftmaxActivation
 
@@ -164,7 +163,7 @@ class PATEGAN(BaseModel):
 
     def _pate_voting(self, data, netTD, lap_scale):
         results = zeros([len(netTD), self.batch_size], dtype=int64)
-        for i in enumerate(netTD):
+        for i in range(len(netTD)):
             output = netTD[i](data, training=True)
             pred = transpose(cast((output > 0.5), int64))
             results = tensor_scatter_nd_update(results, constant([[i]]), pred)
@@ -184,8 +183,7 @@ class Discriminator(Model):
     def build_model(self, input_shape, dim):
         input = Input(shape=input_shape, batch_size=self.batch_size)
         x = Dense(dim * 4)(input)
-        x = ReLU()(x)
-        x = Dense(dim * 2)(x)
+        x = Activation('relu')(x)
         x = Dense(1)(x)
         return Model(inputs=input, outputs=x)
 
@@ -197,8 +195,9 @@ class Generator(Model):
     def build_model(self, input_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None):
         input = Input(shape=input_shape, batch_size = self.batch_size)
         x = Dense(dim)(input)
-        x = ReLU()(x)
+        x = Activation('tanh')(x)
         x = Dense(dim * 2)(x)
+        x = Activation('tanh')(x)
         x = Dense(data_dim)(x)
         if activation_info:
             x = GumbelSoftmaxActivation(activation_info, tau=tau)(x)

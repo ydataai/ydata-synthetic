@@ -1,7 +1,7 @@
 from pmlb import fetch_data
 
 from ydata_synthetic.synthesizers.regular import PATEGAN
-from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
+from ydata_synthetic.synthesizers import ModelParameters
 
 model = PATEGAN
 
@@ -49,4 +49,4 @@ synthesizer.train(data, num_cols, cat_cols,
 synthesizer.save('pate_test.pkl')
 
 synthesizer = model.load('pate_test.pkl')
-synth_data = synthesizer.sample(1000)
+synth_data = synthesizer.sample(10000)
