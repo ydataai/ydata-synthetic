@@ -5,6 +5,7 @@ from ydata_synthetic.synthesizers.regular.wgangp.model import WGAN_GP
 from ydata_synthetic.synthesizers.regular.dragan.model import DRAGAN
 from ydata_synthetic.synthesizers.regular.cramergan.model import CRAMERGAN
 from ydata_synthetic.synthesizers.regular.cwgangp.model import CWGANGP
+from ydata_synthetic.synthesizers.regular.pategan.model import PATEGAN
 
 __all__ = [
     "VanilllaGAN",
@@ -13,5 +14,6 @@ __all__ = [
     "WGAN_GP",
     "DRAGAN",
     "CRAMERGAN",
-    "CWGANGP"
+    "CWGANGP",
+    "PATEGAN"
 ]
