@@ -4,12 +4,12 @@ Link to the original article: https://arxiv.org/pdf/1909.13403.pdf
 
 Link to the original Python package: https://github.com/fjxmlzn/DoppelGANger"""
 
-from typing import Optional, NamedTuple
+from typing import Optional, NamedTuple, Tuple, List
 
-from tensorflow import repeat, expand_dims, GradientTape, sqrt, reduce_mean, reduce_sum
-from tensorflow.keras import Model
+from tensorflow import repeat, expand_dims, GradientTape, sqrt, reduce_mean, reduce_sum, Tensor
+from tensorflow.keras import Model, Sequential
 from tensorflow.keras.layers import Concatenate, Input, LSTM, Dense
-from tensorflow.random import uniform
+from tensorflow.random import uniform, normal
 from tensorflow.dtypes import float32
 
 from ydata_synthetic.synthesizers.gan import BaseModel
@@ -42,76 +42,111 @@ class DoppelGANger(BaseModel):
         super().train(data=data, num_cols=None, cat_cols=None)
         self.define_gan()
 
-class RealMGenerator:
+def get_noise_sample(batch_size: int, noise_dim: int):
+    return normal([batch_size, noise_dim])
+
+class RealMGenerator(Model):
     """'Real' metadata generator.
     Produces the metadata associated with each sequence."""
-    def __init__(self, batch_size: int=64):
+    def __init__(self, meta_dim: int, noise_dim: int, dim: int=100, activation_info: Optional[NamedTuple]=None,
+                    tau: Optional[float] = None, batch_size: int=64):
         """Arguments:
+            meta_dim(int): The cardinality of the produced metadata
+            noise_dim(int): The cardinality of the noise array internally consumed by the model
+            dim(int): The number of units used in the model layers
+            activation_info(Optional[NamedTuple]): Specifies the type of activations to be used for the output
+            tau(Optional[float]): Tau parameter of the Gumbel-Softmax (if categorical columns were specified)
             batch_size(int): Number of sequences passed to the model in train time"""
+        super().__init__()
+
         self.batch_size = batch_size
+        self.noise_dim = noise_dim
+        self.meta_dim = meta_dim
+        self.dim = dim
+        self.activation_info = activation_info
+        self.tau = tau
 
-    def build_model(self, meta_dim: int, noise_dim: int, dim: int=100, activation_info: Optional[NamedTuple]=None,
-                    tau: Optional[float] = None) -> Model:
-        noise = Input(shape=noise_dim, batch_size=self.batch_size)
+    def build(self, _):
+        self.model = Sequential(name='Real Metadata Generator')
+        self.model.add(Dense(self.dim))
+        self.model.add(Dense(self.dim))
+        self.model.add(Dense(self.meta_dim))
+        if self.activation_info:
+            self.model.add(GumbelSoftmaxActivation(self.activation_info, tau=self.tau))
 
-        meta = Dense(dim)(noise)
-        meta = Dense(dim)(meta)
-        meta = Dense(meta_dim)(meta)
-        if activation_info:
-            meta = GumbelSoftmaxActivation(activation_info, tau=tau)(meta)
-        return Model(inputs=noise, outputs=meta)
+    def call(self, _, training=False) -> Tensor:
+        noise = get_noise_sample(self.batch_size, self.noise_dim)
+        return self.model(noise)
 
-class FakeMGenerator:
+class FakeMGenerator(Model):
     """'Fake' metadata generator.
     Produces min and max of each timeseries."""
-    def __init__(self, batch_size: int=64):
+    def __init__(self, noise_dim: int, ts_dim: Tuple[int], dim: int=100, batch_size: int=64):
         """Arguments:
+            noise_dim(int): The cardinality of the noise array internally consumed by the model
+            dim(int): The number of units used in the model layers
+            ts_dim(Tuple[int]): Tuple with dimensions of the synthesized time series as: (seq_length, n_series)
             batch_size(int): Number of sequences passed to the model in train time"""
+        super().__init__()
+
         self.batch_size = batch_size
+        self.noise_dim = noise_dim
+        self.dim = dim
+        _, self.n_ts = ts_dim
 
-    def build_model(self, ts_dim: int, meta_dim: int, noise_dim: int, dim: int=100) -> Model:
-        #TODO: fix input_shape; metadata depends on dataset; noise depends on user parameterization
-        #TODO: Remove debug code (prints/asserts)
-        _, n_ts = ts_dim
-        metadata = Input(shape=meta_dim, batch_size=self.batch_size)
-        noise = Input(shape=noise_dim, batch_size=self.batch_size)
+    def build(self, _):
+        self.model = Sequential(name='Fake Metadata Generator')
+        self.model.add(Dense(self.dim))
+        self.model.add(Dense(self.dim))
+        self.model.add(Dense(self.n_ts*2))
 
+    def call(self, metadata: Tensor, training=False) -> Tensor:
+        noise = get_noise_sample(self.batch_size, self.noise_dim)
         input = Concatenate(axis=1)([metadata, noise])
+        return self.model(input)
 
-        minmax = Dense(dim)(input)
-        minmax = Dense(dim)(minmax)
-        minmax = Dense(n_ts*2)(minmax)
-        return Model(inputs=[metadata, noise], outputs=minmax)
-
-class TSGenerator:
+class TSGenerator(Model):
     """Recurrent model for timeseries generation."""
-    def __init__(self, batch_size: int=64, s_len: int=5):
+    def __init__(self, ts_dim: Tuple[int], noise_dim: int, meta_dim: int, dim: int=100, s_len: int=5, batch_size: int=64):
         """Arguments:
-            batch_size(int): Number of sequences passed to the model in train time.
+            ts_dim(Tuple[int]): Tuple with dimensions of the synthesized time series as: (seq_length, n_series)
+            noise_dim(int): The cardinality of the noise array internally consumed by the model
+            dim(int): The number of units used in the model layers
+            meta_dim(int): The cardinality of the produced metadata
             s_len(int): Length of samples produced by the one-to-many generator when passing one element of a sequence.
-                Also called 'batch generation' in the article."""
+                Also called 'batch generation' in the article.
+            batch_size(int): Number of sequences passed to the model in train time."""
+        super().__init__()
+
         self.batch_size = batch_size
+        self.seq_len, self.n_ts = ts_dim
         self.s_len = s_len
+        self.noise_dim = noise_dim
+        self.dim = dim
+        self.meta_dim = meta_dim
 
-    def build_model(self, ts_dim: int, meta_dim: int, noise_dim: int, dim: int=100) -> Model:
-        seq_len, n_ts = ts_dim
-        assert seq_len%self.s_len==0, "The length of the sequences should be a multiple of s_len."
-        n_reps = int(seq_len/self.s_len)
-        min_max = Input(shape=2*n_ts, batch_size=self.batch_size)
-        metadata = Input(shape=meta_dim, batch_size=self.batch_size)
-        noise = Input(shape=noise_dim, batch_size=self.batch_size)
-        sequence = Input(shape=ts_dim, batch_size=self.batch_size)
+        assert self.seq_len%self.s_len==0, "The length of the sequences should be a multiple of s_len."
 
-        mm_rep = repeat(expand_dims(min_max, axis=1), n_reps, 1)
-        meta_rep = repeat(expand_dims(metadata, axis=1), n_reps, 1)
-        noise_rep = repeat(expand_dims(noise, axis=1), n_reps, 1)
-        sequence_skips = sequence[:, ::self.s_len, :]
+    def build(self, _) -> Model:
+        self.model = Sequential(name='Time Series Generator')
+        self.model.add(LSTM(self.dim, return_sequences=True))
+        self.model.add(Dense(self.n_ts, activation='tanh'))
 
-        input = Concatenate(axis=2)([mm_rep, meta_rep, noise_rep, sequence_skips])
-        rnn = repeat(input, repeats=self.s_len, axis=1)
-        rnn = LSTM(dim, return_sequences=True)(rnn)
-        rnn = Dense(n_ts, activation='tanh')(rnn)
-        return Model(inputs=[min_max, metadata, noise, sequence], outputs=rnn)
+    def call(self, inputs: List[Tensor], training=False) -> Tensor:
+        meta, mm = inputs
+        noise = get_noise_sample(self.batch_size, self.noise_dim)
+
+        mm_rep = repeat(expand_dims(mm, axis=1), self.s_len, 1)
+        meta_rep = repeat(expand_dims(meta, axis=1), self.s_len, 1)
+        noise_rep = repeat(expand_dims(noise, axis=1), self.s_len, 1)
+        input = Concatenate(axis=2)([meta_rep, mm_rep, noise_rep])
+
+        outputs = []
+        n_batches = int(self.seq_len/self.s_len)
+        for i in range(n_batches):
+            outputs.append(self.model(input))
+        return Concatenate(axis=1)(outputs)
+
 
 class AuxiliarCritic:
     """Auxiliar Critic network, produces a score attributed to the 'realness' of metadata of a sequence.
@@ -176,14 +211,14 @@ if __name__ == '__main__':
             pass
             #print(array, '\n', dataset[array].shape)
 
-    meta_gen = RealMGenerator()
-    meta_gen.build_model(meta_dim=5, noise_dim=15)
+    meta_gen = RealMGenerator(meta_dim=5,noise_dim=16)
+    meta_gen([])
 
-    minmax_gen = FakeMGenerator()
-    minmax_gen.build_model(ts_dim=(15,3), meta_dim=5, noise_dim=15)
+    minmax_gen = FakeMGenerator(noise_dim=16,ts_dim=(15,5))
+    minmax_gen(meta_gen([]))
 
-    gen = TSGenerator()
-    gen.build_model(ts_dim=(15,3), meta_dim=5, noise_dim=15)
+    gen = TSGenerator(ts_dim=(15,3), noise_dim=16, meta_dim=5)
+    gen([meta_gen([]), minmax_gen(meta_gen([]))])
 
     aux_cri = AuxiliarCritic()
     aux_cri.build_model(ts_dim=(15,3), meta_dim=5)
