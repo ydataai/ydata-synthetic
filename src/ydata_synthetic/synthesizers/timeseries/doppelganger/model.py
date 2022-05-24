@@ -4,28 +4,51 @@ Link to the original article: https://arxiv.org/pdf/1909.13403.pdf
 
 Link to the original Python package: https://github.com/fjxmlzn/DoppelGANger"""
 
-from typing import Optional, NamedTuple, Tuple, List
+from typing import Tuple
 
 from tensorflow import repeat, expand_dims, GradientTape, sqrt, reduce_mean, reduce_sum, squeeze, Tensor
+from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import Model, Sequential
-from tensorflow.keras.layers import average, Concatenate, LSTM, Dense
+from tensorflow.keras.layers import Concatenate, LSTM, Dense
 from tensorflow.random import uniform, normal
 from tensorflow.dtypes import float32
+from tqdm import trange
 
+from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
 from ydata_synthetic.synthesizers.gan import BaseModel
-from ydata_synthetic.utils.gumbel_softmax import GumbelSoftmaxActivation
 
 class DoppelGANger(BaseModel):
     """DoppelGANger implementation"""
     __MODEL__ = 'DoppelGANger'
 
-    def __init__(self, model_parameters, ):
+    def __init__(self, model_parameters: ModelParameters, alpha: float=1):
         super().__init__(model_parameters)
 
-    def define_gan(self):
-        #TODO: compile generator with metadata and TS generators
-        #TODO: compile critic with auxiliary and TS critic
-        raise NotImplementedError
+        self.alpha = alpha
+
+    def define_gan(self, meta_dim: int, ts_dim: Tuple[int], s_len: int):
+        r_meta_gen = RealMGenerator(meta_dim=meta_dim, noise_dim=self.noise_dim, dim=self.layers_dim, batch_size=self.batch_size)
+        f_meta_gen = FakeMGenerator(noise_dim=self.noise_dim, ts_dim=ts_dim, dim=self.layers_dim, batch_size=self.batch_size)
+        self.meta_gen = Sequential([r_meta_gen, f_meta_gen], name='Metadata Generator')
+
+        self.generator = Generator(ts_dim=ts_dim, noise_dim=self.noise_dim, meta_dim=meta_dim, dim=self.layers_dim,
+                                   s_len=s_len, batch_size=self.batch_size)
+
+        self.aux_crit = AuxiliarCritic(batch_size=self.batch_size, dim=2*self.layers_dim)
+        self.critic = Critic(batch_size=self.batch_size, dim=2*self.layers_dim)
+
+        g_meta_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        c_aux_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        c_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+
+        self.meta_gen.compile(optimizer=g_meta_optimizer, loss=self.wasserstein_loss)
+        self.generator.compile(optimizer=g_optimizer, loss=self.wasserstein_loss)
+        self.aux_crit.compile(optimizer=c_aux_optimizer, loss=self.wasserstein_loss)
+        self.critic.compile(optimizer=c_optimizer, loss=self.wasserstein_loss)
+
+    def wasserstein_loss(self, real_score, fake_score) -> Tensor:
+        return NotImplementedError
 
     def gradient_penalty(self, real, fake):
         epsilon = uniform([real.shape[0], 1], 0.0, 1.0, dtype=float32)
@@ -38,26 +61,31 @@ class DoppelGANger(BaseModel):
         d_regularizer = reduce_mean((ddx - 1.0) ** 2)
         return d_regularizer
 
-    def train(self, data, train_args):
+    def train(self, data: Tuple, train_args: TrainParameters, meta_dim: int, ts_dim: Tuple[int], s_len: int=5):
         super().train(data=data, num_cols=None, cat_cols=None)
-        self.define_gan()
+
+        self.define_gan(meta_dim, ts_dim, s_len)
+
+        meta, mm, measures = data
+
+        for epoch in trange(train_args.epochs):
 
 
-def get_noise_sample(batch_size: int, noise_dim: int):
+        return
+
+
+def get_noise_sample(batch_size: int, noise_dim: int) -> Tensor:
     return normal([batch_size, noise_dim])
 
 
 class RealMGenerator(Model):
     """'Real' metadata generator.
     Generates the metadata associated with each sequence."""
-    def __init__(self, meta_dim: int, noise_dim: int, dim: int=100, activation_info: Optional[NamedTuple]=None,
-                    tau: Optional[float] = None, batch_size: int=64):
+    def __init__(self, meta_dim: int, noise_dim: int, dim: int=100, batch_size: int=64):
         """Arguments:
             meta_dim(int): The cardinality of the produced metadata
             noise_dim(int): The cardinality of the noise array internally consumed by the model
             dim(int): The number of units used in the model layers
-            activation_info(Optional[NamedTuple]): Specifies the type of activations to be used for the output
-            tau(Optional[float]): Tau parameter of the Gumbel-Softmax (if categorical columns were specified)
             batch_size(int): Number of sequences passed to the model in train time"""
         super().__init__()
 
@@ -65,16 +93,12 @@ class RealMGenerator(Model):
         self.noise_dim = noise_dim
         self.meta_dim = meta_dim
         self.dim = dim
-        self.activation_info = activation_info
-        self.tau = tau
 
     def build(self, _):
         self.model = Sequential(name='Real Metadata Generator')
         self.model.add(Dense(self.dim))
         self.model.add(Dense(self.dim))
         self.model.add(Dense(self.meta_dim))
-        if self.activation_info:
-            self.model.add(GumbelSoftmaxActivation(self.activation_info, tau=self.tau))
 
     def call(self, _, training=False) -> Tensor:
         noise = get_noise_sample(self.batch_size, self.noise_dim)
@@ -167,6 +191,8 @@ class AuxiliarCritic(Model):
         self.model = Sequential(name='Auxiliar Critic')
         self.model.add(Dense(self.dim))
         self.model.add(Dense(self.dim))
+        self.model.add(Dense(self.dim))
+        self.model.add(Dense(self.dim))
         self.model.add(Dense(1))
 
     def call(self, metadata: Tensor, training=False) -> Tensor:
@@ -189,6 +215,8 @@ class Critic(Model):
         self.model = Sequential(name='Critic')
         self.model.add(Dense(self.dim))
         self.model.add(Dense(self.dim))
+        self.model.add(Dense(self.dim))
+        self.model.add(Dense(self.dim))
         self.model.add(Dense(1))
 
     def call(self, sequence: Tensor, training=False) -> Tensor:
@@ -196,35 +224,29 @@ class Critic(Model):
 
 
 if __name__ == '__main__':
-    from ydata_synthetic.synthesizers import ModelParameters
-    from numpy import load
+    from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
+    from numpy import load, empty
 
-    gan_args = ModelParameters()
-    synth = DoppelGANger(gan_args)
-
-    # Dataset - We are using the FCC MBA dataset taken from the original implementation data repo: https://drive.google.com/drive/folders/19hnyG8lN9_WWIac998rT6RtBB9Zit70X
+    # Dataset preparation - We are using the FCC MBA dataset taken from the original implementation data repo: https://drive.google.com/drive/folders/19hnyG8lN9_WWIac998rT6RtBB9Zit70X
     dataset = load('/home/fsantos/GitRepos/ydata-synthetic/data/data_train.npz')
-    for array in dataset.files:
-        if array == 'data_attribute':
-            pass
-            #print(array, '\n', dataset[array][:,:15].sum(axis=1))
-        else:
-            pass
-            #print(array, '\n', dataset[array].shape)
 
-    r_meta_gen = RealMGenerator(meta_dim=5, noise_dim=16, dim=100, activation_info=None, tau=None, batch_size=64)
-    r_meta_gen([])
+    isps = ['ISP_' + i for i in ['Windstream', 'AT&T', 'CenturyLink', 'Verizon ', 'Comcast', 'Cincinnati Bell ', 'Optimum', 'Hughes', 'Cox', 'Mediacom', 'Hawaiian Telcom', 'Wildblue/ViaSat', 'Charter', 'Frontier ', 'Verizon']]
+    techs = ['Tech_' + i for i in ['Fiber', 'DSL', 'IPBB', 'Satellite', 'Cable']]
+    states = ['State_' + i for i in ['NV', 'LA', 'FL', 'RI', 'NM', 'GA', 'NE', 'WI', 'SD', 'OH', 'NH', 'CO', 'NJ', 'IN', 'AZ', 'PA', 'KY', 'OR', 'MN', 'IL', 'MD', 'MT', 'MS', 'OK', 'WV', 'ME', 'NY', 'MA', 'VT', 'MI', 'Ia', 'nv', 'AR', 'MO', 'SC', 'DE', 'DC', 'IA', 'TN', 'ID', 'Al', 'CA', 'VA', 'AL', 'CT', 'TX', 'WY', 'WA', 'KS', 'sc', 'NC', 'UT', 'HI']]
+    #meta = DataFrame(dataset['data_attribute'], columns = isps+techs+states)
+    meta = dataset['data_attribute']
 
-    meta_gen = FakeMGenerator(noise_dim=16, ts_dim=(15,5), dim=100, batch_size=64)
-    meta_gen(r_meta_gen([]))
+    measures = dataset['data_feature']
 
-    gen = Generator(ts_dim=(15,3), noise_dim=16, meta_dim=5, dim=100, s_len=5, batch_size=64)
-    gen(meta_gen(r_meta_gen([])))
+    mm = empty(measures.shape[2]*2)
+    mm[::2] = dataset['data_feature_min']
+    mm[1::2] = dataset['data_feature_max']
 
-    aux_cri = AuxiliarCritic(batch_size=64, dim=100)
-    aux_cri(meta_gen(r_meta_gen([])))
+    gan_args = ModelParameters(lr=1e-3, betas=(0.9, 0.999), batch_size=100, layers_dim=100, seq_len=56)
+    synth = DoppelGANger(gan_args, alpha=1)
 
-    cri = Critic(batch_size=64, dim=100)
-    cri(gen(meta_gen(r_meta_gen([]))))
+    train_args = TrainParameters()
+
+    synth.train((meta, mm, measures), train_args, meta_dim=5, ts_dim=measures.shape[1:], s_len=4)
 
 
