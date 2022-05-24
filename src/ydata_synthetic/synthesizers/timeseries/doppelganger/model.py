@@ -6,9 +6,9 @@ Link to the original Python package: https://github.com/fjxmlzn/DoppelGANger"""
 
 from typing import Optional, NamedTuple, Tuple, List
 
-from tensorflow import repeat, expand_dims, GradientTape, sqrt, reduce_mean, reduce_sum, Tensor
+from tensorflow import repeat, expand_dims, GradientTape, sqrt, reduce_mean, reduce_sum, squeeze, Tensor
 from tensorflow.keras import Model, Sequential
-from tensorflow.keras.layers import Concatenate, Input, LSTM, Dense
+from tensorflow.keras.layers import average, Concatenate, LSTM, Dense
 from tensorflow.random import uniform, normal
 from tensorflow.dtypes import float32
 
@@ -42,12 +42,14 @@ class DoppelGANger(BaseModel):
         super().train(data=data, num_cols=None, cat_cols=None)
         self.define_gan()
 
+
 def get_noise_sample(batch_size: int, noise_dim: int):
     return normal([batch_size, noise_dim])
 
+
 class RealMGenerator(Model):
     """'Real' metadata generator.
-    Produces the metadata associated with each sequence."""
+    Generates the metadata associated with each sequence."""
     def __init__(self, meta_dim: int, noise_dim: int, dim: int=100, activation_info: Optional[NamedTuple]=None,
                     tau: Optional[float] = None, batch_size: int=64):
         """Arguments:
@@ -78,9 +80,11 @@ class RealMGenerator(Model):
         noise = get_noise_sample(self.batch_size, self.noise_dim)
         return self.model(noise)
 
+
 class FakeMGenerator(Model):
     """'Fake' metadata generator.
-    Produces min and max of each timeseries."""
+    Generates min and max of each timeseries conditioned on the provided metadata.
+    Returns the full metadata (real metadata input is concatenated)."""
     def __init__(self, noise_dim: int, ts_dim: Tuple[int], dim: int=100, batch_size: int=64):
         """Arguments:
             noise_dim(int): The cardinality of the noise array internally consumed by the model
@@ -103,10 +107,12 @@ class FakeMGenerator(Model):
     def call(self, metadata: Tensor, training=False) -> Tensor:
         noise = get_noise_sample(self.batch_size, self.noise_dim)
         input = Concatenate(axis=1)([metadata, noise])
-        return self.model(input)
+        return Concatenate(axis=1)([metadata, self.model(input)])
 
-class TSGenerator(Model):
-    """Recurrent model for timeseries generation."""
+
+class Generator(Model):
+    """Recurrent model for timeseries generation.
+    Generates TimeSeries sequences conditioned on the full metadata."""
     def __init__(self, ts_dim: Tuple[int], noise_dim: int, meta_dim: int, dim: int=100, s_len: int=5, batch_size: int=64):
         """Arguments:
             ts_dim(Tuple[int]): Tuple with dimensions of the synthesized time series as: (seq_length, n_series)
@@ -132,66 +138,61 @@ class TSGenerator(Model):
         self.model.add(LSTM(self.dim, return_sequences=True))
         self.model.add(Dense(self.n_ts, activation='tanh'))
 
-    def call(self, inputs: List[Tensor], training=False) -> Tensor:
-        meta, mm = inputs
+    def call(self, metadata: Tensor, training=False) -> Tensor:
         noise = get_noise_sample(self.batch_size, self.noise_dim)
-
-        mm_rep = repeat(expand_dims(mm, axis=1), self.s_len, 1)
-        meta_rep = repeat(expand_dims(meta, axis=1), self.s_len, 1)
+        meta_rep = repeat(expand_dims(metadata, axis=1), self.s_len, 1)
         noise_rep = repeat(expand_dims(noise, axis=1), self.s_len, 1)
-        input = Concatenate(axis=2)([meta_rep, mm_rep, noise_rep])
+        input = Concatenate(axis=2)([meta_rep, noise_rep])
 
         outputs = []
-        n_batches = int(self.seq_len/self.s_len)
-        for i in range(n_batches):
-            outputs.append(self.model(input))
+        temporal_batches = int(self.seq_len/self.s_len)
+        for i in range(temporal_batches):
+            outputs.append(Concatenate(axis=2)([meta_rep, self.model(input)]))
         return Concatenate(axis=1)(outputs)
 
 
-class AuxiliarCritic:
+class AuxiliarCritic(Model):
     """Auxiliar Critic network, produces a score attributed to the 'realness' of metadata of a sequence.
     This network is called a 'discriminator' in the original article.
     We keep the name critic for consistency with other models in the package using Wasserstein loss."""
-    def __init__(self, batch_size: int=64):
+    def __init__(self, batch_size: int=64, dim: int=100):
         """Arguments:
             batch_size(int): Number of sequences passed to the model in train time."""
+        super().__init__()
+
         self.batch_size = batch_size
+        self.dim = dim
 
-    def build_model(self, ts_dim: int, meta_dim: int, dim: int=100) -> Model:
-        _, n_ts = ts_dim
-        min_max = Input(shape=2*n_ts, batch_size=self.batch_size)
-        metadata = Input(shape=meta_dim, batch_size=self.batch_size)
-        sequence = Input(shape=ts_dim, batch_size=self.batch_size)
+    def build(self, _) -> Model:
+        self.model = Sequential(name='Auxiliar Critic')
+        self.model.add(Dense(self.dim))
+        self.model.add(Dense(self.dim))
+        self.model.add(Dense(1))
 
-        input = Concatenate(axis=1)([min_max, metadata])
-        score = Dense(dim)(input)
-        score = Dense(dim)(score)
-        score = Dense(1)(score)
-        return Model(inputs=[min_max, metadata, sequence], outputs=score)
+    def call(self, metadata: Tensor, training=False) -> Tensor:
+        return squeeze(self.model(metadata))
 
-class Critic:
-    """Critic network, produces a score attributed to the 'realness' of a full synthetic sequence (with metadata).
+
+class Critic(Model):
+    """Critic network, produces a score attributed to the 'realness' of a synthetic sequence and its metadata.
     This network is called a 'discriminator' in the original article.
     We keep the name critic for consistency with other models in the package using Wasserstein loss."""
-    def __init__(self, batch_size: int=64):
+    def __init__(self, batch_size: int=64, dim: int=100):
         """Arguments:
             batch_size(int): Number of sequences passed to the model in train time."""
+        super().__init__()
+
         self.batch_size = batch_size
+        self.dim = dim
 
-    def build_model(self, ts_dim: int, meta_dim: int, dim: int=100) -> Model:
-        seq_len, n_ts = ts_dim
-        min_max = Input(shape=2*n_ts, batch_size=self.batch_size)
-        metadata = Input(shape=meta_dim, batch_size=self.batch_size)
-        sequence = Input(shape=ts_dim, batch_size=self.batch_size)
+    def build(self, _) -> Model:
+        self.model = Sequential(name='Critic')
+        self.model.add(Dense(self.dim))
+        self.model.add(Dense(self.dim))
+        self.model.add(Dense(1))
 
-        mm_rep = repeat(expand_dims(min_max, axis=1), seq_len, 1)
-        meta_rep = repeat(expand_dims(metadata, axis=1), seq_len, 1)
-
-        input = Concatenate(axis=2)([mm_rep, meta_rep, sequence])
-        score = Dense(dim)(input)
-        score = Dense(dim)(score)
-        score = Dense(1)(score)
-        return Model(inputs=[min_max, metadata, sequence], outputs=score)
+    def call(self, sequence: Tensor, training=False) -> Tensor:
+        return squeeze(reduce_mean(self.model(sequence), 1))
 
 
 if __name__ == '__main__':
@@ -211,19 +212,19 @@ if __name__ == '__main__':
             pass
             #print(array, '\n', dataset[array].shape)
 
-    meta_gen = RealMGenerator(meta_dim=5,noise_dim=16)
-    meta_gen([])
+    r_meta_gen = RealMGenerator(meta_dim=5, noise_dim=16, dim=100, activation_info=None, tau=None, batch_size=64)
+    r_meta_gen([])
 
-    minmax_gen = FakeMGenerator(noise_dim=16,ts_dim=(15,5))
-    minmax_gen(meta_gen([]))
+    meta_gen = FakeMGenerator(noise_dim=16, ts_dim=(15,5), dim=100, batch_size=64)
+    meta_gen(r_meta_gen([]))
 
-    gen = TSGenerator(ts_dim=(15,3), noise_dim=16, meta_dim=5)
-    gen([meta_gen([]), minmax_gen(meta_gen([]))])
+    gen = Generator(ts_dim=(15,3), noise_dim=16, meta_dim=5, dim=100, s_len=5, batch_size=64)
+    gen(meta_gen(r_meta_gen([])))
 
-    aux_cri = AuxiliarCritic()
-    aux_cri.build_model(ts_dim=(15,3), meta_dim=5)
+    aux_cri = AuxiliarCritic(batch_size=64, dim=100)
+    aux_cri(meta_gen(r_meta_gen([])))
 
-    cri = Critic()
-    cri.build_model(ts_dim=(15,3), meta_dim=5)
+    cri = Critic(batch_size=64, dim=100)
+    cri(gen(meta_gen(r_meta_gen([]))))
 
 
