@@ -6,12 +6,13 @@ Link to the original Python package: https://github.com/fjxmlzn/DoppelGANger"""
 
 from typing import Tuple
 
-from tensorflow import repeat, expand_dims, GradientTape, sqrt, reduce_mean, reduce_sum, squeeze, Tensor
+from numpy.random import choice
+from tensorflow import convert_to_tensor, gather, repeat, expand_dims, GradientTape, square, sqrt, reduce_mean, reduce_sum, squeeze, Tensor, zeros
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import Model, Sequential
 from tensorflow.keras.layers import Concatenate, LSTM, Dense
 from tensorflow.random import uniform, normal
-from tensorflow.dtypes import float32
+from tensorflow.dtypes import float32, int32
 from tqdm import trange
 
 from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
@@ -21,10 +22,13 @@ class DoppelGANger(BaseModel):
     """DoppelGANger implementation"""
     __MODEL__ = 'DoppelGANger'
 
-    def __init__(self, model_parameters: ModelParameters, alpha: float=1):
+    def __init__(self, model_parameters: ModelParameters, alpha: float=1, gp_weight: float=10):
         super().__init__(model_parameters)
 
         self.alpha = alpha
+        self.critic_iter = model_parameters.n_critic
+        self.seq_len = model_parameters.seq_len
+        self.gp_weight = gp_weight
 
     def define_gan(self, meta_dim: int, ts_dim: Tuple[int], s_len: int):
         r_meta_gen = RealMGenerator(meta_dim=meta_dim, noise_dim=self.noise_dim, dim=self.layers_dim, batch_size=self.batch_size)
@@ -37,42 +41,93 @@ class DoppelGANger(BaseModel):
         self.aux_crit = AuxiliarCritic(batch_size=self.batch_size, dim=2*self.layers_dim)
         self.critic = Critic(batch_size=self.batch_size, dim=2*self.layers_dim)
 
-        g_meta_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
+        #g_meta_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
         g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
         c_aux_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
         c_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
 
-        self.meta_gen.compile(optimizer=g_meta_optimizer, loss=self.wasserstein_loss)
-        self.generator.compile(optimizer=g_optimizer, loss=self.wasserstein_loss)
-        self.aux_crit.compile(optimizer=c_aux_optimizer, loss=self.wasserstein_loss)
-        self.critic.compile(optimizer=c_optimizer, loss=self.wasserstein_loss)
+        #self.meta_gen.compile(optimizer=g_meta_optimizer, loss=self.wasserstein_losses)
+        self.generator.compile(optimizer=g_optimizer, loss=self.wasserstein_losses('generator'))
+        self.aux_crit.compile(optimizer=c_aux_optimizer, loss=self.wasserstein_losses('aux_critic'))
+        self.critic.compile(optimizer=c_optimizer, loss=self.wasserstein_losses('critic'))
 
-    def wasserstein_loss(self, real_score, fake_score) -> Tensor:
-        return NotImplementedError
+    def wasserstein_losses(self, model_name: str) -> callable:
+        def aux_critic_loss(real: Tensor, fake: Tensor) -> Tensor:
+            with GradientTape() as t:
+                t.watch([real, fake])
+                d_real = self.aux_crit(real)
+                d_fake = self.aux_crit(fake)
+                d_reg = self.gradient_penalty(real, fake, self.aux_crit)
+                loss = reduce_mean(d_fake - d_real + self.gp_weight*d_reg)
+            return loss, t.gradient(loss, self.aux_crit.variables)
 
-    def gradient_penalty(self, real, fake):
-        epsilon = uniform([real.shape[0], 1], 0.0, 1.0, dtype=float32)
+        def critic_loss(real: Tensor, fake: Tensor) -> Tensor:
+            with GradientTape() as t:
+                t.watch([real, fake])
+                d_real = self.critic(real)
+                d_fake = self.critic(fake)
+                d_reg = self.gradient_penalty(real, fake, self.critic)
+                loss = reduce_mean(d_fake - d_real + self.gp_weight*d_reg)
+            return loss, t.gradient(loss, self.critic.variables)
+
+        def generator_loss() -> Tensor:
+            with GradientTape() as t:
+                fake_meta = self.meta_gen(zeros([]))
+                d_fake_aux = self.aux_crit(fake_meta)
+                fake_record = self.generator(fake_meta)
+                d_fake = self.critic(fake_record)
+                loss = reduce_mean(-d_fake - d_fake_aux)
+            return loss, t.gradient(loss, self.generator.variables)
+
+        loss_mapper = {'aux_critic': aux_critic_loss,
+                       'critic': critic_loss,
+                       'generator': generator_loss}
+        return loss_mapper[model_name]
+
+    def gradient_penalty(self, real, fake, critic):
+        shape = [self.batch_size] + [1]*(len(real.shape)-1)
+        epsilon = uniform(shape, 0.0, 1.0, dtype=float32)
         x_hat = epsilon * real + (1 - epsilon) * fake
         with GradientTape() as t:
             t.watch(x_hat)
-            d_hat = self.critic(x_hat)
+            d_hat = critic(x_hat)
         gradients = t.gradient(d_hat, x_hat)
-        ddx = sqrt(reduce_sum(gradients ** 2))
-        d_regularizer = reduce_mean((ddx - 1.0) ** 2)
+        ddx = sqrt(reduce_sum(gradients ** 2, axis=range(len(shape))[1:]))
+        d_regularizer = square(ddx - 1.0)
         return d_regularizer
+
+    def get_batch(self, metadata: Tensor, minmax: Tensor, measures: Tensor) -> Tensor:
+        batch_idxs = convert_to_tensor(choice(meta.shape[0], self.batch_size), dtype=int32)
+        meta_, measures_ = gather(metadata, batch_idxs), gather(measures, batch_idxs)
+        minmax_ = repeat(expand_dims(minmax, axis=0), self.batch_size, axis=0)
+        meta_ = Concatenate(axis=1)([meta_, minmax_])
+        measures_ = Concatenate(axis=2)([repeat(expand_dims(meta_, axis=1), self.seq_len, axis=1), measures_])
+        return meta_, measures_
 
     def train(self, data: Tuple, train_args: TrainParameters, meta_dim: int, ts_dim: Tuple[int], s_len: int=5):
         super().train(data=data, num_cols=None, cat_cols=None)
 
         self.define_gan(meta_dim, ts_dim, s_len)
 
-        meta, mm, measures = data
+        meta, mm, measures = [convert_to_tensor(array, dtype=float32) for array in data]
+
+        iterations = int(abs(meta.shape[0]/self.batch_size)+1)
 
         for epoch in trange(train_args.epochs):
+            for _ in range(iterations):
+                for t in range(self.critic_iter):
+                    r_meta, r_record = self.get_batch(meta, mm, measures)
+                    f_meta = self.meta_gen(zeros([]))
+                    f_record = self.generator(f_meta)
+                    aux_crit_loss, aux_crit_grad = self.aux_crit.loss(r_meta, f_meta)
+                    crit_loss, crit_grad = self.critic.loss(r_record, f_record)
+                    self.aux_crit.optimizer.apply_gradients(zip(aux_crit_grad, self.aux_crit.trainable_variables))
+                    self.critic.optimizer.apply_gradients(zip(crit_grad, self.critic.trainable_variables))
+                gen_loss, gen_grad = self.generator.loss()
+                self.generator.optimizer.apply_gradients(zip(gen_grad, self.generator.trainable_variables))
 
-
-        return
-
+            print(f"Epoch: {epoch} | critic loss: {crit_loss} | auxiliary critic loss: {aux_crit_loss}\
+| generator loss: {gen_loss}")
 
 def get_noise_sample(batch_size: int, noise_dim: int) -> Tensor:
     return normal([batch_size, noise_dim])
@@ -242,11 +297,9 @@ if __name__ == '__main__':
     mm[::2] = dataset['data_feature_min']
     mm[1::2] = dataset['data_feature_max']
 
-    gan_args = ModelParameters(lr=1e-3, betas=(0.9, 0.999), batch_size=100, layers_dim=100, seq_len=56)
-    synth = DoppelGANger(gan_args, alpha=1)
+    gan_args = ModelParameters(lr=1e-3, betas=(0.9, 0.999), batch_size=100, layers_dim=100, seq_len=56, n_critic=5)
+    synth = DoppelGANger(gan_args, alpha=1, gp_weight=10)
 
     train_args = TrainParameters()
 
-    synth.train((meta, mm, measures), train_args, meta_dim=5, ts_dim=measures.shape[1:], s_len=4)
-
-
+    synth.train((meta, mm, measures), train_args, meta_dim=meta.shape[1], ts_dim=measures.shape[1:], s_len=4)
