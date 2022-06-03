@@ -6,16 +6,15 @@ This application takes a pre-processed dataset as input and outputs a synthetic 
 
 ## How to use
 
-- Upload a pre-processed dataset.
-- Choose the numerical features and categorical features.
-- Choose all the training parameters appropriately.
-- Click the 'click here to start the training process' button.
+-  Upload a pre-processed dataset.
+-  Choose the numerical features and categorical features.
+-  Choose all the training parameters appropriately.
+-  Click the 'click here to start the training process' button.
 
 <img src="https://github.com/rajeshai/ydata-synthetic/blob/dev/examples/regular/streamlit%20app/app.gif" alt="streamlit app to generate synthetic data">
 
 Wait for the training to end. You will see a graph comparing the original data and synthetic data after training.
 Please use less number of epochs to complete the training process quickly as this application is deployed on the community cloud of streamlit which has computational limits.
-
 
 ## Contributing
 
