@@ -5,6 +5,7 @@
 This application takes a pre-processed dataset as input and outputs a synthetic dataset based on the given input parameters. This is made with open source libraries streamlit, ydata-synthetic and deployed on the streamlit cloud.
 
 ## How to use
+
 1. Upload a pre-processed dataset.
 2. Choose the numerical features and categorical features.
 3. Choose all the training parameters appropriately.
