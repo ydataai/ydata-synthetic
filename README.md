@@ -5,7 +5,7 @@
 [![](https://img.shields.io/pypi/v/ydata-synthetic)](https://pypi.org/project/ydata-synthetic/)
 ![](https://img.shields.io/github/license/ydataai/ydata-synthetic)
 
-<p align="center"><img width="200" src="https://ydata-demos.s3.eu-central-1.amazonaws.com/Synthetic+Data_2.png" alt="Synthetic Data Logo"></p>
+<p align="center"><img width="200" src="https://user-images.githubusercontent.com/3348134/177604157-11181f6c-57e5-44b1-8f6c-774edbba5512.png" alt="Synthetic Data Logo"></p>
 
 Join us on [![slack](https://img.shields.io/badge/slack-brightgreen.svg?logo=slack)](http://slack.ydata.ai/)
 
