@@ -1,3 +1,6 @@
+"""
+    CramerGAN python file example
+"""
 #Install ydata-synthetic lib
 # pip install ydata-synthetic
 import sklearn.cluster as cluster
@@ -5,12 +8,10 @@ import numpy as np
 import pandas as pd
 
 from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
-from ydata_synthetic.synthesizers.regular import CRAMERGAN
-
-model = CRAMERGAN
+from ydata_synthetic.synthesizers.regular import RegularSynthesizer
 
 #Read the original data and have it preprocessed
-data = pd.read_csv('data/creditcard.csv', index_col=[0])
+data = pd.read_csv('../../data/creditcard.csv', index_col=[0])
 
 #List of columns different from the Class column
 num_cols = list(data.columns[ data.columns != 'Class' ])
@@ -57,15 +58,16 @@ train_args = TrainParameters(epochs=epochs,
                              sample_interval=log_step)
 
 #Training the CRAMERGAN model
-synthesizer = model(model_parameters, gradient_penalty_weight=10)
-synthesizer.train(data=fraud_w_classes, train_arguments=train_args, num_cols = num_cols, cat_cols = cat_cols)
+synth = RegularSynthesizer(modelname='cramer', model_parameters=model_parameters, n_critic=10)
+synth.fit(data=train_data, train_arguments = train_args, num_cols = num_cols, cat_cols = cat_cols)
 
 #Saving the synthesizer to later generate new events
-synthesizer.save(path='models/cramergan_creditcard.pkl')
+synth.save(path='models/cramergan_creditcard.pkl')
 
-#Loading the synthesizer
-synth = model.load(path='models/cramergan_creditcard.pkl')
-
+#########################################################
+#    Loading and sampling from a trained synthesizer    #
+#########################################################
+synth = RegularSynthesizer.load(path='models/cramergan_creditcard.pkl')
 #Sampling the data
 #Note that the data returned it is not inverse processed.
 data_sample = synth.sample(100000)

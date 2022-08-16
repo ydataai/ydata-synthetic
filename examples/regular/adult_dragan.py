@@ -37,8 +37,8 @@ synth.fit(data = data, train_arguments = train_args, num_cols = num_cols, cat_co
 
 synth.save('adult_synth.pkl')
 
-#######################################
-#    Loading a trained synthesizer    #
-#######################################
+#########################################################
+#    Loading and sampling from a trained synthesizer    #
+#########################################################
 synthesizer = RegularSynthesizer.load('adult_synth.pkl')
 synthesizer.sample(1000)
