@@ -9,7 +9,7 @@ import numpy as np
 from sklearn import cluster
 
 #Read the original data and have it preprocessed
-data = pd.read_csv('../../data/creditcard.csv', index_col=[0])
+data = pd.read_csv('../../../data/creditcard.csv', index_col=[0])
 
 #List of columns different from the Class column
 num_cols = list(data.columns[ data.columns != 'Class' ])
@@ -47,7 +47,7 @@ beta_2 = 0.9
 log_step = 100
 epochs = 500 + 1
 learning_rate = 5e-4
-models_dir = './cache'
+models_dir = '../cache'
 
 #Test here the new inputs
 gan_args = ModelParameters(batch_size=batch_size,

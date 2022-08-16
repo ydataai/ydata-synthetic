@@ -22,7 +22,7 @@ epochs = 500+1
 learning_rate = [5e-4, 3e-3]
 beta_1 = 0.5
 beta_2 = 0.9
-models_dir = './cache'
+models_dir = '../cache'
 
 gan_args = ModelParameters(batch_size=batch_size,
                            lr=learning_rate,
