@@ -1,17 +1,15 @@
-from ydata_synthetic.synthesizers.regular import CWGANGP
+from ydata_synthetic.synthesizers.regular import RegularSynthesizer
 from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
 
 import pandas as pd
 import numpy as np
 from sklearn import cluster
 
-model = CWGANGP
-
 #Read the original data and have it preprocessed
-data = pd.read_csv('data/creditcard.csv', index_col=[0])
+data = pd.read_csv('../../data/creditcard.csv', index_col=[0])
 
 #List of columns different from the Class column
-num_cols = list(data.columns[ data.columns != 'Class' ])
+num_cols = list(data.columns[~data.columns.isin(['Class', 'Amount'])])
 cat_cols = []  # Condition features are not preprocessed and therefore not listed here
 
 print('Dataset columns: {}'.format(num_cols))
@@ -39,12 +37,12 @@ fraud_w_classes['Class'] = labels
 #Define the Conditional WGANGP and training parameters
 noise_dim = 32
 dim = 128
-batch_size = 128
+batch_size = 64
 beta_1 = 0.5
 beta_2 = 0.9
 
 log_step = 100
-epochs = 300 + 1
+epochs = 625 + 1
 learning_rate = 5e-4
 models_dir = './cache'
 
@@ -61,20 +59,29 @@ train_args = TrainParameters(epochs=epochs,
                              label_dim=-1,
                              labels=(0,1))
 
-#Init the Conditional WGANGP providing the index of the label column as one of the arguments
-synthesizer = model(model_parameters=gan_args, num_classes=2, n_critic=3)
+#create a bining
+fraud_w_classes['Amount'] = pd.cut(fraud_w_classes['Amount'], 5).cat.codes
 
-#Training the Conditional WGANGP
-synthesizer.train(data=fraud_w_classes, label_col="Class", train_arguments=train_args,
+#Init the Conditional WGANGP providing the index of the label column as one of the arguments
+synth = RegularSynthesizer(modelname='cwgangp', model_parameters=gan_args, n_critic=5)
+
+#Fitting the synthesizer
+synth.fit(data=fraud_w_classes, label_cols=["Class", "Amount"], train_arguments=train_args,
                   num_cols=num_cols, cat_cols=cat_cols)
 
+synth.save('.model.pkl')
+
+new_synth = RegularSynthesizer.load('.model.pkl')
+
+
 #Saving the synthesizer
-synthesizer.save('cwgangp_synthtrained.pkl')
+#synth.save('cwgangp_synthtrained.pkl')
 
 #Loading the synthesizer
-synthesizer = model.load('cwgangp_synthtrained.pkl')
+#Create the load at the regularsynth class
+#synthesizer = model.load('cwgangp_synthtrained.pkl')
 
 #Sampling from the synthesizer
-cond_array = np.array([0])
+#cond_array = np.array([0])
 # Synthesizer samples are returned in the original format (inverse_transform of internal processing already took place)
-sample = synthesizer.sample(cond_array, 1000)
+#sample = synthesizer.sample(cond_array, 1000)

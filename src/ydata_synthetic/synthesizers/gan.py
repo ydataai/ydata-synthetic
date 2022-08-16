@@ -2,6 +2,7 @@
 from collections import namedtuple
 from typing import List, Optional, Union
 
+import keras.models
 import tensorflow as tf
 import tqdm
 from joblib import dump, load
@@ -163,7 +164,7 @@ class BaseModel():
         ### Args:
         `path` (str): Path to read the synthesizer pickle from.
         """
-        gpu_devices = tf.config.list_physical_devices('GPU')
+        gpu_devices = tfconfig.list_physical_devices('GPU')
         if len(gpu_devices) > 0:
             try:
                 tfconfig.experimental.set_memory_growth(gpu_devices[0], True)

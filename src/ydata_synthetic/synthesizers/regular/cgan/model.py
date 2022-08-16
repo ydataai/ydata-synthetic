@@ -191,18 +191,17 @@ class CGAN(BaseModel):
         return data[self._col_order]
 
     @staticmethod
-    def _validate_label_col(data: DataFrame, label_col: str):
+    def _validate_label_col(data: DataFrame, label_cols: List[str]):
         "Validates the label_col format, raises ValueError if invalid."
-        assert label_col in data.columns, f"The column {label_col} could not be found on the provided dataset and \
-            cannot be used as condition."
-        assert data[label_col].isna().sum() == 0, "The label column contains NaN values, please impute or drop the \
-            respective records before proceeding."
-        assert is_float_dtype(data[label_col]) or is_integer_dtype(data[label_col]), "The label column is expected to be an \
-            integer or a float dtype to ensure the function of the embedding layer."
-        unique_frac = data[label_col].nunique()/len(data.index)
-        assert unique_frac < 1, "The provided column {label_col} is constituted by unique values and is not suitable \
-            to be used as condition."
-
+        assert all(item in list(data.columns) for item in label_cols), \
+            f"The column {label_cols} could not be found on the provided dataset and cannot be used as condition."
+        assert all(data[label_cols].isna().sum()==0), \
+            f"The provided {label_cols} contains NaN values, please impute or drop the respective records before proceeding."
+        assert all([(is_float_dtype(data[col]) or is_integer_dtype(data[col])) for col in label_cols]), \
+            f"The provided {label_cols} are expected to be integers or floats."
+        unique_frac = data[label_cols].nunique()/len(data.index)
+        assert all(unique_frac < 0.3), \
+            f"The provided columns {label_cols} are not valid conditional columns due to high cardinality. Please revise your input."
 
 # pylint: disable=R0903
 class Generator():
