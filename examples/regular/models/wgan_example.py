@@ -8,7 +8,7 @@ from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
 from ydata_synthetic.synthesizers.regular import RegularSynthesizer
 
 #Read the original data and have it preprocessed
-data = pd.read_csv('../../data/creditcard.csv', index_col=[0])
+data = pd.read_csv('../../../data/creditcard.csv', index_col=[0])
 
 #Data processing and analysis
 num_cols = list(data.columns[ data.columns != 'Class' ])
@@ -42,7 +42,7 @@ epochs = 300+1
 learning_rate = 5e-4
 beta_1 = 0.5
 beta_2 = 0.9
-models_dir = './cache'
+models_dir = '../cache'
 
 model_parameters = ModelParameters(batch_size=batch_size,
                                    lr=learning_rate,
