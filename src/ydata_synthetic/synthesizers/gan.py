@@ -2,12 +2,14 @@
 from collections import namedtuple
 from typing import List, Optional, Union
 
-import keras.models
+from numpy import array, vstack, hstack
+from pandas.api.types import is_float_dtype, is_integer_dtype
+
+from pandas import DataFrame
+
 import tensorflow as tf
 import tqdm
 from joblib import dump, load
-from numpy import array, vstack
-from pandas import DataFrame
 from tensorflow import config as tfconfig
 from typeguard import typechecked
 
@@ -95,7 +97,7 @@ class BaseModel():
         "Returns the model (class) name."
         return self.__class__.__name__
 
-    def train(self,
+    def fit(self,
               data: Union[DataFrame, array],
               num_cols: Optional[List[str]] = None,
               cat_cols: Optional[List[str]] = None) -> Union[DataFrame, array]:
@@ -107,7 +109,6 @@ class BaseModel():
         `data` (Union[DataFrame, array]): Training data
         `num_cols` (Optional[List[str]]) : List with the names of the categorical columns
         `cat_cols` (Optional[List[str]]): List of names of categorical columns
-
 
         ### Returns:
         **self:** *object*
@@ -173,3 +174,40 @@ class BaseModel():
                 pass
         synth = load(path)
         return synth
+
+
+class ConditionalModel(BaseModel):
+
+    @staticmethod
+    def _validate_label_col(data: DataFrame, label_cols: List[str]):
+        "Validates the label_col format, raises ValueError if invalid."
+        assert all(item in list(data.columns) for item in label_cols), \
+            f"The column {label_cols} could not be found on the provided dataset and cannot be used as condition."
+        assert all(data[label_cols].isna().sum() == 0), \
+            f"The provided {label_cols} contains NaN values, please impute or drop the respective records before proceeding."
+        assert all([(is_float_dtype(data[col]) or is_integer_dtype(data[col])) for col in label_cols]), \
+            f"The provided {label_cols} are expected to be integers or floats."
+        unique_frac = data[label_cols].nunique() / len(data.index)
+        assert all(unique_frac < 0.3), \
+            f"The provided columns {label_cols} are not valid conditional columns due to high cardinality. Please revise your input."
+
+    def _prep_fit(self, data: DataFrame, label_cols: List[str], num_cols: List[str], cat_cols: List[str]):
+        """
+            Validate and prepare the data for the training of a conditionalGAN architecture
+        Args:
+            data:
+            label_cols:
+            num_cols:
+            cat_cols:
+        Returns:
+        """
+        # Validating the label columns
+        self._validate_label_col(data, label_cols)
+        self._col_order = data.columns
+        self.label_col = label_cols
+
+        # Separating labels from the rest of the data to fit the data processor
+        data, label = data[data.columns[~data.columns.isin(label_cols)]], data[label_cols].values
+
+        BaseModel.fit(self, data, num_cols, cat_cols)
+        return data, label

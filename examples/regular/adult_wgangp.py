@@ -18,7 +18,7 @@ dim = 128
 batch_size = 500
 
 log_step = 100
-epochs = 300+1
+epochs = 500+1
 learning_rate = [5e-4, 3e-3]
 beta_1 = 0.5
 beta_2 = 0.9

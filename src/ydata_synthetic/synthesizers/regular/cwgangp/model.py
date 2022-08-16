@@ -6,21 +6,19 @@ from typing import List, Optional, NamedTuple
 from tqdm import trange
 
 import numpy as np
-from numpy import array, hstack, save
+from numpy import hstack
 from pandas import DataFrame
-from tensorflow import dtypes, expand_dims, GradientTape, reduce_sum, reduce_mean, sqrt, random
+from tensorflow import dtypes, GradientTape, reduce_sum, reduce_mean, sqrt, random
 from keras import Model
-from keras.layers import (Dense, Dropout, Embedding, Flatten, Input, multiply, concatenate, LeakyReLU)
+from keras.layers import (Dense, Dropout, Input, concatenate, LeakyReLU)
 from keras.optimizers import Adam
 
 #Import ydata synthetic classes
 from ....synthesizers import TrainParameters
-from ....synthesizers.gan import BaseModel
+from ....synthesizers.gan import BaseModel, ConditionalModel
 from ....synthesizers.regular.wgangp.model import WGAN_GP
-from ....synthesizers.regular.cgan.model import CGAN
-from ....utils.gumbel_softmax import GumbelSoftmaxActivation
 
-class CWGANGP(CGAN, WGAN_GP):
+class CWGANGP(ConditionalModel, WGAN_GP):
 
     __MODEL__='CWGAN_GP'
 
@@ -131,21 +129,13 @@ class CWGANGP(CGAN, WGAN_GP):
             num_cols: List of columns of the data object to be handled as numerical
             cat_cols: List of columns of the data object to be handled as categorical
         """
-        # Validating the label column
-        self._validate_label_col(data, label_cols)
-        self._col_order = data.columns
-        self.label_col = label_cols
-
-        # Separating labels from the rest of the data to fit the data processor
-        data, label = data[data.columns[~data.columns.isin(label_cols)]] , data[label_cols].values
-
-        BaseModel.train(self, data, num_cols, cat_cols)
+        data, label = self._prep_fit(data, label_cols, num_cols, cat_cols)
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]
         self.label_dim = len(label_cols)
 
-        #testar até aqui o input de mais de uma coluna condicional
+        #Init the GAN model and optimizers
         optimizers = self.define_gan(self.processor.col_transform_info)
 
         # Merging labels with processed data

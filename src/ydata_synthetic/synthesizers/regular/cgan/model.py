@@ -1,7 +1,6 @@
 """
     CGAN architecture implementation file
 """
-
 import os
 from os import path
 from typing import List, Optional, NamedTuple
@@ -12,48 +11,39 @@ import numpy as np
 from numpy import array, empty, hstack, ndarray, vstack, save
 from numpy.random import normal
 from pandas import DataFrame
-from pandas.api.types import is_float_dtype, is_integer_dtype
 
 from tensorflow import convert_to_tensor
 from tensorflow import data as tfdata
 from tensorflow import dtypes, expand_dims, tile
 from keras import Model
-from keras.layers import (Dense, Dropout, Embedding, Flatten, Input, multiply)
+from keras.layers import (Dense, Dropout, Embedding, Flatten, Input, multiply, concatenate)
 from keras.optimizers import Adam
 
 #Import ydata synthetic classes
 from ....synthesizers import TrainParameters
-from ....synthesizers.gan import BaseModel
+from ....synthesizers.gan import ConditionalModel
 from ....utils.gumbel_softmax import GumbelSoftmaxActivation
 
-class CGAN(BaseModel):
+class CGAN(ConditionalModel):
     "CGAN model for discrete conditions"
 
     __MODEL__='CGAN'
 
-    def __init__(self, model_parameters, num_classes):
-        self.num_classes = num_classes
-        self._label_col = None
+    def __init__(self, model_parameters):
         self._col_order = None
         super().__init__(model_parameters)
 
-    @property
-    def label_col(self) -> str:
-        "Returns the name of the label used for conditioning the model."
-        return self._label_col
-
-    @label_col.setter
-    def label_col(self, label_col: str):
-        """Set the label_col property."""
-        self._label_col = label_col
-
     def define_gan(self, activation_info: Optional[NamedTuple] = None):
-        self.generator = Generator(self.batch_size, self.num_classes). \
-            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,
+        self.generator = Generator(self.batch_size). \
+            build_model(input_shape=(self.noise_dim,),
+                        label_shape=(self.label_dim),
+                        dim=self.layers_dim, data_dim=self.data_dim,
                         activation_info = activation_info, tau = self.tau)
 
-        self.discriminator = Discriminator(self.batch_size, self.num_classes). \
-            build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
+        self.discriminator = Discriminator(self.batch_size). \
+            build_model(input_shape=(self.data_dim,),
+                        label_shape=(self.label_dim,),
+                        dim=self.layers_dim)
 
         g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
         d_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
@@ -99,28 +89,27 @@ class CGAN(BaseModel):
         data_ix = np.random.choice(data.shape[0], replace=False, size=len(data))  # wasteful to shuffle every time
         return data[data_ix[start_i: stop_i]]
 
-    def fit(self, data: DataFrame, label_col: str, train_arguments: TrainParameters, num_cols: List[str],
-              cat_cols: List[str]):
+    def fit(self,
+            data: DataFrame,
+            label_cols: List[str],
+            train_arguments: TrainParameters,
+            num_cols: List[str],
+            cat_cols: List[str]):
         """
         Args:
             data: A pandas DataFrame with the data to be synthesized
-            label: The name of the column to be used as a label and condition for the training
+            label_cols: The name of the column to be used as a label and condition for the training
             train_arguments: GAN training arguments.
             num_cols: List of columns of the data object to be handled as numerical
             cat_cols: List of columns of the data object to be handled as categorical
         """
-        # Validating the label column
-        self._validate_label_col(data, label_col)
-        self._col_order = data.columns
-        self.label_col = label_col
-
-        # Separating labels from the rest of the data to fit the data processor
-        data, label = data.loc[:, data.columns != label_col], expand_dims(data[label_col], 1)
-
-        super().train(data, num_cols, cat_cols)
+        data, label = self._prep_fit(data,label_cols,num_cols,cat_cols)
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]
+        self.label_dim = len(label_cols)
+
+        # Init the GAN model and optimizers
         self.define_gan(self.processor.col_transform_info)
 
         # Merging labels with processed data
@@ -190,56 +179,36 @@ class CGAN(BaseModel):
         data[self.label_col] = condition[0]
         return data[self._col_order]
 
-    @staticmethod
-    def _validate_label_col(data: DataFrame, label_cols: List[str]):
-        "Validates the label_col format, raises ValueError if invalid."
-        assert all(item in list(data.columns) for item in label_cols), \
-            f"The column {label_cols} could not be found on the provided dataset and cannot be used as condition."
-        assert all(data[label_cols].isna().sum()==0), \
-            f"The provided {label_cols} contains NaN values, please impute or drop the respective records before proceeding."
-        assert all([(is_float_dtype(data[col]) or is_integer_dtype(data[col])) for col in label_cols]), \
-            f"The provided {label_cols} are expected to be integers or floats."
-        unique_frac = data[label_cols].nunique()/len(data.index)
-        assert all(unique_frac < 0.3), \
-            f"The provided columns {label_cols} are not valid conditional columns due to high cardinality. Please revise your input."
-
 # pylint: disable=R0903
 class Generator():
     "Standard discrete conditional generator."
-    def __init__(self, batch_size, num_classes):
+    def __init__(self, batch_size):
         self.batch_size = batch_size
-        self.num_classes = num_classes
 
-    def build_model(self, input_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None):
+    def build_model(self, input_shape, label_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None):
         noise = Input(shape=input_shape, batch_size=self.batch_size)
-        label = Input(shape=(1,), batch_size=self.batch_size, dtype='int32')
-        label_embedding = Flatten()(Embedding(self.num_classes, 1)(label))
-        input = multiply([noise, label_embedding])
-
-        x = Dense(dim, activation='relu')(input)
+        label_v = Input(shape=label_shape)
+        x = concatenate([noise, label_v])
+        x = Dense(dim, activation='relu')(x)
         x = Dense(dim * 2, activation='relu')(x)
         x = Dense(dim * 4, activation='relu')(x)
         x = Dense(data_dim)(x)
-        if activation_info:
-            x = GumbelSoftmaxActivation(activation_info, tau=tau)(x)
-        return Model(inputs=[noise, label], outputs=x)
+        #if activation_info:
+        #    x = GumbelSoftmaxActivation(activation_info, tau=tau)(x)
+        return Model(inputs=[noise, label_v], outputs=x)
 
 
 # pylint: disable=R0903
 class Discriminator():
     "Standard discrete conditional discriminator."
-    def __init__(self, batch_size, num_classes):
+    def __init__(self, batch_size):
         self.batch_size = batch_size
-        self.num_classes = num_classes
 
-    def build_model(self, input_shape, dim):
+    def build_model(self, input_shape, label_shape, dim):
         events = Input(shape=input_shape, batch_size=self.batch_size)
-        label = Input(shape=(1,), batch_size=self.batch_size, dtype='int32')
-        label_embedding = Flatten()(Embedding(self.num_classes, 1)(label))
-        events_flat = Flatten()(events)
-        input = multiply([events_flat, label_embedding])
-
-        x = Dense(dim * 4, activation='relu')(input)
+        label = Input(shape=label_shape, batch_size=self.batch_size)
+        input_ = concatenate([events, label])
+        x = Dense(dim * 4, activation='relu')(input_)
         x = Dropout(0.1)(x)
         x = Dense(dim * 2, activation='relu')(x)
         x = Dropout(0.1)(x)

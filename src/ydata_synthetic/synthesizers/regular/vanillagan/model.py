@@ -78,7 +78,7 @@ class VanilllaGAN(BaseModel):
             num_cols: List of columns of the data object to be handled as numerical
             cat_cols: List of columns of the data object to be handled as categorical
         """
-        super().train(data, num_cols, cat_cols)
+        super().fit(data, num_cols, cat_cols)
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]

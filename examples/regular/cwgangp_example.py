@@ -42,7 +42,7 @@ beta_1 = 0.5
 beta_2 = 0.9
 
 log_step = 100
-epochs = 625 + 1
+epochs = 500 + 1
 learning_rate = 5e-4
 models_dir = './cache'
 
@@ -71,17 +71,8 @@ synth.fit(data=fraud_w_classes, label_cols=["Class", "Amount"], train_arguments=
 
 synth.save('.model.pkl')
 
+#########################################################
+#    Loading and sampling from a trained synthesizer    #
+#########################################################
 new_synth = RegularSynthesizer.load('.model.pkl')
-
-
-#Saving the synthesizer
-#synth.save('cwgangp_synthtrained.pkl')
-
-#Loading the synthesizer
-#Create the load at the regularsynth class
-#synthesizer = model.load('cwgangp_synthtrained.pkl')
-
-#Sampling from the synthesizer
-#cond_array = np.array([0])
-# Synthesizer samples are returned in the original format (inverse_transform of internal processing already took place)
-#sample = synthesizer.sample(cond_array, 1000)
+new_synth.sample(1000)

@@ -1,14 +1,15 @@
-from ydata_synthetic.synthesizers.regular import CGAN
+"""
+    CGAN architecture example file
+"""
+from ydata_synthetic.synthesizers.regular import RegularSynthesizer
 from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
 
 import pandas as pd
 import numpy as np
 from sklearn import cluster
 
-model = CGAN
-
 #Read the original data and have it preprocessed
-data = pd.read_csv('data/creditcard.csv', index_col=[0])
+data = pd.read_csv('../../data/creditcard.csv', index_col=[0])
 
 #List of columns different from the Class column
 num_cols = list(data.columns[ data.columns != 'Class' ])
@@ -44,7 +45,7 @@ beta_1 = 0.5
 beta_2 = 0.9
 
 log_step = 100
-epochs = 300 + 1
+epochs = 500 + 1
 learning_rate = 5e-4
 models_dir = './cache'
 
@@ -61,18 +62,20 @@ train_args = TrainParameters(epochs=epochs,
                              label_dim=-1,
                              labels=(0,1))
 
+#create a bining
+fraud_w_classes['Amount'] = pd.cut(fraud_w_classes['Amount'], 5).cat.codes
+
 #Init the Conditional GAN providing the index of the label column as one of the arguments
-synthesizer = model(model_parameters=gan_args, num_classes=2)
+synth = RegularSynthesizer(modelname='cgan', model_parameters=gan_args)
 
 #Training the Conditional GAN
-synthesizer.train(data=fraud_w_classes, label_col="Class", train_arguments=train_args,
-                  num_cols=num_cols, cat_cols=cat_cols)
+synth.fit(data=fraud_w_classes, label_cols=["Class"], train_arguments=train_args, num_cols=num_cols, cat_cols=cat_cols)
 
 #Saving the synthesizer
-synthesizer.save('cgan_synthtrained.pkl')
+synth.save('cgan_synthtrained.pkl')
 
 #Loading the synthesizer
-synthesizer = model.load('cgan_synthtrained.pkl')
+synthesizer = RegularSynthesizer.load('cgan_synthtrained.pkl')
 
 #Sampling from the synthesizer
 cond_array = np.array([0])
