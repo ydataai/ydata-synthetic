@@ -1,18 +1,24 @@
+"""
+    WGAN architecture model implementation
+"""
+
 from os import mkdir, path
 from typing import List, Optional, NamedTuple
 
-import numpy as np
-import tensorflow as tf
-import tensorflow.keras.backend as K
-from tensorflow.keras import Model
-from tensorflow.keras.layers import Dense, Dropout, Input
-from tensorflow.keras.optimizers import Adam
 from tqdm import trange
 
-from ydata_synthetic.synthesizers import TrainParameters
-from ydata_synthetic.synthesizers.gan import BaseModel
-from ydata_synthetic.utils.gumbel_softmax import GumbelSoftmaxActivation
+import numpy as np
 
+import tensorflow as tf
+import keras.backend as K
+from keras import Model
+from keras.layers import Dense, Dropout, Input
+from keras.optimizers import Adam
+
+#Import ydata synthetic classes
+from ....synthesizers import TrainParameters
+from ....synthesizers.gan import BaseModel
+from ....utils.gumbel_softmax import GumbelSoftmaxActivation
 
 #Auxiliary Keras backend class to calculate the Random Weighted average
 #https://stackoverflow.com/questions/58133430/how-to-substitute-keras-layers-merge-merge-in-tensorflow-keras
@@ -85,7 +91,7 @@ class WGAN(BaseModel):
         train_ix = list(train_ix) + list(train_ix)  # duplicate to cover ranges past the end of the set
         return train[train_ix[start_i: stop_i]]
 
-    def train(self, data, train_arguments: TrainParameters, num_cols: List[str],
+    def fit(self, data, train_arguments: TrainParameters, num_cols: List[str],
               cat_cols: List[str]):
         """
         Args:

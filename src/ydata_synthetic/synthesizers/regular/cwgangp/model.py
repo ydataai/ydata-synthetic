@@ -3,20 +3,21 @@ import os
 from os import path
 from typing import List, Optional, NamedTuple
 
+from tqdm import trange
+
 import numpy as np
 from numpy import array, hstack, save
 from pandas import DataFrame
 from tensorflow import dtypes, expand_dims, GradientTape, reduce_sum, reduce_mean, sqrt, random
-from tensorflow.keras import Model
-from tensorflow.keras.layers import Dense, Dropout, Embedding, Flatten, Input, multiply
-from tensorflow.keras.optimizers import Adam
-from tqdm import trange
+from keras import Model
+from keras.layers import (Dense, Dropout, Embedding, Flatten, Input, multiply)
+from keras.optimizers import Adam
 
-from ydata_synthetic.synthesizers import TrainParameters
-from ydata_synthetic.synthesizers.gan import BaseModel
-from ydata_synthetic.synthesizers.regular import WGAN_GP, CGAN
-from ydata_synthetic.utils.gumbel_softmax import GumbelSoftmaxActivation
-
+#Import ydata synthetic classes
+from ....synthesizers import TrainParameters
+from ....synthesizers.gan import BaseModel
+from ....synthesizers.regular import WGAN_GP, CGAN
+from ....utils.gumbel_softmax import GumbelSoftmaxActivation
 
 class CWGANGP(CGAN, WGAN_GP):
 
@@ -107,7 +108,7 @@ class CWGANGP(CGAN, WGAN_GP):
         g_loss = -reduce_mean(logits_fake)
         return g_loss
 
-    def train(self, data: DataFrame, label_col: str, train_arguments: TrainParameters, num_cols: List[str],
+    def fit(self, data: DataFrame, label_col: str, train_arguments: TrainParameters, num_cols: List[str],
               cat_cols: List[str]):
         """
         Train the synthesizer on a provided dataset based on a specified condition column.

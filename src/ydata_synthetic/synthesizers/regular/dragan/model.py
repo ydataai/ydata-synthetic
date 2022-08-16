@@ -1,17 +1,20 @@
+"""
+    DRAGAN model architecture implementation
+"""
 import os
 from os import path
 
 from typing import Optional, NamedTuple
 import tensorflow as tf
 import tqdm
-from tensorflow.keras import Model, initializers
-from tensorflow.keras.layers import Dense, Dropout, Input
-from tensorflow.keras.optimizers import Adam
+from keras import Model, initializers
+from keras.layers import Dense, Dropout, Input
+from keras.optimizers import Adam
 
-from ydata_synthetic.synthesizers.gan import BaseModel
-from ydata_synthetic.synthesizers.loss import Mode, gradient_penalty
-from ydata_synthetic.utils.gumbel_softmax import GumbelSoftmaxActivation
-
+#Import ydata synthetic classes
+from ....synthesizers.gan import BaseModel
+from ....synthesizers.loss import Mode, gradient_penalty
+from ....utils.gumbel_softmax import GumbelSoftmaxActivation
 
 class DRAGAN(BaseModel):
 
@@ -118,7 +121,7 @@ class DRAGAN(BaseModel):
         d_loss, g_loss = self.update_gradients(train_data, *optimizers)
         return d_loss, g_loss
 
-    def train(self, data, train_arguments, num_cols, cat_cols):
+    def fit(self, data, train_arguments, num_cols, cat_cols):
         """
         Args:
             data: A pandas DataFrame or a Numpy array with the data to be synthesized

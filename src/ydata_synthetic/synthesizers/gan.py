@@ -98,11 +98,19 @@ class BaseModel():
               data: Union[DataFrame, array],
               num_cols: Optional[List[str]] = None,
               cat_cols: Optional[List[str]] = None) -> Union[DataFrame, array]:
-        """Sets up the train session by instantiating an appropriate processor, fitting and storing it as an attribute.
-        Args:
-            data (Union[DataFrame, array]): Raw data object.
-            num_cols (Optional[List[str]]): List of names of numerical columns.
-            cat_cols (Optional[List[str]]): List of names of categorical columns.
+        """
+        ### Description:
+        Trains and fit a synthesizer model to a given input dataset.
+
+        ### Args:
+        `data` (Union[DataFrame, array]): Training data
+        `num_cols` (Optional[List[str]]) : List with the names of the categorical columns
+        `cat_cols` (Optional[List[str]]): List of names of categorical columns
+
+
+        ### Returns:
+        **self:** *object*
+            Fitted synthesizer
         """
         if self.__MODEL__ in RegularModels.__members__:
             self.processor = RegularDataProcessor
@@ -113,12 +121,16 @@ class BaseModel():
         self.processor = self.processor(num_cols = num_cols, cat_cols = cat_cols).fit(data)
 
     def sample(self, n_samples: int):
-        """Generate n_samples synthetic records from the synthesizer.
-        The records returned are always a multiple of batch_size (can return excess of up to batch_size - 1 records).
-        The samples are returned in the original data format, with any internal preprocessing inverted.
+        """
+        ### Description:
+        Generates samples from the trained synthesizer.
 
-        Args:
-            n_samples (int): Intended size of the synthetic sample.
+        ### Args:
+        `n_samples` (int): Number of rows to generated.
+
+        ### Returns:
+        **synth_sample:** pandas.DataFrame, shape (n_samples, n_features)
+            Returns the generated synthetic samples.
         """
         steps = n_samples // self.batch_size + 1
         data = []
@@ -129,7 +141,13 @@ class BaseModel():
         return self.processor.inverse_transform(array(vstack(data)))
 
     def save(self, path):
-        "Saves the pickled synthesizer instance in the given path."
+        """
+        ### Description:
+        Saves a synthesizer as a pickle.
+
+        ### Args:
+        `path` (str): Path to write the synthesizer as a pickle object.
+        """
         #Save only the generator?
         if self.__MODEL__=='WGAN' or self.__MODEL__=='WGAN_GP' or self.__MODEL__=='CWGAN_GP':
             del self.critic
@@ -138,7 +156,13 @@ class BaseModel():
 
     @staticmethod
     def load(path):
-        "Loads a pickled synthesizer from the given path."
+        """
+        ### Description:
+        Loads a saved synthesizer from a pickle.
+
+        ### Args:
+        `path` (str): Path to read the synthesizer pickle from.
+        """
         gpu_devices = tf.config.list_physical_devices('GPU')
         if len(gpu_devices) > 0:
             try:

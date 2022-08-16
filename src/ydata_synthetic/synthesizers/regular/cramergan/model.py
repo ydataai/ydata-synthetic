@@ -1,19 +1,23 @@
+"""
+    CramerGAN model file
+"""
 import os
 from os import path
 from typing import List, Optional, NamedTuple
 
 import numpy as np
+
 import tensorflow as tf
-from tensorflow.keras import Model
-from tensorflow.keras.layers import Dense, Dropout, Input
-from tensorflow.keras.optimizers import Adam
+from keras import  Model
+from keras.layers import (Dense, Dropout, Input)
+from keras.optimizers import Adam
 from tqdm import trange
 
-from ydata_synthetic.synthesizers import TrainParameters
-from ydata_synthetic.synthesizers.gan import BaseModel
-from ydata_synthetic.synthesizers.loss import Mode, gradient_penalty
-from ydata_synthetic.utils.gumbel_softmax import GumbelSoftmaxActivation
-
+#Import ydata synthetic classes
+from ....synthesizers import TrainParameters
+from ....synthesizers.gan import BaseModel
+from ....synthesizers.loss import Mode, gradient_penalty
+from ....utils.gumbel_softmax import GumbelSoftmaxActivation
 
 class CRAMERGAN(BaseModel):
 
@@ -137,7 +141,7 @@ class CRAMERGAN(BaseModel):
         critic_loss, g_loss = self.update_gradients(train_data, *optimizers)
         return critic_loss, g_loss
 
-    def train(self, data, train_arguments: TrainParameters, num_cols: List[str], cat_cols: List[str]):
+    def fit(self, data, train_arguments: TrainParameters, num_cols: List[str], cat_cols: List[str]):
         """
         Args:
             data: A pandas DataFrame or a Numpy array with the data to be synthesized

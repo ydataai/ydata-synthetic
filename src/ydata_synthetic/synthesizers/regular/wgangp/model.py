@@ -1,18 +1,23 @@
+"""
+    WGANGP architecture model implementation
+"""
+
 import os
 from os import path
 from typing import List, NamedTuple, Optional
 
-import numpy as np
-import tensorflow as tf
-from tensorflow.keras import Model
-from tensorflow.keras.layers import Dense, Dropout, Input
-from tensorflow.keras.optimizers import Adam
 from tqdm import trange
+import numpy as np
 
-from ydata_synthetic.synthesizers import TrainParameters
-from ydata_synthetic.synthesizers.gan import BaseModel
-from ydata_synthetic.utils.gumbel_softmax import GumbelSoftmaxActivation
+import tensorflow as tf
+from keras import Model
+from keras.layers import Dense, Dropout, Input
+from keras.optimizers import Adam
 
+#Import ydata synthetic classes
+from ....synthesizers import TrainParameters
+from ....synthesizers.gan import BaseModel
+from ....utils.gumbel_softmax import GumbelSoftmaxActivation
 
 class WGAN_GP(BaseModel):
 
@@ -129,7 +134,7 @@ class WGAN_GP(BaseModel):
         cri_loss, ge_loss = self.update_gradients(train_data, *optimizers)
         return cri_loss, ge_loss
 
-    def train(self, data, train_arguments: TrainParameters, num_cols: List[str], cat_cols: List[str]):
+    def fit(self, data, train_arguments: TrainParameters, num_cols: List[str], cat_cols: List[str]):
         """
         Args:
             data: A pandas DataFrame or a Numpy array with the data to be synthesized

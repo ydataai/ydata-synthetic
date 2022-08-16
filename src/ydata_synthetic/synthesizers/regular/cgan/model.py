@@ -1,29 +1,33 @@
-"""CGAN implementation"""
+"""
+    CGAN architecture implementation file
+"""
+
 import os
 from os import path
 from typing import List, Optional, NamedTuple
+
+from tqdm import trange
 
 import numpy as np
 from numpy import array, empty, hstack, ndarray, vstack, save
 from numpy.random import normal
 from pandas import DataFrame
 from pandas.api.types import is_float_dtype, is_integer_dtype
+
 from tensorflow import convert_to_tensor
 from tensorflow import data as tfdata
 from tensorflow import dtypes, expand_dims, tile
-from tensorflow.keras import Model
-from tensorflow.keras.layers import (Dense, Dropout, Embedding, Flatten, Input,
-                                     multiply)
-from tensorflow.keras.optimizers import Adam
-from tqdm import trange
+from keras import Model
+from keras.layers import (Dense, Dropout, Embedding, Flatten, Input, multiply)
+from keras.optimizers import Adam
 
-from ydata_synthetic.synthesizers import TrainParameters
-from ydata_synthetic.synthesizers.gan import BaseModel
-from ydata_synthetic.utils.gumbel_softmax import GumbelSoftmaxActivation
-
+#Import ydata synthetic classes
+from ....synthesizers import TrainParameters
+from ....synthesizers.gan import BaseModel
+from ....utils.gumbel_softmax import GumbelSoftmaxActivation
 
 class CGAN(BaseModel):
-    "CGAN model for discrete conditions."
+    "CGAN model for discrete conditions"
 
     __MODEL__='CGAN'
 
@@ -95,7 +99,7 @@ class CGAN(BaseModel):
         data_ix = np.random.choice(data.shape[0], replace=False, size=len(data))  # wasteful to shuffle every time
         return data[data_ix[start_i: stop_i]]
 
-    def train(self, data: DataFrame, label_col: str, train_arguments: TrainParameters, num_cols: List[str],
+    def fit(self, data: DataFrame, label_col: str, train_arguments: TrainParameters, num_cols: List[str],
               cat_cols: List[str]):
         """
         Args:
