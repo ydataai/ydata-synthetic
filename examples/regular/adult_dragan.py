@@ -1,9 +1,7 @@
 from pmlb import fetch_data
 
-from ydata_synthetic.synthesizers.regular import DRAGAN
+from ydata_synthetic.synthesizers.regular import RegularSynthesizer
 from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
-
-model = DRAGAN
 
 #Load data and define the data processor parameters
 data = fetch_data('adult')
@@ -19,7 +17,7 @@ dim = 128
 batch_size = 500
 
 log_step = 100
-epochs = 300+1
+epochs = 2+1
 learning_rate = 1e-5
 beta_1 = 0.5
 beta_2 = 0.9
@@ -34,9 +32,13 @@ gan_args = ModelParameters(batch_size=batch_size,
 train_args = TrainParameters(epochs=epochs,
                              sample_interval=log_step)
 
-synthesizer = model(gan_args, n_discriminator=3)
-synthesizer.train(data, train_args, num_cols, cat_cols)
-synthesizer.save('adult_synth.pkl')
+synth = RegularSynthesizer(modelname='dragan', model_parameters=gan_args, n_discriminator=3)
+synth.fit(data = data, train_arguments = train_args, num_cols = num_cols, cat_cols = cat_cols)
 
-synthesizer = model.load('adult_synth.pkl')
+synth.save('adult_synth.pkl')
+
+#######################################
+#    Loading a trained synthesizer    #
+#######################################
+synthesizer = RegularSynthesizer.load('adult_synth.pkl')
 synthesizer.sample(1000)
