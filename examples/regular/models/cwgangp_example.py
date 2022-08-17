@@ -1,17 +1,15 @@
-from ydata_synthetic.synthesizers.regular import CGAN
+from ydata_synthetic.synthesizers.regular import RegularSynthesizer
 from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
 
 import pandas as pd
 import numpy as np
 from sklearn import cluster
 
-model = CGAN
-
 #Read the original data and have it preprocessed
-data = pd.read_csv('data/creditcard.csv', index_col=[0])
+data = pd.read_csv('../../data/creditcard.csv', index_col=[0])
 
 #List of columns different from the Class column
-num_cols = list(data.columns[ data.columns != 'Class' ])
+num_cols = list(data.columns[~data.columns.isin(['Class', 'Amount'])])
 cat_cols = []  # Condition features are not preprocessed and therefore not listed here
 
 print('Dataset columns: {}'.format(num_cols))
@@ -21,7 +19,7 @@ data = data[ sorted_cols ].copy()
 #For the purpose of this example we will only synthesize the minority class
 train_data = data.loc[ data['Class']==1 ].copy()
 
-#Create a new class column using KMeans - This will mainly be useful if we want to leverage conditional GAN
+#Create a new class column using KMeans - This will mainly be useful if we want to leverage conditional WGANGP
 print("Dataset info: Number of records - {} Number of variables - {}".format(train_data.shape[0], train_data.shape[1]))
 algorithm = cluster.KMeans
 args, kwds = (), {'n_clusters':2, 'random_state':0}
@@ -36,17 +34,17 @@ fraud_w_classes['Class'] = labels
 #    GAN Training
 #----------------------------
 
-#Define the Conditional GAN and training parameters
+#Define the Conditional WGANGP and training parameters
 noise_dim = 32
 dim = 128
-batch_size = 128
+batch_size = 64
 beta_1 = 0.5
 beta_2 = 0.9
 
 log_step = 100
-epochs = 300 + 1
+epochs = 500 + 1
 learning_rate = 5e-4
-models_dir = './cache'
+models_dir = '../cache'
 
 #Test here the new inputs
 gan_args = ModelParameters(batch_size=batch_size,
@@ -61,20 +59,23 @@ train_args = TrainParameters(epochs=epochs,
                              label_dim=-1,
                              labels=(0,1))
 
-#Init the Conditional GAN providing the index of the label column as one of the arguments
-synthesizer = model(model_parameters=gan_args, num_classes=2)
+#create a bining
+fraud_w_classes['Amount'] = pd.cut(fraud_w_classes['Amount'], 5).cat.codes
 
-#Training the Conditional GAN
-synthesizer.train(data=fraud_w_classes, label_col="Class", train_arguments=train_args,
+#Init the Conditional WGANGP providing the index of the label column as one of the arguments
+synth = RegularSynthesizer(modelname='cwgangp', model_parameters=gan_args, n_critic=5)
+
+#Fitting the synthesizer
+synth.fit(data=fraud_w_classes, label_cols=["Class", "Amount"], train_arguments=train_args,
                   num_cols=num_cols, cat_cols=cat_cols)
 
-#Saving the synthesizer
-synthesizer.save('cgan_synthtrained.pkl')
+synth.save('.model.pkl')
 
-#Loading the synthesizer
-synthesizer = model.load('cgan_synthtrained.pkl')
+#########################################################
+#    Loading and sampling from a trained synthesizer    #
+#########################################################
+new_synth = RegularSynthesizer.load('.model.pkl')
 
-#Sampling from the synthesizer
-cond_array = np.array([0])
-# Synthesizer samples are returned in the original format (inverse_transform of internal processing already took place)
-sample = synthesizer.sample(cond_array, 1000)
+sample_len = 2000
+cond_array = fraud_w_classes[["Class", "Amount"]]
+new_synth.sample(cond_array)

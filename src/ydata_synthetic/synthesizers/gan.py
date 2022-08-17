@@ -2,12 +2,22 @@
 from collections import namedtuple
 from typing import List, Optional, Union
 
-import tensorflow as tf
 import tqdm
-from joblib import dump, load
-from numpy import array, vstack
+
+from numpy import array, vstack, ndarray
+from numpy.random import normal
+from pandas.api.types import is_float_dtype, is_integer_dtype
 from pandas import DataFrame
+from pandas import concat
+
+from joblib import dump, load
+
+import tensorflow as tf
+
 from tensorflow import config as tfconfig
+from tensorflow import data as tfdata
+from tensorflow import dtypes
+from tensorflow import random
 from typeguard import typechecked
 
 from ydata_synthetic.preprocessing.regular.processor import (
@@ -94,15 +104,22 @@ class BaseModel():
         "Returns the model (class) name."
         return self.__class__.__name__
 
-    def train(self,
+    def fit(self,
               data: Union[DataFrame, array],
               num_cols: Optional[List[str]] = None,
               cat_cols: Optional[List[str]] = None) -> Union[DataFrame, array]:
-        """Sets up the train session by instantiating an appropriate processor, fitting and storing it as an attribute.
-        Args:
-            data (Union[DataFrame, array]): Raw data object.
-            num_cols (Optional[List[str]]): List of names of numerical columns.
-            cat_cols (Optional[List[str]]): List of names of categorical columns.
+        """
+        ### Description:
+        Trains and fit a synthesizer model to a given input dataset.
+
+        ### Args:
+        `data` (Union[DataFrame, array]): Training data
+        `num_cols` (Optional[List[str]]) : List with the names of the categorical columns
+        `cat_cols` (Optional[List[str]]): List of names of categorical columns
+
+        ### Returns:
+        **self:** *object*
+            Fitted synthesizer
         """
         if self.__MODEL__ in RegularModels.__members__:
             self.processor = RegularDataProcessor
@@ -113,23 +130,33 @@ class BaseModel():
         self.processor = self.processor(num_cols = num_cols, cat_cols = cat_cols).fit(data)
 
     def sample(self, n_samples: int):
-        """Generate n_samples synthetic records from the synthesizer.
-        The records returned are always a multiple of batch_size (can return excess of up to batch_size - 1 records).
-        The samples are returned in the original data format, with any internal preprocessing inverted.
+        """
+        ### Description:
+        Generates samples from the trained synthesizer.
 
-        Args:
-            n_samples (int): Intended size of the synthetic sample.
+        ### Args:
+        `n_samples` (int): Number of rows to generated.
+
+        ### Returns:
+        **synth_sample:** pandas.DataFrame, shape (n_samples, n_features)
+            Returns the generated synthetic samples.
         """
         steps = n_samples // self.batch_size + 1
         data = []
         for _ in tqdm.trange(steps, desc='Synthetic data generation'):
-            z = tf.random.uniform([self.batch_size, self.noise_dim], dtype=tf.dtypes.float32)
+            z = random.uniform([self.batch_size, self.noise_dim], dtype=tf.dtypes.float32)
             records = self.generator(z, training=False).numpy()
             data.append(records)
         return self.processor.inverse_transform(array(vstack(data)))
 
     def save(self, path):
-        "Saves the pickled synthesizer instance in the given path."
+        """
+        ### Description:
+        Saves a synthesizer as a pickle.
+
+        ### Args:
+        `path` (str): Path to write the synthesizer as a pickle object.
+        """
         #Save only the generator?
         if self.__MODEL__=='WGAN' or self.__MODEL__=='WGAN_GP' or self.__MODEL__=='CWGAN_GP':
             del self.critic
@@ -138,8 +165,14 @@ class BaseModel():
 
     @staticmethod
     def load(path):
-        "Loads a pickled synthesizer from the given path."
-        gpu_devices = tf.config.list_physical_devices('GPU')
+        """
+        ### Description:
+        Loads a saved synthesizer from a pickle.
+
+        ### Args:
+        `path` (str): Path to read the synthesizer pickle from.
+        """
+        gpu_devices = tfconfig.list_physical_devices('GPU')
         if len(gpu_devices) > 0:
             try:
                 tfconfig.experimental.set_memory_growth(gpu_devices[0], True)
@@ -148,3 +181,70 @@ class BaseModel():
                 pass
         synth = load(path)
         return synth
+
+
+class ConditionalModel(BaseModel):
+
+    @staticmethod
+    def _validate_label_col(data: DataFrame, label_cols: List[str]):
+        "Validates the label_col format, raises ValueError if invalid."
+        assert all(item in list(data.columns) for item in label_cols), \
+            f"The column {label_cols} could not be found on the provided dataset and cannot be used as condition."
+        assert all(data[label_cols].isna().sum() == 0), \
+            f"The provided {label_cols} contains NaN values, please impute or drop the respective records before proceeding."
+        assert all([(is_float_dtype(data[col]) or is_integer_dtype(data[col])) for col in label_cols]), \
+            f"The provided {label_cols} are expected to be integers or floats."
+        unique_frac = data[label_cols].nunique() / len(data.index)
+        assert all(unique_frac < 0.3), \
+            f"The provided columns {label_cols} are not valid conditional columns due to high cardinality. Please revise your input."
+
+    def _prep_fit(self, data: DataFrame, label_cols: List[str], num_cols: List[str], cat_cols: List[str]):
+        """
+            Validate and prepare the data for the training of a conditionalGAN architecture
+        Args:
+            data:
+            label_cols:
+            num_cols:
+            cat_cols:
+        Returns:
+        """
+        # Validating the label columns
+        self._validate_label_col(data, label_cols)
+        self._col_order = data.columns
+        self.label_col = label_cols
+
+        # Separating labels from the rest of the data to fit the data processor
+        data, label = data[data.columns[~data.columns.isin(label_cols)]], data[label_cols].values
+
+        BaseModel.fit(self, data, num_cols, cat_cols)
+        return data, label
+
+    def _generate_noise(self):
+        "Gaussian noise for the generator input."
+        while True:
+            yield normal(size=self.noise_dim)
+
+    def get_batch_noise(self):
+        "Create a batch iterator for the generator gaussian noise input."
+        return iter(tfdata.Dataset.from_generator(self._generate_noise, output_types=dtypes.float32)
+                                                .batch(self.batch_size)
+                                                .repeat())
+
+    def sample(self, condition: DataFrame) -> ndarray:
+        """
+            Method to generate synthetic samples from a conditional synth previsously trained.
+        Args:
+            condition (pandas.DataFrame): A dataframe with the shape (n_cols, nrows) where n_cols=number of columns used to condition the training
+            n_samples (int): Number of synthetic samples to be generated
+
+        Returns:
+            sample (pandas.DataFrame): A dataframe with the generated synthetic records.
+        """
+        ##Validate here if the cond_vector=label_dim
+        condition = condition.reset_index(drop=True)
+        n_samples = len(condition)
+        z_dist = random.uniform(shape=(n_samples, self.noise_dim))
+        records = self.generator([z_dist, condition], training=False)
+        data = self.processor.inverse_transform(array(records))
+        data = concat([condition, data], axis=1)
+        return data[self._col_order]

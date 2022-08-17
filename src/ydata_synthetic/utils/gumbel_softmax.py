@@ -4,23 +4,19 @@ from re import search
 from typing import NamedTuple, Optional
 
 # pylint: disable=E0401
+import tensorflow as tf
 from tensorflow import (Tensor, TensorShape, concat, one_hot, split, squeeze,
                         stop_gradient)
-from tensorflow.keras.layers import Activation, Layer
-from tensorflow.keras.utils import register_keras_serializable
-from tensorflow.math import log
-from tensorflow.nn import softmax
-from tensorflow.random import categorical, uniform
+from keras.layers import Activation, Layer
 
 TOL = 1e-20
 
-
 def gumbel_noise(shape: TensorShape) -> Tensor:
     """Create a single sample from the standard (loc = 0, scale = 1) Gumbel distribution."""
-    uniform_sample = uniform(shape, seed=0)
-    return -log(-log(uniform_sample + TOL) + TOL)
+    uniform_sample = tf.random.uniform(shape, seed=0)
+    return -tf.math.log(-tf.math.log(uniform_sample + TOL) + TOL)
 
-@register_keras_serializable(package='Synthetic Data', name='GumbelSoftmaxLayer')
+@tf.keras.utils.register_keras_serializable(package='Custom', name='GumbelSoftmaxLayer')
 class GumbelSoftmaxLayer(Layer):
     """A Gumbel-Softmax layer implementation that should be stacked on top of a categorical feature logits.
 
@@ -37,8 +33,8 @@ class GumbelSoftmaxLayer(Layer):
     def call(self, _input):
         """Computes Gumbel-Softmax for the logits output of a particular categorical feature."""
         noised_input = _input + gumbel_noise(_input.shape)
-        soft_sample = softmax(noised_input/self.tau, -1)
-        hard_sample = stop_gradient(squeeze(one_hot(categorical(log(soft_sample), 1), _input.shape[-1]), 1))
+        soft_sample = tf.nn.softmax(noised_input/self.tau, -1)
+        hard_sample = stop_gradient(squeeze(one_hot(tf.random.categorical(tf.math.log(soft_sample), 1), _input.shape[-1]), 1))
         return hard_sample, soft_sample
 
     def get_config(self):
@@ -46,8 +42,7 @@ class GumbelSoftmaxLayer(Layer):
         config.update({'tau': self.tau})
         return config
 
-
-@register_keras_serializable(package='Synthetic Data', name='GumbelSoftmaxActivation')
+@tf.keras.utils.register_keras_serializable(package='Custom', name='GumbelSoftmaxActivation')
 class GumbelSoftmaxActivation(Layer):
     """An interface layer connecting different parts of an incoming tensor to adequate activation functions.
     The tensor parts are qualified according to the passed processor object.

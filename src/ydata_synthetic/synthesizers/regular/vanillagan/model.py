@@ -1,17 +1,22 @@
+"""
+    Vanilla GAN architecture model implementation
+"""
 import os
 from os import path
-import numpy as np
 from typing import List, Optional, NamedTuple
+
+import numpy as np
 from tqdm import trange
 
-from ydata_synthetic.synthesizers.gan import BaseModel
-from ydata_synthetic.synthesizers import TrainParameters
-from ydata_synthetic.utils.gumbel_softmax import GumbelSoftmaxActivation
-
 import tensorflow as tf
-from tensorflow.keras.layers import Input, Dense, Dropout
-from tensorflow.keras import Model
-from tensorflow.keras.optimizers import Adam
+from keras.layers import Input, Dense, Dropout
+from keras import Model
+from keras.optimizers import Adam
+
+#Import ydata synthetic classes
+from ....synthesizers.gan import BaseModel
+from ....synthesizers import TrainParameters
+from ....utils.gumbel_softmax import GumbelSoftmaxActivation
 
 class VanilllaGAN(BaseModel):
 
@@ -65,7 +70,7 @@ class VanilllaGAN(BaseModel):
         train_ix = list(train_ix) + list(train_ix)  # duplicate to cover ranges past the end of the set
         return train[train_ix[start_i: stop_i]]
 
-    def train(self, data, train_arguments: TrainParameters, num_cols: List[str], cat_cols: List[str]):
+    def fit(self, data, train_arguments: TrainParameters, num_cols: List[str], cat_cols: List[str]):
         """
         Args:
             data: A pandas DataFrame or a Numpy array with the data to be synthesized
@@ -73,7 +78,7 @@ class VanilllaGAN(BaseModel):
             num_cols: List of columns of the data object to be handled as numerical
             cat_cols: List of columns of the data object to be handled as categorical
         """
-        super().train(data, num_cols, cat_cols)
+        super().fit(data, num_cols, cat_cols)
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]

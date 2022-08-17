@@ -1,27 +1,33 @@
+"""
+    WGANGP architecture model implementation
+"""
+
 import os
 from os import path
 from typing import List, NamedTuple, Optional
 
-import numpy as np
-import tensorflow as tf
-from tensorflow.keras import Model
-from tensorflow.keras.layers import Dense, Dropout, Input
-from tensorflow.keras.optimizers import Adam
 from tqdm import trange
+import numpy as np
 
-from ydata_synthetic.synthesizers import TrainParameters
-from ydata_synthetic.synthesizers.gan import BaseModel
-from ydata_synthetic.utils.gumbel_softmax import GumbelSoftmaxActivation
+import tensorflow as tf
+from keras import Model
+from keras.layers import Dense, Dropout, Input
+from keras.optimizers import Adam
 
+#Import ydata synthetic classes
+from ....synthesizers import TrainParameters
+from ....synthesizers.gan import BaseModel
+from ....utils.gumbel_softmax import GumbelSoftmaxActivation
 
 class WGAN_GP(BaseModel):
 
     __MODEL__='WGAN_GP'
 
-    def __init__(self, model_parameters, n_critic, gradient_penalty_weight=10):
+    def __init__(self, model_parameters, n_generator:int=1, n_critic:int=1, gradient_penalty_weight:int=10):
         # As recommended in WGAN paper - https://arxiv.org/abs/1701.07875
         # WGAN-GP - WGAN with Gradient Penalty
         self.n_critic = n_critic
+        self.n_generator = n_generator
         self.gradient_penalty_weight = gradient_penalty_weight
         super().__init__(model_parameters)
 
@@ -38,7 +44,7 @@ class WGAN_GP(BaseModel):
         return g_optimizer, c_optimizer
 
     def gradient_penalty(self, real, fake):
-        epsilon = tf.random.uniform([real.shape[0], 1], 0.0, 1.0, dtype=tf.dtypes.float32)
+        epsilon = tf.random.uniform([real.shape[0], 1], minval=0.0, maxval=1.0, dtype=tf.dtypes.float32)
         x_hat = epsilon * real + (1 - epsilon) * fake
         with tf.GradientTape() as t:
             t.watch(x_hat)
@@ -48,13 +54,13 @@ class WGAN_GP(BaseModel):
         d_regularizer = tf.reduce_mean((ddx - 1.0) ** 2)
         return d_regularizer
 
+    @tf.function
     def update_gradients(self, x, g_optimizer, c_optimizer):
         """
         Compute the gradients for both the Generator and the Critic
         :param x: real data event
         :return: generator gradients, critic gradients
         """
-        # Update the gradients of critic for n_critic times (Training the critic)
         for _ in range(self.n_critic):
             with tf.GradientTape() as d_tape:
                 critic_loss = self.c_lossfn(x)
@@ -65,17 +71,17 @@ class WGAN_GP(BaseModel):
                 zip(d_gradient, self.critic.trainable_variables)
             )
 
+        ##Add here the n_generator
         # Update the generator
-        with tf.GradientTape() as g_tape:
-            gen_loss = self.g_lossfn(x)
-
-        # Get the gradients of the generator
-        gen_gradients = g_tape.gradient(gen_loss, self.generator.trainable_variables)
-
-        # Update the weights of the generator
-        g_optimizer.apply_gradients(
-            zip(gen_gradients, self.generator.trainable_variables)
-        )
+        for _ in range(self.n_generator):
+            with tf.GradientTape() as g_tape:
+                gen_loss = self.g_lossfn(x)
+            # Get the gradients of the generator
+            gen_gradients = g_tape.gradient(gen_loss, self.generator.trainable_variables)
+            # Update the weights of the generator
+            g_optimizer.apply_gradients(
+                zip(gen_gradients, self.generator.trainable_variables)
+            )
 
         return critic_loss, gen_loss
 
@@ -124,12 +130,11 @@ class WGAN_GP(BaseModel):
         train_ix = list(train_ix) + list(train_ix)  # duplicate to cover ranges past the end of the set
         return train[train_ix[start_i: stop_i]]
 
-    @tf.function
     def train_step(self, train_data, optimizers):
         cri_loss, ge_loss = self.update_gradients(train_data, *optimizers)
         return cri_loss, ge_loss
 
-    def train(self, data, train_arguments: TrainParameters, num_cols: List[str], cat_cols: List[str]):
+    def fit(self, data, train_arguments: TrainParameters, num_cols: List[str], cat_cols: List[str]):
         """
         Args:
             data: A pandas DataFrame or a Numpy array with the data to be synthesized

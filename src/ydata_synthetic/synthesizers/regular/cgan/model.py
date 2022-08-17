@@ -1,55 +1,48 @@
-"""CGAN implementation"""
+"""
+    CGAN architecture implementation file
+"""
 import os
 from os import path
 from typing import List, Optional, NamedTuple
 
-import numpy as np
-from numpy import array, empty, hstack, ndarray, vstack, save
-from numpy.random import normal
-from pandas import DataFrame
-from pandas.api.types import is_float_dtype, is_integer_dtype
-from tensorflow import convert_to_tensor
-from tensorflow import data as tfdata
-from tensorflow import dtypes, expand_dims, tile
-from tensorflow.keras import Model
-from tensorflow.keras.layers import (Dense, Dropout, Embedding, Flatten, Input,
-                                     multiply)
-from tensorflow.keras.optimizers import Adam
 from tqdm import trange
 
-from ydata_synthetic.synthesizers import TrainParameters
-from ydata_synthetic.synthesizers.gan import BaseModel
-from ydata_synthetic.utils.gumbel_softmax import GumbelSoftmaxActivation
+import numpy as np
+from numpy import hstack
+from pandas import DataFrame
 
+from tensorflow import random
+from tensorflow import data as tfdata
+from tensorflow import dtypes
+from keras import Model
+from keras.layers import (Dense, Dropout, Input, concatenate)
+from keras.optimizers import Adam
 
-class CGAN(BaseModel):
-    "CGAN model for discrete conditions."
+#Import ydata synthetic classes
+from ....synthesizers import TrainParameters
+from ....synthesizers.gan import ConditionalModel
+from ....utils.gumbel_softmax import GumbelSoftmaxActivation
+
+class CGAN(ConditionalModel):
+    "CGAN model for discrete conditions"
 
     __MODEL__='CGAN'
 
-    def __init__(self, model_parameters, num_classes):
-        self.num_classes = num_classes
-        self._label_col = None
+    def __init__(self, model_parameters):
         self._col_order = None
         super().__init__(model_parameters)
 
-    @property
-    def label_col(self) -> str:
-        "Returns the name of the label used for conditioning the model."
-        return self._label_col
-
-    @label_col.setter
-    def label_col(self, label_col: str):
-        """Set the label_col property."""
-        self._label_col = label_col
-
     def define_gan(self, activation_info: Optional[NamedTuple] = None):
-        self.generator = Generator(self.batch_size, self.num_classes). \
-            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,
+        self.generator = Generator(self.batch_size). \
+            build_model(input_shape=(self.noise_dim,),
+                        label_shape=(self.label_dim),
+                        dim=self.layers_dim, data_dim=self.data_dim,
                         activation_info = activation_info, tau = self.tau)
 
-        self.discriminator = Discriminator(self.batch_size, self.num_classes). \
-            build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
+        self.discriminator = Discriminator(self.batch_size). \
+            build_model(input_shape=(self.data_dim,),
+                        label_shape=(self.label_dim,),
+                        dim=self.layers_dim)
 
         g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
         d_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
@@ -78,7 +71,7 @@ class CGAN(BaseModel):
     def _generate_noise(self):
         "Gaussian noise for the generator input."
         while True:
-            yield normal(size=self.noise_dim)
+            yield random.uniform(shape=(self.noise_dim,))
 
     def get_batch_noise(self):
         "Create a batch iterator for the generator gaussian noise input."
@@ -95,28 +88,27 @@ class CGAN(BaseModel):
         data_ix = np.random.choice(data.shape[0], replace=False, size=len(data))  # wasteful to shuffle every time
         return data[data_ix[start_i: stop_i]]
 
-    def train(self, data: DataFrame, label_col: str, train_arguments: TrainParameters, num_cols: List[str],
-              cat_cols: List[str]):
+    def fit(self,
+            data: DataFrame,
+            label_cols: List[str],
+            train_arguments: TrainParameters,
+            num_cols: List[str],
+            cat_cols: List[str]):
         """
         Args:
             data: A pandas DataFrame with the data to be synthesized
-            label: The name of the column to be used as a label and condition for the training
+            label_cols: The name of the column to be used as a label and condition for the training
             train_arguments: GAN training arguments.
             num_cols: List of columns of the data object to be handled as numerical
             cat_cols: List of columns of the data object to be handled as categorical
         """
-        # Validating the label column
-        self._validate_label_col(data, label_col)
-        self._col_order = data.columns
-        self.label_col = label_col
-
-        # Separating labels from the rest of the data to fit the data processor
-        data, label = data.loc[:, data.columns != label_col], expand_dims(data[label_col], 1)
-
-        super().train(data, num_cols, cat_cols)
+        data, label = self._prep_fit(data,label_cols,num_cols,cat_cols)
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]
+        self.label_dim = len(label_cols)
+
+        # Init the GAN model and optimizers
         self.define_gan(self.processor.col_transform_info)
 
         # Merging labels with processed data
@@ -167,76 +159,37 @@ class CGAN(BaseModel):
         model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
         self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
         self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
-        save('./cache/' + train_arguments.cache_prefix + f'_sample_{epoch}.npy', self.sample(array([label[0]]), 1000))
-
-    def sample(self, condition: ndarray, n_samples: int,) -> ndarray:
-        """Produce n_samples by conditioning the generator with condition."""
-        assert condition.shape[0] == 1, \
-            "A condition with cardinality one is expected."
-        steps = n_samples // self.batch_size + 1
-        data = []
-        z_dist = self.get_batch_noise()
-        cond_seq = expand_dims(convert_to_tensor(condition, dtypes.float32), axis=0)
-        cond_seq = tile(cond_seq, multiples=[self.batch_size, 1])
-        for _ in trange(steps, desc='Synthetic data generation'):
-            records = empty(shape=(self.batch_size, self.data_dim))
-            records = self.generator([next(z_dist), cond_seq], training=False)
-            data.append(records)
-        data = self.processor.inverse_transform(array(vstack(data)))
-        data[self.label_col] = condition[0]
-        return data[self._col_order]
-
-    @staticmethod
-    def _validate_label_col(data: DataFrame, label_col: str):
-        "Validates the label_col format, raises ValueError if invalid."
-        assert label_col in data.columns, f"The column {label_col} could not be found on the provided dataset and \
-            cannot be used as condition."
-        assert data[label_col].isna().sum() == 0, "The label column contains NaN values, please impute or drop the \
-            respective records before proceeding."
-        assert is_float_dtype(data[label_col]) or is_integer_dtype(data[label_col]), "The label column is expected to be an \
-            integer or a float dtype to ensure the function of the embedding layer."
-        unique_frac = data[label_col].nunique()/len(data.index)
-        assert unique_frac < 1, "The provided column {label_col} is constituted by unique values and is not suitable \
-            to be used as condition."
-
 
 # pylint: disable=R0903
 class Generator():
     "Standard discrete conditional generator."
-    def __init__(self, batch_size, num_classes):
+    def __init__(self, batch_size):
         self.batch_size = batch_size
-        self.num_classes = num_classes
 
-    def build_model(self, input_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None):
+    def build_model(self, input_shape, label_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None):
         noise = Input(shape=input_shape, batch_size=self.batch_size)
-        label = Input(shape=(1,), batch_size=self.batch_size, dtype='int32')
-        label_embedding = Flatten()(Embedding(self.num_classes, 1)(label))
-        input = multiply([noise, label_embedding])
-
-        x = Dense(dim, activation='relu')(input)
+        label_v = Input(shape=label_shape)
+        x = concatenate([noise, label_v])
+        x = Dense(dim, activation='relu')(x)
         x = Dense(dim * 2, activation='relu')(x)
         x = Dense(dim * 4, activation='relu')(x)
         x = Dense(data_dim)(x)
-        if activation_info:
-            x = GumbelSoftmaxActivation(activation_info, tau=tau)(x)
-        return Model(inputs=[noise, label], outputs=x)
+        #if activation_info:
+        #    x = GumbelSoftmaxActivation(activation_info, tau=tau)(x)
+        return Model(inputs=[noise, label_v], outputs=x)
 
 
 # pylint: disable=R0903
 class Discriminator():
     "Standard discrete conditional discriminator."
-    def __init__(self, batch_size, num_classes):
+    def __init__(self, batch_size):
         self.batch_size = batch_size
-        self.num_classes = num_classes
 
-    def build_model(self, input_shape, dim):
+    def build_model(self, input_shape, label_shape, dim):
         events = Input(shape=input_shape, batch_size=self.batch_size)
-        label = Input(shape=(1,), batch_size=self.batch_size, dtype='int32')
-        label_embedding = Flatten()(Embedding(self.num_classes, 1)(label))
-        events_flat = Flatten()(events)
-        input = multiply([events_flat, label_embedding])
-
-        x = Dense(dim * 4, activation='relu')(input)
+        label = Input(shape=label_shape, batch_size=self.batch_size)
+        input_ = concatenate([events, label])
+        x = Dense(dim * 4, activation='relu')(input_)
         x = Dropout(0.1)(x)
         x = Dense(dim * 2, activation='relu')(x)
         x = Dropout(0.1)(x)

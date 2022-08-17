@@ -3,26 +3,29 @@ import os
 from os import path
 from typing import List, Optional, NamedTuple
 
-import numpy as np
-from numpy import array, hstack, save
-from pandas import DataFrame
-from tensorflow import dtypes, expand_dims, GradientTape, reduce_sum, reduce_mean, sqrt, random
-from tensorflow.keras import Model
-from tensorflow.keras.layers import Dense, Dropout, Embedding, Flatten, Input, multiply
-from tensorflow.keras.optimizers import Adam
 from tqdm import trange
 
-from ydata_synthetic.synthesizers import TrainParameters
-from ydata_synthetic.synthesizers.gan import BaseModel
-from ydata_synthetic.synthesizers.regular import WGAN_GP, CGAN
-from ydata_synthetic.utils.gumbel_softmax import GumbelSoftmaxActivation
+import numpy as np
+from numpy import hstack
+from pandas import DataFrame
+from tensorflow import dtypes, GradientTape, reduce_sum, reduce_mean, sqrt, random
+from keras import Model
+from keras.layers import (Dense, Dropout, Input, concatenate, LeakyReLU)
+from keras.optimizers import Adam
 
+#Import ydata synthetic classes
+from ....synthesizers import TrainParameters
+from ....synthesizers.gan import BaseModel, ConditionalModel
+from ....synthesizers.regular.wgangp.model import WGAN_GP
 
-class CWGANGP(CGAN, WGAN_GP):
+class CWGANGP(ConditionalModel, WGAN_GP):
 
     __MODEL__='CWGAN_GP'
 
-    def __init__(self, model_parameters, num_classes, n_critic, gradient_penalty_weight=10):
+    def __init__(self, model_parameters,
+                 n_generator: Optional[int]=1,
+                 n_critic: Optional[int]=1,
+                 gradient_penalty_weight:int=10):
         """
         Adapts the WGAN_GP synthesizer implementation to be conditional.
 
@@ -31,19 +34,24 @@ class CWGANGP(CGAN, WGAN_GP):
             https://www.sciencedirect.com/science/article/abs/pii/S0020025519309715
             https://arxiv.org/pdf/2008.09202.pdf
         """
-        self.n_critic = n_critic
-        self.gradient_penalty_weight = gradient_penalty_weight
-        self.num_classes = num_classes
-        self._label_col = None
-        BaseModel.__init__(self, model_parameters)
+        WGAN_GP.__init__(self, model_parameters,
+                         n_generator=n_generator,
+                         n_critic=n_critic,
+                         gradient_penalty_weight=gradient_penalty_weight)
 
     def define_gan(self, activation_info: Optional[NamedTuple] = None):
-        self.generator = Generator(self.batch_size, self.num_classes). \
-            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,
-                        activation_info = activation_info, tau = self.tau)
+        self.generator = Generator(self.batch_size). \
+            build_model(input_shape=(self.noise_dim,),
+                        label_shape=(self.label_dim, ),
+                        dim=self.layers_dim,
+                        data_dim=self.data_dim,
+                        activation_info = activation_info,
+                        tau = self.tau)
 
-        self.critic = Critic(self.batch_size, self.num_classes). \
-            build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
+        self.critic = Critic(self.batch_size). \
+            build_model(input_shape=(self.data_dim,),
+                        label_shape=(self.label_dim,),
+                        dim=self.layers_dim)
 
         g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
         c_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
@@ -73,9 +81,8 @@ class CWGANGP(CGAN, WGAN_GP):
     def c_lossfn(self, real):
         "Forward pass on the critic and computes the loss."
         real, label = real
-
         # generating noise from a uniform distribution
-        noise = random.normal([real.shape[0], self.noise_dim], dtype=dtypes.float32)
+        noise = random.uniform([real.shape[0], self.noise_dim], minval=0.999, maxval=1.0 , dtype=dtypes.float32)
         # run noise through generator
         fake = self.generator([noise, label])
         # discriminate x and x_gen
@@ -100,15 +107,18 @@ class CWGANGP(CGAN, WGAN_GP):
         real, label = real
 
         # generating noise from a uniform distribution
-        noise = random.normal([real.shape[0], self.noise_dim], dtype=dtypes.float32)
+        noise = random.uniform([real.shape[0], self.noise_dim], minval=0.0, maxval=0.001 ,dtype=dtypes.float32)
 
         fake = self.generator([noise, label])
         logits_fake = self.critic([fake, label])
         g_loss = -reduce_mean(logits_fake)
         return g_loss
 
-    def train(self, data: DataFrame, label_col: str, train_arguments: TrainParameters, num_cols: List[str],
-              cat_cols: List[str]):
+    def fit(self, data: DataFrame,
+            label_cols: List[str],
+            train_arguments: TrainParameters,
+            num_cols: List[str],
+            cat_cols: List[str]):
         """
         Train the synthesizer on a provided dataset based on a specified condition column.
 
@@ -119,24 +129,20 @@ class CWGANGP(CGAN, WGAN_GP):
             num_cols: List of columns of the data object to be handled as numerical
             cat_cols: List of columns of the data object to be handled as categorical
         """
-        # Validating the label column
-        self._validate_label_col(data, label_col)
-        self._col_order = data.columns
-        self.label_col = label_col
-
-        # Separating labels from the rest of the data to fit the data processor
-        data, label = data.loc[:, data.columns != label_col], expand_dims(data[label_col], 1)
-
-        BaseModel.train(self, data, num_cols, cat_cols)
+        data, label = self._prep_fit(data, label_cols, num_cols, cat_cols)
 
         processed_data = self.processor.transform(data)
         self.data_dim = processed_data.shape[1]
+        self.label_dim = len(label_cols)
+
+        #Init the GAN model and optimizers
         optimizers = self.define_gan(self.processor.col_transform_info)
 
         # Merging labels with processed data
         processed_data = hstack([processed_data, label])
 
         iterations = int(abs(processed_data.shape[0] / self.batch_size) + 1)
+        print(f'Number of iterations per epoch: {iterations}')
 
         for epoch in trange(train_arguments.epochs):
             for _ in range(iterations):
@@ -144,7 +150,7 @@ class CWGANGP(CGAN, WGAN_GP):
                 #  Train Discriminator
                 # ---------------------
                 batch_x = self.get_data_batch(processed_data, self.batch_size)  # Batches are retrieved with labels
-                batch_x, label = batch_x[:, :-1], batch_x[:, -1]  # Separate labels from batch
+                batch_x, label = batch_x[:, :-self.label_dim], batch_x[:, -self.label_dim:]  # Separate labels from batch
 
                 cri_loss, ge_loss = self.train_step((batch_x, label), optimizers)
 
@@ -155,62 +161,53 @@ class CWGANGP(CGAN, WGAN_GP):
 
             # If at save interval => save model state and generated image samples
             if epoch % train_arguments.sample_interval == 0:
-                self._run_checkpoint(train_arguments, epoch, label)
+                self._run_checkpoint(train_arguments, epoch)
 
-    def _run_checkpoint(self, train_arguments, epoch, label):
+    def _run_checkpoint(self, train_arguments, epoch):
         "Run checkpoint. Store model state and generated samples."
         if path.exists('./cache') is False:
             os.mkdir('./cache')
         model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
         self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
         self.critic.save_weights(model_checkpoint_base_name.format('critic', epoch))
-        save('./cache/' + train_arguments.cache_prefix + f'_sample_{epoch}.npy', self.sample(array([label[0]]), 1000))
 
 
+act_leakyr = LeakyReLU(alpha=0.2)
 # pylint: disable=R0903,D203
 class Generator():
 
     "Standard discrete conditional generator."
-    def __init__(self, batch_size, num_classes):
+    def __init__(self, batch_size):
         "Sets the properties of the generator."
         self.batch_size = batch_size
-        self.num_classes = num_classes
 
-    def build_model(self, input_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None):
+    def build_model(self, input_shape, label_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None):
         noise = Input(shape=input_shape, batch_size=self.batch_size)
-        label = Input(shape=(1,), batch_size=self.batch_size, dtype='int32')
-        label_embedding = Flatten()(Embedding(self.num_classes, 1)(label))
-        input_ = multiply([noise, label_embedding])
-
-        x = Dense(dim, activation='relu')(input_)
-        x = Dense(dim * 2, activation='relu')(x)
-        x = Dense(dim * 4, activation='relu')(x)
+        label_v = Input(shape=label_shape)
+        x = concatenate([noise, label_v])
+        x = Dense(dim, activation=act_leakyr)(x)
+        x = Dense(dim * 2, activation=act_leakyr)(x)
+        x = Dense(dim * 4, activation=act_leakyr)(x)
         x = Dense(data_dim)(x)
-        if activation_info:
-            x = GumbelSoftmaxActivation(activation_info, tau=tau)(x)
-        return Model(inputs=[noise, label], outputs=x)
-
+        #if activation_info:
+        #    x = GumbelSoftmaxActivation(activation_info, tau=tau)(x)
+        return Model(inputs=[noise, label_v], outputs=x)
 
 # pylint: disable=R0903,D203
 class Critic():
-
     "Conditional Critic."
-    def __init__(self, batch_size, num_classes):
+    def __init__(self, batch_size):
         "Sets the properties of the critic."
         self.batch_size = batch_size
-        self.num_classes = num_classes
 
-    def build_model(self, input_shape, dim):
+    def build_model(self, input_shape, label_shape,dim):
         events = Input(shape=input_shape, batch_size=self.batch_size)
-        label = Input(shape=(1,), batch_size=self.batch_size, dtype='int32')
-        label_embedding = Flatten()(Embedding(self.num_classes, 1)(label))
-        events_flat = Flatten()(events)
-        input_ = multiply([events_flat, label_embedding])
-
-        x = Dense(dim * 4, activation='relu')(input_)
+        label = Input(shape=label_shape, batch_size=self.batch_size)
+        input_ = concatenate([events, label])
+        x = Dense(dim * 4, activation=act_leakyr)(input_)
         x = Dropout(0.1)(x)
-        x = Dense(dim * 2, activation='relu')(x)
+        x = Dense(dim * 2, activation=act_leakyr)(x)
         x = Dropout(0.1)(x)
-        x = Dense(dim, activation='relu')(x)
+        x = Dense(dim, activation=act_leakyr)(x)
         x = Dense(1)(x)
         return Model(inputs=[events, label], outputs=x)

@@ -1,19 +1,19 @@
 """
-TimeGAN class implemented accordingly with:
-Original code can be found here: https://bitbucket.org/mvdschaar/mlforhealthlabpub/src/master/alg/timegan/
+    TimeGAN class implemented accordingly with:
+    Original code can be found here: https://bitbucket.org/mvdschaar/mlforhealthlabpub/src/master/alg/timegan/
 """
+from tqdm import tqdm, trange
+import numpy as np
+
 from tensorflow import function, GradientTape, sqrt, abs, reduce_mean, ones_like, zeros_like, convert_to_tensor,float32
 from tensorflow import data as tfdata
 from tensorflow import nn
-from tensorflow.keras import Model, Sequential, Input
-from tensorflow.keras.layers import GRU, LSTM, Dense
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.losses import BinaryCrossentropy, MeanSquaredError
+from keras import (Model, Sequential, Input)
+from keras.layers import (GRU, LSTM, Dense)
+from keras.optimizers import Adam
+from keras.losses import (BinaryCrossentropy, MeanSquaredError)
 
-import numpy as np
-from tqdm import tqdm, trange
-
-from ydata_synthetic.synthesizers.gan import BaseModel
+from ....synthesizers.gan import BaseModel
 
 def make_net(model, n_layers, hidden_units, output_units, net_type='GRU'):
     if net_type=='GRU':

@@ -5,12 +5,10 @@ import pandas as pd
 import numpy as np
 
 from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
-from ydata_synthetic.synthesizers.regular import WGAN
-
-model = WGAN
+from ydata_synthetic.synthesizers.regular import RegularSynthesizer
 
 #Read the original data and have it preprocessed
-data = pd.read_csv('data/creditcard.csv', index_col=[0])
+data = pd.read_csv('../../../data/creditcard.csv', index_col=[0])
 
 #Data processing and analysis
 num_cols = list(data.columns[ data.columns != 'Class' ])
@@ -44,13 +42,13 @@ epochs = 300+1
 learning_rate = 5e-4
 beta_1 = 0.5
 beta_2 = 0.9
-models_dir = './cache'
+models_dir = '../cache'
 
-gan_args = ModelParameters(batch_size=batch_size,
-                           lr=learning_rate,
-                           betas=(beta_1, beta_2),
-                           noise_dim=noise_dim,
-                           layers_dim=dim)
+model_parameters = ModelParameters(batch_size=batch_size,
+                                   lr=learning_rate,
+                                   betas=(beta_1, beta_2),
+                                   noise_dim=noise_dim,
+                                   layers_dim=dim)
 
 train_args = TrainParameters(epochs=epochs,
                              sample_interval=log_step)
@@ -58,16 +56,17 @@ train_args = TrainParameters(epochs=epochs,
 test_size = 492 # number of fraud cases
 noise_dim = 32
 
-#Training the WGAN_GP model
-synthesizer = model(gan_args, n_critic=2)
-synthesizer.train(data = fraud_w_classes, train_arguments=train_args, num_cols = num_cols, cat_cols = cat_cols)
+#Training the CRAMERGAN model
+synth = RegularSynthesizer(modelname='wgan', model_parameters=model_parameters, n_critic=10)
+synth.fit(data=train_data, train_arguments = train_args, num_cols = num_cols, cat_cols = cat_cols)
 
 #Saving the synthesizer to later generate new events
-synthesizer.save(path='models/wgan_creditcard.pkl')
+synth.save(path='models/wgan_creditcard.pkl')
 
-#Loading the synthesizer
-synth = model.load(path='models/wgan_creditcard.pkl')
+#########################################################
+#    Loading and sampling from a trained synthesizer    #
+#########################################################
+synth = RegularSynthesizer.load(path='models/wgan_creditcard.pkl')
 
 #Sampling the data
-#Note that the data returned it is not inverse processed.
 data_sample = synth.sample(100000)
