@@ -42,7 +42,7 @@ dim = 128
 batch_size = 128
 
 log_step = 100
-epochs = 500+1
+epochs = 2+1
 learning_rate = 5e-4
 beta_1 = 0.5
 beta_2 = 0.9
@@ -58,16 +58,16 @@ train_args = TrainParameters(epochs=epochs,
                              sample_interval=log_step)
 
 #Training the CRAMERGAN model
-synth = RegularSynthesizer(modelname='cramer', model_parameters=model_parameters, n_critic=10)
+synth = RegularSynthesizer(modelname='cramer', model_parameters=model_parameters)
 synth.fit(data=train_data, train_arguments = train_args, num_cols = num_cols, cat_cols = cat_cols)
 
 #Saving the synthesizer to later generate new events
-synth.save(path='models/cramergan_creditcard.pkl')
+synth.save(path='cramergan_creditcard.pkl')
 
 #########################################################
 #    Loading and sampling from a trained synthesizer    #
 #########################################################
-synth = RegularSynthesizer.load(path='models/cramergan_creditcard.pkl')
+synth = RegularSynthesizer.load(path='cramergan_creditcard.pkl')
 #Sampling the data
 #Note that the data returned it is not inverse processed.
 data_sample = synth.sample(100000)
