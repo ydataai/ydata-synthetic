@@ -2,15 +2,24 @@
 from collections import namedtuple
 from typing import List, Optional, Union
 
-from numpy import array, vstack, hstack
-from pandas.api.types import is_float_dtype, is_integer_dtype
+import pandas as pd
+import tqdm
+from tqdm import trange
 
+from numpy import array, vstack, ndarray, empty
+from numpy.random import normal, uniform
+from pandas.api.types import is_float_dtype, is_integer_dtype
 from pandas import DataFrame
+from pandas import concat
+
+from joblib import dump, load
 
 import tensorflow as tf
-import tqdm
-from joblib import dump, load
+
 from tensorflow import config as tfconfig
+from tensorflow import data as tfdata
+from tensorflow import dtypes
+from tensorflow import random
 from typeguard import typechecked
 
 from ydata_synthetic.preprocessing.regular.processor import (
@@ -137,7 +146,7 @@ class BaseModel():
         steps = n_samples // self.batch_size + 1
         data = []
         for _ in tqdm.trange(steps, desc='Synthetic data generation'):
-            z = tf.random.uniform([self.batch_size, self.noise_dim], dtype=tf.dtypes.float32)
+            z = random.uniform([self.batch_size, self.noise_dim], dtype=tf.dtypes.float32)
             records = self.generator(z, training=False).numpy()
             data.append(records)
         return self.processor.inverse_transform(array(vstack(data)))
@@ -211,3 +220,33 @@ class ConditionalModel(BaseModel):
 
         BaseModel.fit(self, data, num_cols, cat_cols)
         return data, label
+
+    def _generate_noise(self):
+        "Gaussian noise for the generator input."
+        while True:
+            yield normal(size=self.noise_dim)
+
+    def get_batch_noise(self):
+        "Create a batch iterator for the generator gaussian noise input."
+        return iter(tfdata.Dataset.from_generator(self._generate_noise, output_types=dtypes.float32)
+                                                .batch(self.batch_size)
+                                                .repeat())
+
+    def sample(self, condition: DataFrame) -> ndarray:
+        """
+            Method to generate synthetic samples from a conditional synth previsously trained.
+        Args:
+            condition (pandas.DataFrame): A dataframe with the shape (n_cols, nrows) where n_cols=number of columns used to condition the training
+            n_samples (int): Number of synthetic samples to be generated
+
+        Returns:
+            sample (pandas.DataFrame): A dataframe with the generated synthetic records.
+        """
+        ##Validate here if the cond_vector=label_dim
+        condition = condition.reset_index(drop=True)
+        n_samples = len(condition)
+        z_dist = random.uniform(shape=(n_samples, self.noise_dim))
+        records = self.generator([z_dist, condition], training=False)
+        data = self.processor.inverse_transform(array(records))
+        data = concat([condition, data], axis=1)
+        return data[self._col_order]

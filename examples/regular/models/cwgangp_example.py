@@ -6,7 +6,7 @@ import numpy as np
 from sklearn import cluster
 
 #Read the original data and have it preprocessed
-data = pd.read_csv('../../../data/creditcard.csv', index_col=[0])
+data = pd.read_csv('../../data/creditcard.csv', index_col=[0])
 
 #List of columns different from the Class column
 num_cols = list(data.columns[~data.columns.isin(['Class', 'Amount'])])
@@ -75,4 +75,7 @@ synth.save('.model.pkl')
 #    Loading and sampling from a trained synthesizer    #
 #########################################################
 new_synth = RegularSynthesizer.load('.model.pkl')
-new_synth.sample(1000)
+
+sample_len = 2000
+cond_array = fraud_w_classes[["Class", "Amount"]]
+new_synth.sample(cond_array)

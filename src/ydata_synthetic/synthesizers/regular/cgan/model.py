@@ -8,15 +8,14 @@ from typing import List, Optional, NamedTuple
 from tqdm import trange
 
 import numpy as np
-from numpy import array, empty, hstack, ndarray, vstack, save
-from numpy.random import normal
+from numpy import hstack
 from pandas import DataFrame
 
-from tensorflow import convert_to_tensor
+from tensorflow import random
 from tensorflow import data as tfdata
-from tensorflow import dtypes, expand_dims, tile
+from tensorflow import dtypes
 from keras import Model
-from keras.layers import (Dense, Dropout, Embedding, Flatten, Input, multiply, concatenate)
+from keras.layers import (Dense, Dropout, Input, concatenate)
 from keras.optimizers import Adam
 
 #Import ydata synthetic classes
@@ -72,7 +71,7 @@ class CGAN(ConditionalModel):
     def _generate_noise(self):
         "Gaussian noise for the generator input."
         while True:
-            yield normal(size=self.noise_dim)
+            yield random.uniform(shape=(self.noise_dim,))
 
     def get_batch_noise(self):
         "Create a batch iterator for the generator gaussian noise input."
@@ -160,24 +159,6 @@ class CGAN(ConditionalModel):
         model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
         self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
         self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
-        save('./cache/' + train_arguments.cache_prefix + f'_sample_{epoch}.npy', self.sample(array([label[0]]), 1000))
-
-    def sample(self, condition: ndarray, n_samples: int,) -> ndarray:
-        """Produce n_samples by conditioning the generator with condition."""
-        assert condition.shape[0] == 1, \
-            "A condition with cardinality one is expected."
-        steps = n_samples // self.batch_size + 1
-        data = []
-        z_dist = self.get_batch_noise()
-        cond_seq = expand_dims(convert_to_tensor(condition, dtypes.float32), axis=0)
-        cond_seq = tile(cond_seq, multiples=[self.batch_size, 1])
-        for _ in trange(steps, desc='Synthetic data generation'):
-            records = empty(shape=(self.batch_size, self.data_dim))
-            records = self.generator([next(z_dist), cond_seq], training=False)
-            data.append(records)
-        data = self.processor.inverse_transform(array(vstack(data)))
-        data[self.label_col] = condition[0]
-        return data[self._col_order]
 
 # pylint: disable=R0903
 class Generator():

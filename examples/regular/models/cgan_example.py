@@ -9,7 +9,7 @@ import numpy as np
 from sklearn import cluster
 
 #Read the original data and have it preprocessed
-data = pd.read_csv('../../../data/creditcard.csv', index_col=[0])
+data = pd.read_csv('../../data/creditcard.csv', index_col=[0])
 
 #List of columns different from the Class column
 num_cols = list(data.columns[ data.columns != 'Class' ])
@@ -78,6 +78,8 @@ synth.save('cgan_synthtrained.pkl')
 synthesizer = RegularSynthesizer.load('cgan_synthtrained.pkl')
 
 #Sampling from the synthesizer
-cond_array = np.array([0])
+cond_array = pd.DataFrame(100*[1], columns=['Class'])
 # Synthesizer samples are returned in the original format (inverse_transform of internal processing already took place)
-sample = synthesizer.sample(cond_array, 1000)
+sample = synthesizer.sample(cond_array)
+
+print(sample)
