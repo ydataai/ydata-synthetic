@@ -9,21 +9,24 @@
 
 Join us on [![slack](https://img.shields.io/badge/slack-brightgreen.svg?logo=slack)](http://slack.ydata.ai/)
 
-# What is Synthetic Data?
+# YData Synthetic
+A package to generate synthetic tabular and time-series data leveraging the state of the art generative models.
+## Synthetic data
+### What is synthetic data?
 Synthetic data is artificially generated data that is not collected from real world events. It replicates the statistical components of real data without containing any identifiable information, ensuring individuals' privacy.
 
-# Why Synthetic Data?
+### Why Synthetic Data?
 Synthetic data can be used for many applications:
-- Privacy
-- Remove bias
-- Balance datasets
-- Augment datasets
+  - Privacy
+  - Remove bias
+  - Balance datasets
+  - Augment datasets
 
 # ydata-synthetic
 This repository contains material related with Generative Adversarial Networks for synthetic data generation, in particular regular tabular data and time-series.
 It consists a set of different GANs architectures developed using Tensorflow 2.0. Several example Jupyter Notebooks and Python scripts are included, to show how to use the different architectures.
 
-# Quickstart
+## Quickstart
 
 The source code is currently hosted on GitHub at: https://github.com/ydataai/ydata-synthetic
 
@@ -32,12 +35,11 @@ Binary installers for the latest released version are available at the [Python P
 pip install ydata-synthetic
 ```
 
-## Examples
+### Examples
 Here you can find usage examples of the package and models to synthesize tabular data.
-
-- Synthesizing the minority class with VanillaGAN on credit fraud dataset  [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/regular/gan_example.ipynb)
-- Time Series synthetic data generation with TimeGAN on stock dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/timeseries/TimeGAN_Synthetic_stock_data.ipynb)
-- More examples are continously added and can be found in `/examples` directory.
+  - Synthesizing the minority class with VanillaGAN on credit fraud dataset  [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/regular/gan_example.ipynb)
+  - Time Series synthetic data generation with TimeGAN on stock dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/timeseries/TimeGAN_Synthetic_stock_data.ipynb)
+  - More examples are continously added and can be found in `/examples` directory.
 
 ### Datasets for you to experiment
 Here are some example datasets for you to try with the synthesizers:
@@ -50,30 +52,30 @@ Here are some example datasets for you to try with the synthesizers:
 - [Stock data](https://github.com/ydataai/ydata-synthetic/tree/master/data)
 
 
-# Project Resources
+## Project Resources
 
 In this repository you can find the several GAN architectures that are used to create synthesizers:
 
-#### Tabular data
-- [GAN](https://arxiv.org/abs/1406.2661)
-- [CGAN (Conditional GAN)](https://arxiv.org/abs/1411.1784)
-- [WGAN (Wasserstein GAN)](https://arxiv.org/abs/1701.07875)
-- [WGAN-GP (Wassertein GAN with Gradient Penalty)](https://arxiv.org/abs/1704.00028)
-- [DRAGAN (On Convergence and stability of GANS)](https://arxiv.org/pdf/1705.07215.pdf)
-- [Cramer GAN (The Cramer Distance as a Solution to Biased Wasserstein Gradients)](https://arxiv.org/abs/1705.10743)
-- [CWGAN-GP (Conditional Wassertein GAN with Gradient Penalty)](https://cameronfabbri.github.io/papers/conditionalWGAN.pdf)
+### Tabular data
+  - [GAN](https://arxiv.org/abs/1406.2661)
+  - [CGAN (Conditional GAN)](https://arxiv.org/abs/1411.1784)
+  - [WGAN (Wasserstein GAN)](https://arxiv.org/abs/1701.07875)
+  - [WGAN-GP (Wassertein GAN with Gradient Penalty)](https://arxiv.org/abs/1704.00028)
+  - [DRAGAN (On Convergence and stability of GANS)](https://arxiv.org/pdf/1705.07215.pdf)
+  - [Cramer GAN (The Cramer Distance as a Solution to Biased Wasserstein Gradients)](https://arxiv.org/abs/1705.10743)
+  - [CWGAN-GP (Conditional Wassertein GAN with Gradient Penalty)](https://cameronfabbri.github.io/papers/conditionalWGAN.pdf)
 
-#### Sequential data
-- [TimeGAN](https://papers.nips.cc/paper/2019/file/c9efe5f26cd17ba6216bbe2a7d26d490-Paper.pdf)
+### Sequential data
+  - [TimeGAN](https://papers.nips.cc/paper/2019/file/c9efe5f26cd17ba6216bbe2a7d26d490-Paper.pdf)
 
-# Contributing
+## Contributing
 We are open to collaboration! If you want to start contributing you only need to:
-1. Search for an issue in which you would like to work. Issues for newcomers are labeled with good first issue.
-2. Create a PR solving the issue.
-3. We would review every PRs and either accept or ask for revisions.
+  1. Search for an issue in which you would like to work. Issues for newcomers are labeled with good first issue.
+  2. Create a PR solving the issue.
+  3. We would review every PRs and either accept or ask for revisions.
 
-# Support
+## Support
 For support in using this library, please join the #help Slack channel. The Slack community is very friendly and great about quickly answering questions about the use and development of the library. [Click here to join our Slack community!](http://slack.ydata.ai/)
 
-# License
+## License
 [MIT License](https://github.com/ydataai/ydata-synthetic/blob/master/LICENSE)
