@@ -185,6 +185,6 @@ class Generator(Model):
         x = Dense(dim * 2, activation='relu')(x)
         x = Dense(dim * 4, activation='relu')(x)
         x = Dense(data_dim)(x)
-        if activation_info:
-            x = GumbelSoftmaxActivation(activation_info, tau=tau)(x)
+        #if activation_info:
+        #    x = GumbelSoftmaxActivation(activation_info, tau=tau)(x)
         return Model(inputs=input, outputs=x)
