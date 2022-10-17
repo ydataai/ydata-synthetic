@@ -2,7 +2,7 @@ requests>=2.24.0, <2.29
 pandas==1.4.*
 numpy==1.23.*
 scikit-learn==1.1.*
-matplotlib==3.5.*
+matplotlib==3.6.*
 tensorflow==2.9.0
 easydict==1.9
 pmlb==1.0.*
