@@ -3,7 +3,7 @@ pandas==1.4.*
 numpy==1.23.*
 scikit-learn==1.1.*
 matplotlib==3.5.*
-tensorflow==2.9.0
+tensorflow==2.10.0
 easydict==1.9
 pmlb==1.0.*
 tqdm<5.0
