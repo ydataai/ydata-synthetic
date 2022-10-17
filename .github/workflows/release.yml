@@ -1,8 +1,11 @@
-name: prerelease
+name: Release
+
 
 on:
   release:
-    types: [ prereleased ]
+    types:
+    - released
+
 
 jobs:
   package:
@@ -17,12 +20,12 @@ jobs:
 
     - name: Version
       id: version
-      run: echo ::set-output name=value::${GITHUB_REF#refs/*/}
+      run: echo "value=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
 
-    - name: Setup Python 3.7
+    - name: Setup Python 3.8
       uses: actions/setup-python@v2
       with:
-        python-version: '3.7'
+        python-version: '3.8'
 
     - name: Install dependencies
       run: |
@@ -42,7 +45,8 @@ jobs:
     name: Upload Assets to Release
     runs-on: ubuntu-20.04
 
-    needs: package
+    needs:
+    - package
 
     steps:
     - uses: actions/download-artifact@v2
@@ -60,7 +64,8 @@ jobs:
     name: Publish packages to PyPi
     runs-on: ubuntu-20.04
 
-    needs: package
+    needs:
+    - package
 
     steps:
     - uses: actions/download-artifact@v2

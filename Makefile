@@ -1,6 +1,3 @@
-PYTHON = python3.7
-PIP = pip3.7
-
 .PHONY: help lint test package clean install
 
 help:	# The following lines will print the available commands when entering just 'make'
@@ -13,23 +10,27 @@ else
 endif
 
 lint: ### Validates project with linting rules
-	$(PIP) install pylint
-	$(PYTHON) -m pylint src/
+	python -m pip install pylint
+	python -m pylint src/
 
 test: ### Runs all the project tests
-	"Run tests"
-	$(PIP) install pytest
-	$(PYTHON) -m pytest tests/
+	python -m pip install -r requirements-test.txt
+	python -m pytest src/ydata_synthetic/tests
+
+test_cov:
+	python -m pip install -r requirements-test.txt
+	python -m pytest --cov=. src/ydata_synthetic/tests
 
 package: clean ### Runs the project setup
 	echo "$(version)" > VERSION
-	$(PYTHON) setup.py sdist bdist_wheel
+	python -m setup.py sdist bdist_wheel
 
 clean: ### Removes build binaries
 	rm -rf build dist
 
 install: ### Installs required dependencies
-	$(PIP) install dist/ydata-synthetic-$(version).tar.gz
+	python -m pip install dist/ydata-synthetic-$(version).tar.gz
 
-
-
+install_test:
+	echo "$(version)" > VERSION
+	python -m pip install -e .
