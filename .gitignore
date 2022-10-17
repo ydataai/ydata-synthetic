@@ -365,7 +365,7 @@ DerivedData/
 
 #data file
 *.csv
-# *.txt
+*.txt
 
 #models and pickle files
 *.pkl
