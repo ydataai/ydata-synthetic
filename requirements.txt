@@ -4,7 +4,7 @@ numpy==1.23.*
 scikit-learn==1.1.*
 matplotlib==3.5.*
 tensorflow==2.9.0
-easydict==1.9
+easydict==1.10
 pmlb==1.0.*
 tqdm<5.0
 typeguard==2.13.*
