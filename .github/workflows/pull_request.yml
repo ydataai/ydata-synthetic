@@ -1,6 +1,9 @@
 name: pull request
 
 on:
+  push:
+    branches:
+    - renovate/**
   pull_request:
     branches: [ master ]
 
