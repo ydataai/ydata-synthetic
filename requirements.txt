@@ -1,5 +1,5 @@
 requests>=2.24.0, <2.29
-pandas==1.4.*
+pandas==1.5.*
 numpy==1.23.*
 scikit-learn==1.1.*
 matplotlib==3.5.*
