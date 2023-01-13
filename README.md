@@ -1,7 +1,7 @@
 ![](https://img.shields.io/github/workflow/status/ydataai/ydata-synthetic/prerelease)
 ![](https://img.shields.io/pypi/status/ydata-synthetic)
 [![](https://pepy.tech/badge/ydata-synthetic)](https://pypi.org/project/ydata-synthetic/)
-![](https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8-blue)
+![](https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8%20%7C%203.9%20%7C%203.10-blue)
 [![](https://img.shields.io/pypi/v/ydata-synthetic)](https://pypi.org/project/ydata-synthetic/)
 ![](https://img.shields.io/github/license/ydataai/ydata-synthetic)
 
