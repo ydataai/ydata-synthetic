@@ -1,9 +1,7 @@
 from pmlb import fetch_data
 
-from ydata_synthetic.synthesizers.regular import WGAN_GP
+from ydata_synthetic.synthesizers.regular import RegularSynthesizer
 from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
-
-model = WGAN_GP
 
 #Load data and define the data processor parameters
 data = fetch_data('adult')
@@ -12,7 +10,6 @@ cat_cols = ['workclass','education', 'education-num', 'marital-status', 'occupat
             'native-country', 'target']
 
 #Defining the training parameters
-
 noise_dim = 128
 dim = 128
 batch_size = 500
@@ -33,10 +30,13 @@ gan_args = ModelParameters(batch_size=batch_size,
 train_args = TrainParameters(epochs=epochs,
                              sample_interval=log_step)
 
-synthesizer = model(gan_args, n_critic=2)
-synthesizer.train(data, train_args, num_cols, cat_cols)
+synth = RegularSynthesizer(modelname='wgangp', model_parameters=gan_args, n_critic=2)
+synth.fit(data, train_args, num_cols, cat_cols)
 
-synthesizer.save('test.pkl')
+synth.save('adult_wgangp_model.pkl')
 
-synthesizer = model.load('test.pkl')
-synth_data = synthesizer.sample(1000)
+#########################################################
+#    Loading and sampling from a trained synthesizer    #
+#########################################################
+synth = RegularSynthesizer.load('adult_wgangp_model.pkl')
+synth_data = synth.sample(1000)

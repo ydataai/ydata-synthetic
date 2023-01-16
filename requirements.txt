@@ -1,10 +1,10 @@
 requests>=2.24.0, <2.29
-pandas==1.4.*
+pandas==1.5.*
 numpy==1.23.*
-scikit-learn==1.1.*
-matplotlib==3.5.*
-tensorflow==2.9.0
-easydict==1.9
+scikit-learn==1.2.*
+matplotlib==3.6.*
+tensorflow==2.11.0
+easydict==1.10
 pmlb==1.0.*
 tqdm<5.0
 typeguard==2.13.*

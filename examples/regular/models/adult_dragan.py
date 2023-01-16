@@ -11,7 +11,6 @@ cat_cols = ['workclass','education', 'education-num', 'marital-status', 'occupat
 
 # DRAGAN training
 #Defining the training parameters of DRAGAN
-
 noise_dim = 128
 dim = 128
 batch_size = 500
@@ -35,10 +34,10 @@ train_args = TrainParameters(epochs=epochs,
 synth = RegularSynthesizer(modelname='dragan', model_parameters=gan_args, n_discriminator=3)
 synth.fit(data = data, train_arguments = train_args, num_cols = num_cols, cat_cols = cat_cols)
 
-synth.save('adult_synth.pkl')
+synth.save('adult_dragan_model.pkl')
 
 #########################################################
 #    Loading and sampling from a trained synthesizer    #
 #########################################################
-synthesizer = RegularSynthesizer.load('adult_synth.pkl')
+synthesizer = RegularSynthesizer.load('adult_dragan_model.pkl')
 synthesizer.sample(1000)
