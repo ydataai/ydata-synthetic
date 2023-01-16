@@ -1,7 +1,5 @@
 #Install ydata-synthetic lib
 # pip install ydata-synthetic
-from pmlb import fetch_data
-
 import sklearn.cluster as cluster
 import pandas as pd
 import numpy as np
