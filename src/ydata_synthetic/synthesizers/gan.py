@@ -31,10 +31,10 @@ _model_parameters = ['batch_size', 'lr', 'betas', 'layers_dim', 'noise_dim',
 _model_parameters_df = [128, 1e-4, (None, None), 128, 264,
                         None, None, None, 1, None, 0.2]
 
-_train_parameters = ['cache_prefix', 'label_dim', 'epochs', 'sample_interval', 'labels']
+_train_parameters = ['cache_prefix', 'label_dim', 'epochs', 'sample_interval', 'labels', 'critic_iter']
 
 ModelParameters = namedtuple('ModelParameters', _model_parameters, defaults=_model_parameters_df)
-TrainParameters = namedtuple('TrainParameters', _train_parameters, defaults=('', None, 300, 50, None))
+TrainParameters = namedtuple('TrainParameters', _train_parameters, defaults=('', None, 300, 50, None, None))
 
 
 # pylint: disable=R0902
