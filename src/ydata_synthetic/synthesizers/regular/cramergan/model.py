@@ -187,9 +187,7 @@ class Generator(tf.keras.Model):
         x = Dense(dim, activation='relu')(input_)
         x = Dense(dim * 2, activation='relu')(x)
         x = Dense(dim * 4, activation='relu')(x)
-        x = Dense(data_dim)(x)
-        if activation_info:
-            x = GumbelSoftmaxActivation(activation_info, tau=tau)(x)
+        x = Dense(data_dim, activation='softmax')(x)
         return Model(inputs=input_, outputs=x)
 
 class Critic(tf.keras.Model):
