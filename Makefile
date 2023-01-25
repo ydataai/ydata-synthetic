@@ -1,5 +1,5 @@
-PYTHON = python3.7
-PIP = pip3.7
+PYTHON = python3
+PIP = pip3
 
 .PHONY: help lint test package clean install
 
