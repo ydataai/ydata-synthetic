@@ -19,10 +19,10 @@ jobs:
       id: version
       run: echo ::set-output name=value::${GITHUB_REF#refs/*/}
 
-    - name: Setup Python 3.7
+    - name: Setup Python 3.8
       uses: actions/setup-python@v4
       with:
-        python-version: '3.7'
+        python-version: '3.8'
 
     - name: Install dependencies
       run: |
