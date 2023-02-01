@@ -16,7 +16,10 @@ nav:
     - Contribution Guidelines: 'support/help-troubleshooting.md'
   - Reference:
     - Changelog: 'reference/changelog.md'
-    - API: 'reference/changelog.md'
+    - API:
+      - GAN: 'reference/api/synthesizers/gan.md'
+      - Regular:
+        - CGAN: 'reference/api/synthesizers/cgan.md'
 theme:
   name: material
   language: en
@@ -108,12 +111,4 @@ extra:
     provider: mike
   generator: false
 plugins:
-  - mike:
-      # These fields are all optional; the defaults are as below...
-      alias_type: symlink
-      redirect_template: null
-      deploy_prefix: ''
-      canonical_version: null
-      version_selector: true
-      css_dir: css
-      javascript_dir: js
+  - mkdocstrings
