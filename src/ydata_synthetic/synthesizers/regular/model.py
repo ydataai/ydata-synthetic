@@ -14,6 +14,7 @@ from ..regular.wgangp.model import WGAN_GP
 from ..regular.cwgangp.model import CWGANGP
 from ..regular.cramergan.model import CRAMERGAN
 from ..regular.dragan.model import DRAGAN
+from ..regular.ctgan.model import CTGAN
 
 from ...utils.gumbel_softmax import GumbelSoftmaxActivation
 
@@ -27,6 +28,7 @@ class Model(Enum):
     CWASSERTEINGP = 'cwgangp'
     CRAMER = 'cramer'
     DEEPREGRET = 'dragan'
+    CONDITIONALTABULAR = 'ctgan'
 
     __MAPPING__ = {
         VANILLA : VanilllaGAN,
@@ -35,7 +37,8 @@ class Model(Enum):
         WASSERTEINGP: WGAN_GP,
         CWASSERTEINGP: CWGANGP,
         CRAMER: CRAMERGAN,
-        DEEPREGRET: DRAGAN
+        DEEPREGRET: DRAGAN,
+        CONDITIONALTABULAR: CTGAN
     }
 
     @property
@@ -64,4 +67,6 @@ class RegularSynthesizer():
                 # Invalid device or cannot modify virtual devices once initialized.
                 pass
         synth = load(path)
+        if isinstance(synth, dict):
+            return CTGAN.load(synth)
         return synth
