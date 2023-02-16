@@ -17,9 +17,22 @@ nav:
   - Reference:
     - Changelog: 'reference/changelog.md'
     - API:
-      - GAN: 'reference/api/synthesizers/gan.md'
-      - Regular:
-        - CGAN: 'reference/api/synthesizers/cgan.md'
+      - Synthesizers:
+        - GAN: 'reference/api/synthesizers/regular/gan.md'
+        - Regular:
+          - CGAN: 'reference/api/synthesizers/regular/cgan.md'
+          - CRAMERGAN: 'reference/api/synthesizers/regular/cramergan.md'
+          - CWGANGP: 'reference/api/synthesizers/regular/cwgangp.md'
+          - DRAGAN: 'reference/api/synthesizers/regular/dragan.md'
+          - VANILLAGAN: 'reference/api/synthesizers/regular/vanillagan.md'
+          - WGAN_GP: 'reference/api/synthesizers/regular/wgan_gp.md'
+          - WGAN: 'reference/api/synthesizers/regular/wgan.md'
+        - Timeseries:
+          - TimeGAN: 'reference/api/synthesizers/timeseries/timegan.md'
+      - Preprocessing:
+        - BaseProcessor: 'reference/api/preprocessing/base.md'
+        - Regular:
+          - RegularDataProcessor: 'reference/api/preprocessing/regular/preprocessor.md'
 theme:
   name: material
   language: en
