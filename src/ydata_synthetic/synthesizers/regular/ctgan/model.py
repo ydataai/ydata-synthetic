@@ -8,11 +8,12 @@ from keras.layers import \
 from keras import Model
 
 import tensorflow_probability as tfp
-from .utils import ConditionalLoss, RealDataSampler, ConditionalSampler
-
-from ...loss import gradient_penalty, Mode as ModeGP
-from ....synthesizers.gan import BaseModel, ModelParameters, TrainParameters
-from ....preprocessing.regular.ctgan_processor import CTGANDataProcessor
+from ydata_synthetic.synthesizers.regular.ctgan.utils \
+    import ConditionalLoss, RealDataSampler, ConditionalSampler
+ 
+from ydata_synthetic.synthesizers.loss import gradient_penalty, Mode as ModeGP
+from ydata_synthetic.synthesizers.gan import BaseModel, ModelParameters, TrainParameters
+from ydata_synthetic.preprocessing.regular.ctgan_processor import CTGANDataProcessor
 
 class CTGAN(BaseModel):
     """

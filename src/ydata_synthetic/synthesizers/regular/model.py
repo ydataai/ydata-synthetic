@@ -7,16 +7,14 @@ from joblib import load
 
 from tensorflow import config as tfconfig
 
-from ..regular.vanillagan.model import VanilllaGAN
-from ..regular.cgan.model import CGAN
-from ..regular.wgan.model import WGAN
-from ..regular.wgangp.model import WGAN_GP
-from ..regular.cwgangp.model import CWGANGP
-from ..regular.cramergan.model import CRAMERGAN
-from ..regular.dragan.model import DRAGAN
-from ..regular.ctgan.model import CTGAN
-
-from ...utils.gumbel_softmax import GumbelSoftmaxActivation
+from ydata_synthetic.synthesizers.regular.vanillagan.model import VanilllaGAN
+from ydata_synthetic.synthesizers.regular.cgan.model import CGAN
+from ydata_synthetic.synthesizers.regular.wgan.model import WGAN
+from ydata_synthetic.synthesizers.regular.wgangp.model import WGAN_GP
+from ydata_synthetic.synthesizers.regular.cwgangp.model import CWGANGP
+from ydata_synthetic.synthesizers.regular.cramergan.model import CRAMERGAN
+from ydata_synthetic.synthesizers.regular.dragan.model import DRAGAN
+from ydata_synthetic.synthesizers.regular.ctgan.model import CTGAN
 
 
 @unique
