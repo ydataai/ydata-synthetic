@@ -22,6 +22,7 @@ nav:
         - Regular:
           - CGAN: 'reference/api/synthesizers/regular/cgan.md'
           - CRAMERGAN: 'reference/api/synthesizers/regular/cramergan.md'
+          - CTGAN: 'reference/api/synthesizers/regular/ctgan.md'
           - CWGANGP: 'reference/api/synthesizers/regular/cwgangp.md'
           - DRAGAN: 'reference/api/synthesizers/regular/dragan.md'
           - VANILLAGAN: 'reference/api/synthesizers/regular/vanillagan.md'
@@ -33,6 +34,7 @@ nav:
         - BaseProcessor: 'reference/api/preprocessing/base.md'
         - Regular:
           - RegularDataProcessor: 'reference/api/preprocessing/regular/preprocessor.md'
+          - CTGANDataProcessor: 'reference/api/preprocessing/regular/ctgan_preprocessor.md'
 theme:
   name: material
   language: en
