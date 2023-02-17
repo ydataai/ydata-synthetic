@@ -189,6 +189,7 @@ class Generator():
 
     def build_model(self, input_shape, label_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None):
         """Create model components.
+
         Args:
             input_shape:
             label_shape:
@@ -196,7 +197,6 @@ class Generator():
             data_dim:
             activation_info (Optional[NamedTuple]): Defaults to None
             tau (Optional[float]) Defaults to None
-        
         """
         noise = Input(shape=input_shape, batch_size=self.batch_size)
         label_v = Input(shape=label_shape)
@@ -225,7 +225,7 @@ class Discriminator():
             dim:
 
         Returns:
-            Model: model
+            Discriminator model
         """
         events = Input(shape=input_shape, batch_size=self.batch_size)
         label = Input(shape=label_shape, batch_size=self.batch_size)

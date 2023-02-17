@@ -105,7 +105,7 @@ class BaseModel():
 
     def define_gan(self):
         """Define the trainable model components.
-        
+
         Optionally validate model structure with mock inputs and initialize optimizers."""
         raise NotImplementedError
 
