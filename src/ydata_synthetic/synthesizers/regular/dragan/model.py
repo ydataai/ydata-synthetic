@@ -74,7 +74,7 @@ class DRAGAN(BaseModel):
             g_optimizer (tf.OptimizerV2): Optimizer for the generator model
             c_optimizer (tf.OptimizerV2): Optimizer for the discriminator model
         Returns:
-            generator gradients, discriminator gradients
+            (discriminator loss, generator loss)
         """
         # Update the gradients of critic for n_critic times (Training the critic)
         for _ in range(self.n_discriminator):

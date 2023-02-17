@@ -77,7 +77,7 @@ class CRAMERGAN(BaseModel):
             g_optimizer: generator optimizer
             c_optimizer: critic optimizer
         Returns:
-            (gradients generator, critic gradients)
+            (critic loss, generator loss)
         """
         # Update the gradients of critic for n_critic times (Training the critic)
 
