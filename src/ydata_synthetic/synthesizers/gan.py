@@ -105,6 +105,7 @@ class BaseModel():
 
     def define_gan(self):
         """Define the trainable model components.
+        
         Optionally validate model structure with mock inputs and initialize optimizers."""
         raise NotImplementedError
 
@@ -124,17 +125,15 @@ class BaseModel():
               cat_cols: Optional[List[str]] = None,
               train_arguments: Optional[TrainParameters] = None) -> Union[DataFrame, array]:
         """
-        ### Description:
         Trains and fit a synthesizer model to a given input dataset.
 
-        ### Args:
-        `data` (Union[DataFrame, array]): Training data
-        `num_cols` (Optional[List[str]]) : List with the names of the categorical columns
-        `cat_cols` (Optional[List[str]]): List of names of categorical columns
-        `train_arguments` (Optional[TrainParameters]): Training parameters
+        Args:
+            data (Union[DataFrame, array]): Training data
+            num_cols (Optional[List[str]]) : List with the names of the categorical columns
+            cat_cols (Optional[List[str]]): List of names of categorical columns
+            train_arguments (Optional[TrainParameters]): Training parameters
 
-        ### Returns:
-        **self:** *object*
+        Returns:
             Fitted synthesizer
         """
         if self.__MODEL__ in RegularModels.__members__:
@@ -151,15 +150,13 @@ class BaseModel():
 
     def sample(self, n_samples: int):
         """
-        ### Description:
         Generates samples from the trained synthesizer.
 
-        ### Args:
-        `n_samples` (int): Number of rows to generated.
+        Args:
+            n_samples (int): Number of rows to generated.
 
-        ### Returns:
-        **synth_sample:** pandas.DataFrame, shape (n_samples, n_features)
-            Returns the generated synthetic samples.
+        Returns:
+            synth_sample (pandas.DataFrame): generated synthetic samples.
         """
         steps = n_samples // self.batch_size + 1
         data = []
@@ -171,11 +168,10 @@ class BaseModel():
 
     def save(self, path):
         """
-        ### Description:
         Saves a synthesizer as a pickle.
 
-        ### Args:
-        `path` (str): Path to write the synthesizer as a pickle object.
+        Args:
+            path (str): Path to write the synthesizer as a pickle object.
         """
         #Save only the generator?
         if self.__MODEL__=='WGAN' or self.__MODEL__=='WGAN_GP' or self.__MODEL__=='CWGAN_GP':
@@ -186,11 +182,10 @@ class BaseModel():
     @staticmethod
     def load(path):
         """
-        ### Description:
         Loads a saved synthesizer from a pickle.
 
-        ### Args:
-        `path` (str): Path to read the synthesizer pickle from.
+        Args:
+            path (str): Path to read the synthesizer pickle from.
         """
         gpu_devices = tfconfig.list_physical_devices('GPU')
         if len(gpu_devices) > 0:
@@ -222,11 +217,12 @@ class ConditionalModel(BaseModel):
         """
             Validate and prepare the data for the training of a conditionalGAN architecture
         Args:
-            data:
-            label_cols:
-            num_cols:
-            cat_cols:
+            data: training data
+            label_cols: label columns
+            num_cols: numerical columns
+            cat_cols: categorical columns
         Returns:
+            data, label: preprocessed data and labels
         """
         # Validating the label columns
         self._validate_label_col(data, label_cols)
