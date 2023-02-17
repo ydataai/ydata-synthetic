@@ -191,12 +191,14 @@ class Generator():
         """Create model components.
 
         Args:
-            input_shape:
-            label_shape:
-            dim:
-            data_dim:
+            input_shape: input dimensionality.
+            label_shape: label dimensionality.
+            dim: hidden layers dimensions.
+            data_dim: Output dimensionality.
             activation_info (Optional[NamedTuple]): Defaults to None
-            tau (Optional[float]) Defaults to None
+            tau (Optional[float]): Gumbel-Softmax non-negative temperature. Defaults to None
+        Returns:
+            Generator model
         """
         noise = Input(shape=input_shape, batch_size=self.batch_size)
         label_v = Input(shape=label_shape)
@@ -220,9 +222,9 @@ class Discriminator():
         """Create model components.
 
         Args:
-            input_shape:
-            label_shape:
-            dim:
+            input_shape: input dimensionality.
+            label_shape: labels dimenstionality.
+            dim: hidden layers size.
 
         Returns:
             Discriminator model

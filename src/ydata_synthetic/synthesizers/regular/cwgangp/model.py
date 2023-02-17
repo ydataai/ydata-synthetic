@@ -40,6 +40,11 @@ class CWGANGP(ConditionalModel, WGAN_GP):
                          gradient_penalty_weight=gradient_penalty_weight)
 
     def define_gan(self, activation_info: Optional[NamedTuple] = None):
+        """Define the trainable model components.
+        
+        Args:
+            activation_info (Optional[NamedTuple]): Defaults to None
+        """
         self.generator = Generator(self.batch_size). \
             build_model(input_shape=(self.noise_dim,),
                         label_shape=(self.label_dim, ),
@@ -58,6 +63,15 @@ class CWGANGP(ConditionalModel, WGAN_GP):
         return g_optimizer, c_optimizer
 
     def gradient_penalty(self, real, fake, label):
+        """Compute gradient penalty.
+        
+        Args:
+            real: real event.
+            fake: fake event.
+            label: ground truth.
+        Returns:
+            gradient_penalty
+        """
         epsilon = random.uniform([real.shape[0], 1], 0.0, 1.0, dtype=dtypes.float32)
         x_hat = epsilon * real + (1 - epsilon) * fake
         with GradientTape() as t:
@@ -70,7 +84,16 @@ class CWGANGP(ConditionalModel, WGAN_GP):
 
     @staticmethod
     def get_data_batch(data, batch_size, seed=0):
-        "Produce real data batches from the passed data object."
+        """Produce real data batches from the passed data object.
+
+        Args:
+            train:
+            batch_size:
+            seed (int, optional):Defaults to 0.
+
+        Returns:
+            data batch
+        """
         start_i = (batch_size * seed) % len(data)
         stop_i = start_i + batch_size
         shuffle_seed = (batch_size * seed) // len(data)
@@ -79,7 +102,14 @@ class CWGANGP(ConditionalModel, WGAN_GP):
         return dtypes.cast(data[data_ix[start_i: stop_i]], dtype=dtypes.float32)
 
     def c_lossfn(self, real):
-        "Forward pass on the critic and computes the loss."
+        """Compute the critic loss.
+
+        Args:
+            real: A real sample
+        
+        Returns:
+            Critic loss
+        """
         real, label = real
         # generating noise from a uniform distribution
         noise = random.uniform([real.shape[0], self.noise_dim], minval=0.999, maxval=1.0 , dtype=dtypes.float32)
@@ -101,8 +131,10 @@ class CWGANGP(ConditionalModel, WGAN_GP):
         """
         Forward pass on the generator and computes the loss.
 
-        :param real: Data batch we are analyzing
-        :return: Loss of the generator
+        Args:
+            real: Data batch we are analyzing
+        Returns:
+            Generator loss
         """
         real, label = real
 
@@ -164,7 +196,7 @@ class CWGANGP(ConditionalModel, WGAN_GP):
                 self._run_checkpoint(train_arguments, epoch)
 
     def _run_checkpoint(self, train_arguments, epoch):
-        "Run checkpoint. Store model state and generated samples."
+        "Run checkpoint and store model state and generated samples."
         if path.exists('./cache') is False:
             os.mkdir('./cache')
         model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
@@ -175,13 +207,26 @@ class CWGANGP(ConditionalModel, WGAN_GP):
 act_leakyr = LeakyReLU(alpha=0.2)
 # pylint: disable=R0903,D203
 class Generator():
-
     "Standard discrete conditional generator."
     def __init__(self, batch_size):
-        "Sets the properties of the generator."
+        """Sets the properties of the generator.
+
+        Args:
+            batch_size (int): batch size
+        """
         self.batch_size = batch_size
 
     def build_model(self, input_shape, label_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None):
+        """Create model components.
+
+        Args:
+            input_shape: input dimensionality.
+            label_shape: label dimensionality.
+            dim: hidden layers dimensions.
+            data_dim: Output dimensionality.
+            activation_info (Optional[NamedTuple]): Defaults to None
+            tau (Optional[float]): Gumbel-Softmax non-negative temperature. Defaults to None
+        """
         noise = Input(shape=input_shape, batch_size=self.batch_size)
         label_v = Input(shape=label_shape)
         x = concatenate([noise, label_v])
@@ -200,7 +245,17 @@ class Critic():
         "Sets the properties of the critic."
         self.batch_size = batch_size
 
-    def build_model(self, input_shape, label_shape,dim):
+    def build_model(self, input_shape, label_shape, dim):
+        """Create model components.
+
+        Args:
+            input_shape: input dimensionality.
+            label_shape: label dimensionality.
+            dim: hidden layers size.
+
+        Returns:
+            Critic model
+        """
         events = Input(shape=input_shape, batch_size=self.batch_size)
         label = Input(shape=label_shape, batch_size=self.batch_size)
         input_ = concatenate([events, label])

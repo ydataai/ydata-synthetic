@@ -61,10 +61,10 @@ class CRAMERGAN(BaseModel):
         """Compute gradient penalty.
         
         Args:
-            real: real event
-            fake: fake event
+            real: real event.
+            fake: fake event.
         Returns:
-            gradient_penalty
+            gradient_penalty.
         """
         gp = gradient_penalty(self.f_crit, real, fake, mode=Mode.CRAMER)
         return gp
@@ -143,7 +143,7 @@ class CRAMERGAN(BaseModel):
         Args:
             real: A real sample
             fake: A fake sample
-            fak2: A second fake sample
+            fake2: A second fake sample
         
         Returns:
             Loss of the critic
@@ -240,12 +240,13 @@ class Generator(tf.keras.Model):
         """Create model components.
 
         Args:
-            input_shape:
-            label_shape:
-            dim:
-            data_dim:
+            input_shape: input dimensionality.
+            dim: hidden layers dimensions.
+            data_dim: Output dimensionality.
             activation_info (Optional[NamedTuple]): Defaults to None
-            tau (Optional[float]) Defaults to None
+            tau (Optional[float]): Gumbel-Softmax non-negative temperature. Defaults to None
+        Returns:
+            Generator model
         """
         input_ = Input(shape=input_shape, batch_size=self.batch_size)
         x = Dense(dim, activation='relu')(input_)
@@ -256,15 +257,19 @@ class Generator(tf.keras.Model):
 
 class Critic(tf.keras.Model):
     def __init__(self, batch_size):
-        """Simple critic with dense feedforward and dropout layers."""
+        """Simple critic with dense feedforward and dropout layers.
+
+        Args:
+            batch_size (int): batch size
+        """
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim):
         """Create model components.
 
         Args:
-            input_shape:
-            dim:
+            input_shape: input dimensionality.
+            dim: hidden layers size.
 
         Returns:
             Critic model
