@@ -88,12 +88,12 @@ class CGAN(ConditionalModel):
         """Produce real data batches from the passed data object.
 
         Args:
-            data:
-            batch_size:
+            data: real data.
+            batch_size: batch size.
             seed (int, optional): Defaults to 0.
 
         Returns:
-            data batch
+            data batch.
         """
         start_i = (batch_size * seed) % len(data)
         stop_i = start_i + batch_size

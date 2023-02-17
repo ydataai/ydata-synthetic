@@ -146,12 +146,12 @@ class DRAGAN(BaseModel):
         """Get real data batches from the passed data object.
 
         Args:
-            train:
-            batch_size:
+            train: real data.
+            batch_size: batch size.
             seed (int, optional):Defaults to 0.
 
         Returns:
-            data batch
+            data batch.
         """
         buffer_size = len(train)
         #tensor_data = pd.concat([x_train, y_train], axis=1)

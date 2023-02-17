@@ -87,12 +87,12 @@ class CWGANGP(ConditionalModel, WGAN_GP):
         """Produce real data batches from the passed data object.
 
         Args:
-            train:
-            batch_size:
+            train: real data.
+            batch_size: batch size.
             seed (int, optional):Defaults to 0.
 
         Returns:
-            data batch
+            data batch.
         """
         start_i = (batch_size * seed) % len(data)
         stop_i = start_i + batch_size
