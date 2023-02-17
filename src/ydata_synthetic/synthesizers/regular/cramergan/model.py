@@ -156,7 +156,7 @@ class CRAMERGAN(BaseModel):
 
     @staticmethod
     def get_data_batch(train, batch_size, seed=0):
-        """Produce real data batches from the passed data object.
+        """Get real data batches from the passed data object.
 
         Args:
             train:
