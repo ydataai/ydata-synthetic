@@ -21,12 +21,27 @@ class DRAGAN(BaseModel):
     __MODEL__='DRAGAN'
 
     def __init__(self, model_parameters, n_discriminator, gradient_penalty_weight=10):
+        """DRAGAN model architecture implementation.
+
+        Args:
+            model_parameters:
+            n_discriminator:
+            gradient_penalty_weight (int, optional): Defaults to 10.
+        """
         # As recommended in DRAGAN paper - https://arxiv.org/abs/1705.07215
         self.n_discriminator = n_discriminator
         self.gradient_penalty_weight = gradient_penalty_weight
         super().__init__(model_parameters)
 
     def define_gan(self, col_transform_info: Optional[NamedTuple] = None):
+        """Define the trainable model components.
+
+        Args:
+            col_transform_info (Optional[NamedTuple], optional): Defaults to None.
+
+        Returns:
+            (generator_optimizer, discriminator_optimizer): Generator and discriminator optimizers
+        """
         # define generator/discriminator
         self.generator = Generator(self.batch_size). \
             build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,
@@ -40,15 +55,26 @@ class DRAGAN(BaseModel):
         return g_optimizer, d_optimizer
 
     def gradient_penalty(self, real, fake):
+        """Compute gradient penalty.
+        
+        Args:
+            real: real event.
+            fake: fake event.
+        Returns:
+            gradient_penalty.
+        """
         gp = gradient_penalty(self.discriminator, real, fake, mode= Mode.DRAGAN)
         return gp
 
     def update_gradients(self, x, g_optimizer, d_optimizer):
-        """
-        Compute the gradients for both the Generator and the Discriminator
+        """Compute the gradients for Generator and Discriminator.
+
+        Args:
             x (tf.tensor): real data event
-            *_optimizer (tf.OptimizerV2): Optimizer for the * model
-        :return: generator gradients, discriminator gradients
+            g_optimizer (tf.OptimizerV2): Optimizer for the generator model
+            c_optimizer (tf.OptimizerV2): Optimizer for the discriminator model
+        Returns:
+            (discriminator loss, generator loss)
         """
         # Update the gradients of critic for n_critic times (Training the critic)
         for _ in range(self.n_discriminator):
@@ -76,8 +102,13 @@ class DRAGAN(BaseModel):
         return d_loss, gen_loss
 
     def d_lossfn(self, real):
-        """
-        Calculates the critic losses
+        """Calculates the critic losses.
+
+        Args:
+            real: real data examples.
+
+        Returns:
+            discriminator loss
         """
         noise = tf.random.normal((self.batch_size, self.noise_dim), dtype=tf.dtypes.float64)
         # run noise through generator
@@ -95,12 +126,13 @@ class DRAGAN(BaseModel):
                   + gp * self.gradient_penalty_weight)
         return d_loss
 
-    # generator loss
     def g_lossfn(self, real):
-        """
-        Calculates the Generator losses
-        :param real: Data batch we are analyzing
-        :return: Loss of the generator
+        """Calculates the Generator losses.
+
+        Args:
+            real: real data.
+        Returns:
+            generator loss
         """
         # generating noise from a uniform distribution
         noise = tf.random.normal((real.shape[0], self.noise_dim), dtype=tf.float64)
@@ -111,6 +143,16 @@ class DRAGAN(BaseModel):
         return g_loss
 
     def get_data_batch(self, train, batch_size):
+        """Get real data batches from the passed data object.
+
+        Args:
+            train: real data.
+            batch_size: batch size.
+            seed (int, optional):Defaults to 0.
+
+        Returns:
+            data batch.
+        """
         buffer_size = len(train)
         #tensor_data = pd.concat([x_train, y_train], axis=1)
         train_loader = tf.data.Dataset.from_tensor_slices(train) \
@@ -118,11 +160,21 @@ class DRAGAN(BaseModel):
         return train_loader
 
     def train_step(self, train_data, optimizers):
+        """Perform a training step.
+
+        Args:
+            train_data: training data
+            optimizers: generator and critic optimizers 
+
+        Returns:
+            (critic_loss, generator_loss): Critic and generator loss.
+        """
         d_loss, g_loss = self.update_gradients(train_data, *optimizers)
         return d_loss, g_loss
 
     def fit(self, data, train_arguments, num_cols, cat_cols):
-        """
+        """Fit a synthesizer model to a given input dataset.
+
         Args:
             data: A pandas DataFrame or a Numpy array with the data to be synthesized
             train_arguments: GAN training arguments.
@@ -163,9 +215,23 @@ class DRAGAN(BaseModel):
 
 class Discriminator(Model):
     def __init__(self, batch_size):
+        """Simple discriminator with dense feedforward layers.
+
+        Args:
+            batch_size (int): batch size
+        """
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim):
+        """Create model components.
+
+        Args:
+            input_shape: input dimensionality.
+            dim: hidden layers size.
+
+        Returns:
+            Discriminator model
+        """
         input = Input(shape=input_shape, batch_size=self.batch_size)
         x = Dense(dim * 4, kernel_initializer=initializers.TruncatedNormal(mean=0., stddev=0.5), activation='relu')(input)
         x = Dropout(0.1)(x)
@@ -177,9 +243,25 @@ class Discriminator(Model):
 
 class Generator(Model):
     def __init__(self, batch_size):
+        """Simple generator with dense feedforward layers.
+
+        Args:
+            batch_size (int): batch size
+        """
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim, data_dim, activation_info: NamedTuple = None, tau: Optional[float] = None):
+        """Create model components.
+
+        Args:
+            input_shape: input dimensionality.
+            dim: hidden layers dimensions.
+            data_dim: Output dimensionality.
+            activation_info (Optional[NamedTuple]): Defaults to None
+            tau (Optional[float]): Gumbel-Softmax non-negative temperature. Defaults to None
+        Returns:
+            Generator model
+        """
         input = Input(shape=input_shape, batch_size = self.batch_size)
         x = Dense(dim, kernel_initializer=initializers.TruncatedNormal(mean=0., stddev=0.5), activation='relu')(input)
         x = Dense(dim * 2, activation='relu')(x)
