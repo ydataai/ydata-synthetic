@@ -15,7 +15,7 @@ from keras.optimizers import Adam
 
 #Import ydata synthetic classes
 from ....synthesizers import TrainParameters
-from ....synthesizers.gan import BaseModel, ConditionalModel
+from ....synthesizers.gan import ConditionalModel
 from ....synthesizers.regular.wgangp.model import WGAN_GP
 
 class CWGANGP(ConditionalModel, WGAN_GP):

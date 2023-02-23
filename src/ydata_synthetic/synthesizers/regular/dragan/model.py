@@ -14,7 +14,6 @@ from keras.optimizers import Adam
 #Import ydata synthetic classes
 from ....synthesizers.gan import BaseModel
 from ....synthesizers.loss import Mode, gradient_penalty
-from ....utils.gumbel_softmax import GumbelSoftmaxActivation
 
 class DRAGAN(BaseModel):
 
