@@ -31,6 +31,14 @@ class WGAN_GP(BaseGANModel):
         super().__init__(model_parameters)
 
     def define_gan(self, activation_info: Optional[NamedTuple] = None):
+        """Define the trainable model components.
+
+        Args:
+            activation_info (Optional[NamedTuple], optional): Defaults to None.
+
+        Returns:
+            (generator_optimizer, critic_optimizer): Generator and critic optimizers.
+        """
         self.generator = Generator(self.batch_size). \
             build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,
                         activation_info=activation_info, tau = self.tau)
@@ -43,6 +51,14 @@ class WGAN_GP(BaseGANModel):
         return g_optimizer, c_optimizer
 
     def gradient_penalty(self, real, fake):
+        """Compute gradient penalty.
+        
+        Args:
+            real: real event.
+            fake: fake event.
+        Returns:
+            gradient_penalty.
+        """
         epsilon = tf.random.uniform([real.shape[0], 1], minval=0.0, maxval=1.0, dtype=tf.dtypes.float32)
         x_hat = epsilon * real + (1 - epsilon) * fake
         with tf.GradientTape() as t:
@@ -55,10 +71,14 @@ class WGAN_GP(BaseGANModel):
 
     @tf.function
     def update_gradients(self, x, g_optimizer, c_optimizer):
-        """
-        Compute the gradients for both the Generator and the Critic
-        :param x: real data event
-        :return: generator gradients, critic gradients
+        """Compute and apply the gradients for both the Generator and the Critic.
+
+        Args:
+            x: real data event
+            g_optimizer: generator optimizer
+            c_optimizer: critic optimizer
+        Returns:
+            (critic loss, generator loss)
         """
         for _ in range(self.n_critic):
             with tf.GradientTape() as d_tape:
@@ -85,8 +105,13 @@ class WGAN_GP(BaseGANModel):
         return critic_loss, gen_loss
 
     def c_lossfn(self, real):
-        """
-        passes through the network and computes the losses
+        """Compute critic loss.
+
+        Args:
+            real: real data
+
+        Returns:
+            critic loss
         """
         # generating noise from a uniform distribution
         noise = tf.random.normal([real.shape[0], self.noise_dim], dtype=tf.dtypes.float32)
@@ -105,9 +130,15 @@ class WGAN_GP(BaseGANModel):
         return c_loss
 
     def g_lossfn(self, real):
-        """
-        :param real: Data batch we are analyzing
-        :return: Loss of the generator
+        """Compute generator loss.
+
+        Args:
+            real: A real sample
+            fake: A fake sample
+            fak2: A second fake sample
+
+        Returns:
+            Loss of the generator
         """
         # generating noise from a uniform distribution
         noise = tf.random.normal([real.shape[0], self.noise_dim], dtype=tf.dtypes.float32)
@@ -118,6 +149,16 @@ class WGAN_GP(BaseGANModel):
         return g_loss
 
     def get_data_batch(self, train, batch_size, seed=0):
+        """Get real data batches from the passed data object.
+
+        Args:
+            train: real data.
+            batch_size: batch size.
+            seed (int, optional):Defaults to 0.
+
+        Returns:
+            data batch.
+        """
         # np.random.seed(seed)
         # x = train.loc[ np.random.choice(train.index, batch_size) ].values
         # iterate through shuffled indices, so every sample gets covered evenly
@@ -130,16 +171,26 @@ class WGAN_GP(BaseGANModel):
         return train[train_ix[start_i: stop_i]]
 
     def train_step(self, train_data, optimizers):
+        """Perform a training step.
+
+        Args:
+            train_data: training data
+            optimizers: generator and critic optimizers 
+
+        Returns:
+            (critic_loss, generator_loss): Critic and generator loss.
+        """
         cri_loss, ge_loss = self.update_gradients(train_data, *optimizers)
         return cri_loss, ge_loss
 
     def fit(self, data, train_arguments: TrainParameters, num_cols: List[str], cat_cols: List[str]):
-        """
+        """Fit a synthesizer model to a given input dataset.
+
         Args:
-            data: A pandas DataFrame or a Numpy array with the data to be synthesized
+            data: A pandas DataFrame or a Numpy array with the data to be synthesized.
             train_arguments: GAN training arguments.
-            num_cols: List of columns of the data object to be handled as numerical
-            cat_cols: List of columns of the data object to be handled as categorical
+            num_cols (List[str]): List of columns of the data object to be handled as numerical.
+            cat_cols (List[str]): List of columns of the data object to be handled as categorical.
         """
         super().fit(data, num_cols, cat_cols)
 
@@ -175,9 +226,25 @@ class WGAN_GP(BaseGANModel):
 
 class Generator(tf.keras.Model):
     def __init__(self, batch_size):
+        """Simple generator with dense feedforward layers.
+
+        Args:
+            batch_size (int): batch size
+        """
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None):
+        """Create model components.
+
+        Args:
+            input_shape: input dimensionality.
+            dim: hidden layers dimensions.
+            data_dim: Output dimensionality.
+            activation_info (Optional[NamedTuple]): Defaults to None
+            tau (Optional[float]): Gumbel-Softmax non-negative temperature. Defaults to None
+        Returns:
+            Generator model
+        """
         input = Input(shape=input_shape, batch_size=self.batch_size)
         x = Dense(dim, activation='relu')(input)
         x = Dense(dim * 2, activation='relu')(x)
@@ -189,9 +256,23 @@ class Generator(tf.keras.Model):
 
 class Critic(tf.keras.Model):
     def __init__(self, batch_size):
+        """Simple critic with dense feedforward and dropout layers.
+
+        Args:
+            batch_size (int): batch size
+        """
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim):
+        """Create model components.
+
+        Args:
+            input_shape: input dimensionality.
+            dim: hidden layers size.
+
+        Returns:
+            Critic model
+        """
         input = Input(shape=input_shape, batch_size=self.batch_size)
         x = Dense(dim * 4, activation='relu')(input)
         x = Dropout(0.1)(x)

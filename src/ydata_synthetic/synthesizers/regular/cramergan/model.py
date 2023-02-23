@@ -31,6 +31,14 @@ class CRAMERGAN(BaseGANModel):
         super().__init__(model_parameters)
 
     def define_gan(self, activation_info: Optional[NamedTuple] = None):
+        """Define the trainable model components.
+
+        Args:
+            activation_info (Optional[NamedTuple], optional): Defaults to None.
+
+        Returns:
+            (generator_optimizer, critic_optimizer): Generator and critic optimizers
+        """
         self.generator = Generator(self.batch_size). \
             build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,
                         activation_info=activation_info, tau = self.tau)
@@ -49,14 +57,26 @@ class CRAMERGAN(BaseGANModel):
         return g_optimizer, c_optimizer
 
     def gradient_penalty(self, real, fake):
+        """Compute gradient penalty.
+        
+        Args:
+            real: real event.
+            fake: fake event.
+        Returns:
+            gradient_penalty.
+        """
         gp = gradient_penalty(self.f_crit, real, fake, mode=Mode.CRAMER)
         return gp
 
     def update_gradients(self, x, g_optimizer, c_optimizer):
         """Compute and apply the gradients for both the Generator and the Critic.
 
-        :param x: real data event
-        :return: generator gradients, critic gradients
+        Args:
+            x: real data event
+            g_optimizer: generator optimizer
+            c_optimizer: critic optimizer
+        Returns:
+            (critic loss, generator loss)
         """
         # Update the gradients of critic for n_critic times (Training the critic)
 
@@ -91,10 +111,13 @@ class CRAMERGAN(BaseGANModel):
     def g_lossfn(self, real, fake, fake2):
         """Compute generator loss function according to the CramerGAN paper.
 
-        :param real: A real sample
-        :param fake: A fake sample
-        :param fak2: A second fake sample
-        :return: Loss of the generator
+        Args:
+            real: A real sample
+            fake: A fake sample
+            fak2: A second fake sample
+
+        Returns:
+            Loss of the generator
         """
         g_loss = tf.norm(self.critic(real, training=True) - self.critic(fake, training=True), axis=1) + \
                  tf.norm(self.critic(real, training=True) - self.critic(fake2, training=True), axis=1) - \
@@ -103,19 +126,26 @@ class CRAMERGAN(BaseGANModel):
 
     def f_crit(self, real, fake):
         """
-        Computes the critic distance function f between two samples
-        :param real: A real sample
-        :param fake: A fake sample
-        :return: Loss of the critic
+        Computes the critic distance function f between two samples.
+
+        Args:
+            real: A real sample
+            fake: A fake sample
+        Returns:
+            Loss of the critic
         """
         return tf.norm(self.critic(real, training=True) - self.critic(fake, training=True), axis=1) - tf.norm(self.critic(real, training=True), axis=1)
 
     def c_lossfn(self, real, fake, fake2):
-        """
-        :param real: A real sample
-        :param fake: A fake sample
-        :param fak2: A second fake sample
-        :return: Loss of the critic
+        """Compute the loss of the critic.
+
+        Args:
+            real: A real sample
+            fake: A fake sample
+            fake2: A second fake sample
+        
+        Returns:
+            Loss of the critic
         """
         f_real = self.f_crit(real, fake2)
         f_fake = self.f_crit(fake, fake2)
@@ -125,6 +155,16 @@ class CRAMERGAN(BaseGANModel):
 
     @staticmethod
     def get_data_batch(train, batch_size, seed=0):
+        """Get real data batches from the passed data object.
+
+        Args:
+            train: real data.
+            batch_size: batch size.
+            seed (int, optional):Defaults to 0.
+
+        Returns:
+            data batch.
+        """
         # np.random.seed(seed)
         # x = train.loc[ np.random.choice(train.index, batch_size) ].values
         # iterate through shuffled indices, so every sample gets covered evenly
@@ -137,11 +177,21 @@ class CRAMERGAN(BaseGANModel):
         return train[train_ix[start_i: stop_i]]
 
     def train_step(self, train_data, optimizers):
+        """Perform a training step.
+
+        Args:
+            train_data: training data
+            optimizers: generator and critic optimizers 
+
+        Returns:
+            (critic_loss, generator_loss): Critic and generator loss.
+        """
         critic_loss, g_loss = self.update_gradients(train_data, *optimizers)
         return critic_loss, g_loss
 
     def fit(self, data, train_arguments: TrainParameters, num_cols: List[str], cat_cols: List[str]):
-        """
+        """Fit a synthesizer model to a given input dataset.
+
         Args:
             data: A pandas DataFrame or a Numpy array with the data to be synthesized
             train_arguments: GAN training arguments.
@@ -178,10 +228,25 @@ class CRAMERGAN(BaseGANModel):
 
 class Generator(tf.keras.Model):
     def __init__(self, batch_size):
-        """Simple generator with dense feedforward layers."""
+        """Simple generator with dense feedforward layers.
+
+        Args:
+            batch_size (int): batch size
+        """
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None):
+        """Create model components.
+
+        Args:
+            input_shape: input dimensionality.
+            dim: hidden layers dimensions.
+            data_dim: Output dimensionality.
+            activation_info (Optional[NamedTuple]): Defaults to None
+            tau (Optional[float]): Gumbel-Softmax non-negative temperature. Defaults to None
+        Returns:
+            Generator model
+        """
         input_ = Input(shape=input_shape, batch_size=self.batch_size)
         x = Dense(dim, activation='relu')(input_)
         x = Dense(dim * 2, activation='relu')(x)
@@ -191,10 +256,23 @@ class Generator(tf.keras.Model):
 
 class Critic(tf.keras.Model):
     def __init__(self, batch_size):
-        """Simple critic with dense feedforward and dropout layers."""
+        """Simple critic with dense feedforward and dropout layers.
+
+        Args:
+            batch_size (int): batch size
+        """
         self.batch_size = batch_size
 
     def build_model(self, input_shape, dim):
+        """Create model components.
+
+        Args:
+            input_shape: input dimensionality.
+            dim: hidden layers size.
+
+        Returns:
+            Critic model
+        """
         input_ = Input(shape=input_shape, batch_size=self.batch_size)
         x = Dense(dim * 4, activation='relu')(input_)
         x = Dropout(0.1)(x)
