@@ -17,7 +17,6 @@ from keras.optimizers import Adam
 #Import ydata synthetic classes
 from ....synthesizers import TrainParameters
 from ....synthesizers.gan import BaseModel
-from ....utils.gumbel_softmax import GumbelSoftmaxActivation
 
 class WGAN_GP(BaseModel):
 
