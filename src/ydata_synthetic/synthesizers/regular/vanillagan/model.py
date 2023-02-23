@@ -26,6 +26,14 @@ class VanilllaGAN(BaseModel):
         super().__init__(model_parameters)
 
     def define_gan(self, activation_info: Optional[NamedTuple]):
+        """Define the trainable model components.
+
+        Args:
+            activation_info (Optional[NamedTuple], optional): Defaults to None.
+
+        Returns:
+            (generator_optimizer, critic_optimizer): Generator and critic optimizers
+        """
         self.generator = Generator(self.batch_size).\
             build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,)
 
@@ -56,6 +64,16 @@ class VanilllaGAN(BaseModel):
         self._model.compile(loss='binary_crossentropy', optimizer=g_optimizer)
 
     def get_data_batch(self, train, batch_size, seed=0):
+        """Get real data batches from the passed data object.
+
+        Args:
+            train: real data
+            batch_size: batch size
+            seed (int, optional):Defaults to 0.
+
+        Returns:
+            data batch
+        """
         # # random sampling - some samples will have excessively low or high sampling, but easy to implement
         # np.random.seed(seed)
         # x = train.loc[ np.random.choice(train.index, batch_size) ].values
@@ -70,12 +88,13 @@ class VanilllaGAN(BaseModel):
         return train[train_ix[start_i: stop_i]]
 
     def fit(self, data, train_arguments: TrainParameters, num_cols: List[str], cat_cols: List[str]):
-        """
+        """Fit a synthesizer model to a given input dataset.
+
         Args:
             data: A pandas DataFrame or a Numpy array with the data to be synthesized
             train_arguments: GAN training arguments.
-            num_cols: List of columns of the data object to be handled as numerical
-            cat_cols: List of columns of the data object to be handled as categorical
+            num_cols (List[str]): List of columns of the data object to be handled as numerical
+            cat_cols (List[str]): List of columns of the data object to be handled as categorical
         """
         super().fit(data, num_cols, cat_cols)
 
@@ -133,9 +152,25 @@ class VanilllaGAN(BaseModel):
 
 class Generator(tf.keras.Model):
     def __init__(self, batch_size):
+        """Simple generator with dense feedforward layers.
+
+        Args:
+            batch_size (int): batch size
+        """
         self.batch_size=batch_size
 
-    def build_model(self, input_shape, dim, data_dim):
+    def build_model(self, input_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None):
+        """Create model components.
+
+        Args:
+            input_shape: input dimensionality.
+            dim: hidden layers dimensions.
+            data_dim: Output dimensionality.
+            activation_info (Optional[NamedTuple]): Defaults to None
+            tau (Optional[float]): Gumbel-Softmax non-negative temperature. Defaults to None
+        Returns:
+            Generator model
+        """
         input= Input(shape=input_shape, batch_size=self.batch_size)
         x = Dense(dim, activation='relu')(input)
         x = Dense(dim * 2, activation='relu')(x)
@@ -145,9 +180,23 @@ class Generator(tf.keras.Model):
 
 class Discriminator(tf.keras.Model):
     def __init__(self,batch_size):
+        """Simple discriminator with dense feedforward and dropout layers.
+
+        Args:
+            batch_size (int): batch size
+        """
         self.batch_size=batch_size
 
     def build_model(self, input_shape, dim):
+        """Create model components.
+
+        Args:
+            input_shape: input dimensionality.
+            dim: hidden layers size.
+
+        Returns:
+            Discriminator model
+        """
         input = Input(shape=input_shape, batch_size=self.batch_size)
         x = Dense(dim * 4, activation='relu')(input)
         x = Dropout(0.1)(x)

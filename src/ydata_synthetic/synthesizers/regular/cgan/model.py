@@ -32,6 +32,11 @@ class CGAN(ConditionalModel):
         super().__init__(model_parameters)
 
     def define_gan(self, activation_info: Optional[NamedTuple] = None):
+        """Define the trainable model components.
+        
+        Args:
+            activation_info (Optional[NamedTuple]): Defaults to None
+        """
         self.generator = Generator(self.batch_size). \
             build_model(input_shape=(self.noise_dim,),
                         label_shape=(self.label_dim),
@@ -68,18 +73,27 @@ class CGAN(ConditionalModel):
         self._model.compile(loss='binary_crossentropy', optimizer=g_optimizer)
 
     def _generate_noise(self):
-        "Gaussian noise for the generator input."
+        """Gaussian noise for the generator input."""
         while True:
             yield random.uniform(shape=(self.noise_dim,))
 
     def get_batch_noise(self):
-        "Create a batch iterator for the generator gaussian noise input."
+        """Create a batch iterator for the generator gaussian noise input."""
         return iter(tfdata.Dataset.from_generator(self._generate_noise, output_types=dtypes.float32)
                                 .batch(self.batch_size)
                                 .repeat())
 
     def get_data_batch(self, data, batch_size, seed=0):
-        "Produce real data batches from the passed data object."
+        """Produce real data batches from the passed data object.
+
+        Args:
+            data: real data.
+            batch_size: batch size.
+            seed (int, optional): Defaults to 0.
+
+        Returns:
+            data batch.
+        """
         start_i = (batch_size * seed) % len(data)
         stop_i = start_i + batch_size
         shuffle_seed = (batch_size * seed) // len(data)
@@ -93,7 +107,8 @@ class CGAN(ConditionalModel):
             train_arguments: TrainParameters,
             num_cols: List[str],
             cat_cols: List[str]):
-        """
+        """Trains and fit a synthesizer model to a given input dataset.
+
         Args:
             data: A pandas DataFrame with the data to be synthesized
             label_cols: The name of the column to be used as a label and condition for the training
@@ -152,7 +167,13 @@ class CGAN(ConditionalModel):
                 self._run_checkpoint(train_arguments, epoch, label)
 
     def _run_checkpoint(self, train_arguments, epoch, label):
-        "Run checkpoint. Store model state and generated samples."
+        """Run checkpoint and store model state and generated samples.
+
+        Args:
+            train_arguments:  GAN training arguments.
+            epoch: training epoch
+            label: deprecated
+        """
         if path.exists('./cache') is False:
             os.mkdir('./cache')
         model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
@@ -166,6 +187,18 @@ class Generator():
         self.batch_size = batch_size
 
     def build_model(self, input_shape, label_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None):
+        """Create model components.
+
+        Args:
+            input_shape: input dimensionality.
+            label_shape: label dimensionality.
+            dim: hidden layers dimensions.
+            data_dim: Output dimensionality.
+            activation_info (Optional[NamedTuple]): Defaults to None
+            tau (Optional[float]): Gumbel-Softmax non-negative temperature. Defaults to None
+        Returns:
+            Generator model
+        """
         noise = Input(shape=input_shape, batch_size=self.batch_size)
         label_v = Input(shape=label_shape)
         x = concatenate([noise, label_v])
@@ -185,6 +218,16 @@ class Discriminator():
         self.batch_size = batch_size
 
     def build_model(self, input_shape, label_shape, dim):
+        """Create model components.
+
+        Args:
+            input_shape: input dimensionality.
+            label_shape: labels dimenstionality.
+            dim: hidden layers size.
+
+        Returns:
+            Discriminator model
+        """
         events = Input(shape=input_shape, batch_size=self.batch_size)
         label = Input(shape=label_shape, batch_size=self.batch_size)
         input_ = concatenate([events, label])
