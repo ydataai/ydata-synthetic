@@ -69,7 +69,7 @@ The below models are supported:
 - CRAMER
 - CTGAN
 
-(Add here a GIF)
+[![Watch the video](assets/streamlit_app.png)](https://youtu.be/ep0PhwsFx0A)
 
 ### Examples
 Here you can find usage examples of the package and models to synthesize tabular data.

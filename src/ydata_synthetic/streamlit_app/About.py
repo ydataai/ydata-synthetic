@@ -20,7 +20,7 @@ def main():
 
     st.markdown('[ydata-synthetic](https://github.com/ydataai/ydata-synthetic) is an open-source library and is used to generate synthetic data mimicking the real world data.')
     st.header('What is synthetic data?')
-    st.markdown('Synthetic data is artificially generated data that is not collected from real world events. It replicates the statistical components of real data without containing any identifiable information, ensuring individuals privacy.')
+    st.markdown('Synthetic data is artificially generated data that is not collected from real-world events. It replicates the statistical components of real data containing no identifiable information, ensuring an individual’s privacy.')
     st.header('Why Synthetic Data?')
     st.markdown('''
     Synthetic data can be used for many applications:          
