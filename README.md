@@ -47,8 +47,13 @@ The streamlit app is available form *v1.0.0* onwards, and supports the following
 - Train a synthesizer model
 - Generate & profile synthetic data samples
 
-For a quickstart, use the following code snippet in your *python file*:
+#### Installation
 
+```commandline
+pip install ydata-syntehtic[streamlit]
+```
+#### Quickstart
+Use the code snippet below in a python file (Jupyter Notebooks are not supported):
 ```python
 from ydata_synthetic import streamlit_app
 
