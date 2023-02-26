@@ -4,24 +4,22 @@ import streamlit as st
 from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
 from ydata_synthetic.synthesizers.regular.model import Model
 
-from pages.functions.load_data import upload_file
-from pages.functions.train import DataType, __CONDITIONAL_MODELS
-from pages.functions.train import init_synth, advanced_setttings, training_parameters
+from ydata_synthetic.streamlit_app.pages.functions.load_data import upload_file
+from ydata_synthetic.streamlit_app.pages.functions.train import DataType, __CONDITIONAL_MODELS
+from ydata_synthetic.streamlit_app.pages.functions.train import init_synth, advanced_setttings, training_parameters
 
 def get_available_models(type: Union[str, DataType]):
 
     dtype = DataType(type)
     if dtype == DataType.TABULAR:
-        models_list = [e.value.upper() for e in Model]
+        models_list = [e.value.upper() for e in Model if e.value not in ['cgan', 'cwgangp']]
     else:
-        models_list = ('', 'TimeGAN', )
+        st.warning('Time-Series models are not yet supported .')
+        models_list = ([''])
     return models_list
 
 def run():
     model_name= None
-    model = None
-    epochs=None
-    model_path = "trained_synth.pkl"
 
     df, num_cols, cat_cols = upload_file()
 
@@ -31,7 +29,7 @@ def run():
         col_type, col_model = st.columns(2)
 
         with col_type:
-            datatype = st.selectbox('Select your data type', (DataType.TABULAR.value, DataType.TIMESERIES.value))
+            datatype = st.selectbox('Select your data type', (DataType.TABULAR.value, ))
         with col_model:
             if datatype is not None:
                 models_list = get_available_models(type=datatype)
@@ -46,7 +44,8 @@ def run():
             with col2:
                 lr = st.number_input('Learning rate', 0.01, 0.1, 0.05, 0.01)
 
-            with st.expander('**Advanced settings**'):
+            with st.expander('**More settings**'):
+                model_path = st.text_input("Saved trained model to path:", value="trained_synth.pkl")
                 noise_dim, layer_dim, beta_1, beta_2 = advanced_setttings()
 
             # Create the Train parameters
@@ -78,3 +77,6 @@ def run():
                     st.info(f"The trained model will be saved at {model_path}.")
 
                     model.save(model_path)
+
+if __name__ == '__main__':
+    run()
