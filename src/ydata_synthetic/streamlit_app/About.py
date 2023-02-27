@@ -71,7 +71,7 @@ def main():
     st.markdown(''' 
     ##### What you should ensure before generating synthetic samples:
     - If no model file path is provided, the default location `.trained_synth.pkl` is assumed.
-    - Always choose the correct type of data, that corresponds to the trained model iin order to avoid loading errors.''')
+    - Always choose the correct type of data, that corresponds to the trained model in order to avoid loading errors.''')
 
     st.subheader('Coming soon')
     st.markdown('''
