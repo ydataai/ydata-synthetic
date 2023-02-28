@@ -12,10 +12,10 @@ Join us on [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the
 # YData Synthetic
 A package to generate synthetic tabular and time-series data leveraging the state of the art generative models.
 
-### 🎊 We have **big news**: v1.0.0 is here! 
+## 🎊 We have **big news**: v1.0.0 is here
 > We have exciting news for you. The new version of `ydata-synthetic` include new and exciting features:
-> - A conditional architecture for tabular data: CTGAN, which will make the process of synthetic data generation easier and with higher quality!
-> - A new streamlit app that delivers the synthetic data generation experience with a UI interface
+  > - A conditional architecture for tabular data: CTGAN, which will make the process of synthetic data generation easier and with higher quality!
+  > - A new streamlit app that delivers the synthetic data generation experience with a UI interface
 
 ## Synthetic data
 ### What is synthetic data?
@@ -67,12 +67,12 @@ python -m streamlit_app
 ```
 
 The below models are supported:
-- CGAN
-- WGAN
-- WGANGP
-- DRAGAN
-- CRAMER
-- CTGAN
+  - CGAN
+  - WGAN
+  - WGANGP
+  - DRAGAN
+  - CRAMER
+  - CTGAN
 
 [![Watch the video](assets/streamlit_app.png)](https://youtu.be/ep0PhwsFx0A)
 

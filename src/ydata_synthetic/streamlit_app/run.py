@@ -1,5 +1,6 @@
-import sys
-import subprocess
+"""
+    Logic to run streamlit app from python code
+"""
 import os
 from streamlit import config as _config
 from streamlit.web import bootstrap

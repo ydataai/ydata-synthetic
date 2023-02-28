@@ -1,4 +1,6 @@
-##Here the logic for the model training
+"""
+    Auxiliary functions for synthetic data training
+"""
 from enum import Enum
 import streamlit as st
 
@@ -8,7 +10,6 @@ from ydata_synthetic.synthesizers import ModelParameters
 
 __MODEL_MAPPING = {'tabular': RegularSynthesizer, 'timeseries': TimeGAN}
 __CONDITIONAL_MODELS = ['CGAN', 'CWGANGP']
-__PARAMETERS_MAPPING = {}
 
 class DataType(Enum):
     TABULAR = 'tabular'
