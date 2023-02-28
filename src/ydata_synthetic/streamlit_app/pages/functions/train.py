@@ -47,30 +47,3 @@ def training_parameters(model_name:str, df_cols: list):
     else:
         label_col=None
     return epochs, label_col
-
-#Ok here create the parameter logic mapping to finsish
-
-"What can be considered to be advanced parameters"
-
-##CTGAN - filter only by the most relevant models
-#batch_size
-#lr
-#latent_dim
-#gp_lambda
-#pac
-#l2_scale
-
-
-##CGAN and other conditional GANs
-#batch_size
-#lr
-#betas
-#noise_dim
-
-#label_cols
-
-
-#Should tau_gs be removed?
-#Should condition be removed as well
-
-#Model mapper
