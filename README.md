@@ -11,6 +11,12 @@ Join us on [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the
 
 # YData Synthetic
 A package to generate synthetic tabular and time-series data leveraging the state of the art generative models.
+
+## 🎊 We have **big news**: v1.0.0 is here
+> We have exciting news for you. The new version of `ydata-synthetic` include new and exciting features:
+  > - A conditional architecture for tabular data: CTGAN, which will make the process of synthetic data generation easier and with higher quality!
+  > - A new streamlit app that delivers the synthetic data generation experience with a UI interface
+
 ## Synthetic data
 ### What is synthetic data?
 Synthetic data is artificially generated data that is not collected from real world events. It replicates the statistical components of real data without containing any identifiable information, ensuring individuals' privacy.
@@ -27,19 +33,54 @@ This repository contains material related with Generative Adversarial Networks f
 It consists a set of different GANs architectures developed using Tensorflow 2.0. Several example Jupyter Notebooks and Python scripts are included, to show how to use the different architectures.
 
 ## Quickstart
-
 The source code is currently hosted on GitHub at: https://github.com/ydataai/ydata-synthetic
 
 Binary installers for the latest released version are available at the [Python Package Index (PyPI).](https://pypi.org/project/ydata-synthetic/)
-```
+```commandline
 pip install ydata-synthetic
 ```
+
+### The UI guide for synthetic data generation
+
+YData synthetic has now a UI interface to guide you through the steps and inputs to generate structure tabular data.
+The streamlit app is available form *v1.0.0* onwards, and supports the following flows:
+- Train a synthesizer model
+- Generate & profile synthetic data samples
+
+#### Installation
+
+```commandline
+pip install ydata-syntehtic[streamlit]
+```
+#### Quickstart
+Use the code snippet below in a python file (Jupyter Notebooks are not supported):
+```python
+from ydata_synthetic import streamlit_app
+
+streamlit_app.run()
+```
+
+Or use the file streamlit_app.py that can be found in the [examples folder](https://github.com/ydataai/ydata-synthetic/tree/master/examples/streamlit_app.py).
+
+```commandline
+python -m streamlit_app
+```
+
+The below models are supported:
+  - CGAN
+  - WGAN
+  - WGANGP
+  - DRAGAN
+  - CRAMER
+  - CTGAN
+
+[![Watch the video](assets/streamlit_app.png)](https://youtu.be/ep0PhwsFx0A)
 
 ### Examples
 Here you can find usage examples of the package and models to synthesize tabular data.
   - Synthesizing the minority class with VanillaGAN on credit fraud dataset  [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/regular/gan_example.ipynb)
   - Time Series synthetic data generation with TimeGAN on stock dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/timeseries/TimeGAN_Synthetic_stock_data.ipynb)
-  - More examples are continously added and can be found in `/examples` directory.
+  - More examples are continuously added and can be found in `/examples` directory.
 
 ### Datasets for you to experiment
 Here are some example datasets for you to try with the synthesizers:
@@ -50,7 +91,6 @@ Here are some example datasets for you to try with the synthesizers:
 
 #### Sequential datasets
 - [Stock data](https://github.com/ydataai/ydata-synthetic/tree/master/data)
-
 
 ## Project Resources
 
@@ -64,6 +104,7 @@ In this repository you can find the several GAN architectures that are used to c
   - [DRAGAN (On Convergence and stability of GANS)](https://arxiv.org/pdf/1705.07215.pdf)
   - [Cramer GAN (The Cramer Distance as a Solution to Biased Wasserstein Gradients)](https://arxiv.org/abs/1705.10743)
   - [CWGAN-GP (Conditional Wassertein GAN with Gradient Penalty)](https://cameronfabbri.github.io/papers/conditionalWGAN.pdf)
+  - [CTGAN (Conditional Tabular GAN)](https://arxiv.org/pdf/1907.00503.pdf)
 
 ### Sequential data
   - [TimeGAN](https://papers.nips.cc/paper/2019/file/c9efe5f26cd17ba6216bbe2a7d26d490-Paper.pdf)
