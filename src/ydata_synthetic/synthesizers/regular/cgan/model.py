@@ -21,7 +21,6 @@ from keras.optimizers import Adam
 #Import ydata synthetic classes
 from ....synthesizers import TrainParameters
 from ....synthesizers.gan import ConditionalModel
-from ....utils.gumbel_softmax import GumbelSoftmaxActivation
 
 class CGAN(ConditionalModel):
     "CGAN model for discrete conditions"

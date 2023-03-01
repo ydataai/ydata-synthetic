@@ -16,7 +16,6 @@ import tensorflow as tf
 
 from tensorflow import config as tfconfig
 from tensorflow import data as tfdata
-from tensorflow import dtypes
 from tensorflow import random
 from typeguard import typechecked
 
@@ -24,17 +23,22 @@ from ydata_synthetic.preprocessing.regular.processor import (
     RegularDataProcessor, RegularModels)
 from ydata_synthetic.preprocessing.timeseries.timeseries_processor import (
     TimeSeriesDataProcessor, TimeSeriesModels)
+from ydata_synthetic.preprocessing.regular.ctgan_processor import CTGANDataProcessor
 from ydata_synthetic.synthesizers.saving_keras import make_keras_picklable
 
 _model_parameters = ['batch_size', 'lr', 'betas', 'layers_dim', 'noise_dim',
-                     'n_cols', 'seq_len', 'condition', 'n_critic', 'n_features', 'tau_gs']
+                     'n_cols', 'seq_len', 'condition', 'n_critic', 'n_features', 
+                     'tau_gs', 'generator_dims', 'critic_dims', 'l2_scale', 
+                     'latent_dim', 'gp_lambda', 'pac']
 _model_parameters_df = [128, 1e-4, (None, None), 128, 264,
-                        None, None, None, 1, None, 0.2]
+                        None, None, None, 1, None, 0.2, [256, 256], 
+                        [256, 256], 1e-6, 128, 10.0, 10]
 
-_train_parameters = ['cache_prefix', 'label_dim', 'epochs', 'sample_interval', 'labels']
+_train_parameters = ['cache_prefix', 'label_dim', 'epochs', 'sample_interval', 
+                     'labels', 'n_clusters', 'epsilon', 'log_frequency']
 
 ModelParameters = namedtuple('ModelParameters', _model_parameters, defaults=_model_parameters_df)
-TrainParameters = namedtuple('TrainParameters', _train_parameters, defaults=('', None, 300, 50, None))
+TrainParameters = namedtuple('TrainParameters', _train_parameters, defaults=('', None, 300, 50, None, 10, 0.005, True))
 
 
 # pylint: disable=R0902
@@ -71,8 +75,18 @@ class BaseModel():
         self.noise_dim = model_parameters.noise_dim
         self.data_dim = None
         self.layers_dim = model_parameters.layers_dim
+
+        # Additional parameters for the CTGAN
+        self.generator_dims = model_parameters.generator_dims
+        self.critic_dims = model_parameters.critic_dims
+        self.l2_scale = model_parameters.l2_scale
+        self.latent_dim = model_parameters.latent_dim
+        self.gp_lambda = model_parameters.gp_lambda
+        self.pac = model_parameters.pac
+
         self.processor = None
-        if self.__MODEL__ in RegularModels.__members__:
+        if self.__MODEL__ in RegularModels.__members__ or \
+            self.__MODEL__ == CTGANDataProcessor.SUPPORTED_MODEL:
             self.tau = model_parameters.tau_gs
 
     # pylint: disable=E1101
@@ -85,7 +99,7 @@ class BaseModel():
             self.g_lr=lr
             self.d_lr=lr
         elif isinstance(lr,(list, tuple)):
-            assert len(lr)==2, "Please provide a tow values array for the learning rates or a float."
+            assert len(lr)==2, "Please provide a two values array for the learning rates or a float."
             self.g_lr=lr[0]
             self.d_lr=lr[1]
 
@@ -107,7 +121,8 @@ class BaseModel():
     def fit(self,
               data: Union[DataFrame, array],
               num_cols: Optional[List[str]] = None,
-              cat_cols: Optional[List[str]] = None) -> Union[DataFrame, array]:
+              cat_cols: Optional[List[str]] = None,
+              train_arguments: Optional[TrainParameters] = None) -> Union[DataFrame, array]:
         """
         ### Description:
         Trains and fit a synthesizer model to a given input dataset.
@@ -116,18 +131,23 @@ class BaseModel():
         `data` (Union[DataFrame, array]): Training data
         `num_cols` (Optional[List[str]]) : List with the names of the categorical columns
         `cat_cols` (Optional[List[str]]): List of names of categorical columns
+        `train_arguments` (Optional[TrainParameters]): Training parameters
 
         ### Returns:
         **self:** *object*
             Fitted synthesizer
         """
         if self.__MODEL__ in RegularModels.__members__:
-            self.processor = RegularDataProcessor
+            self.processor = RegularDataProcessor(num_cols=num_cols, cat_cols=cat_cols).fit(data)
         elif self.__MODEL__ in TimeSeriesModels.__members__:
-            self.processor = TimeSeriesDataProcessor
+            self.processor = TimeSeriesDataProcessor(num_cols=num_cols, cat_cols=cat_cols).fit(data)
+        elif self.__MODEL__ == CTGANDataProcessor.SUPPORTED_MODEL:
+            n_clusters = train_arguments.n_clusters
+            epsilon = train_arguments.epsilon
+            self.processor = CTGANDataProcessor(n_clusters=n_clusters, epsilon=epsilon, 
+                                                num_cols=num_cols, cat_cols=cat_cols).fit(data)
         else:
             print(f'A DataProcessor is not available for the {self.__MODEL__}.')
-        self.processor = self.processor(num_cols = num_cols, cat_cols = cat_cols).fit(data)
 
     def sample(self, n_samples: int):
         """
@@ -226,7 +246,7 @@ class ConditionalModel(BaseModel):
 
     def get_batch_noise(self):
         "Create a batch iterator for the generator gaussian noise input."
-        return iter(tfdata.Dataset.from_generator(self._generate_noise, output_types=dtypes.float32)
+        return iter(tfdata.Dataset.from_generator(self._generate_noise, output_types=tf.dtypes.float32)
                                                 .batch(self.batch_size)
                                                 .repeat())
 

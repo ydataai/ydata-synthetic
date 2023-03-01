@@ -27,8 +27,7 @@ class VanilllaGAN(BaseModel):
 
     def define_gan(self, activation_info: Optional[NamedTuple]):
         self.generator = Generator(self.batch_size).\
-            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,
-                        activation_info = activation_info, tau = self.tau)
+            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,)
 
         self.discriminator = Discriminator(self.batch_size).\
             build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
@@ -136,14 +135,12 @@ class Generator(tf.keras.Model):
     def __init__(self, batch_size):
         self.batch_size=batch_size
 
-    def build_model(self, input_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None):
+    def build_model(self, input_shape, dim, data_dim):
         input= Input(shape=input_shape, batch_size=self.batch_size)
         x = Dense(dim, activation='relu')(input)
         x = Dense(dim * 2, activation='relu')(x)
         x = Dense(dim * 4, activation='relu')(x)
         x = Dense(data_dim)(x)
-        if activation_info:
-            x = GumbelSoftmaxActivation(activation_info, tau=tau)(x)
         return Model(inputs=input, outputs=x)
 
 class Discriminator(tf.keras.Model):

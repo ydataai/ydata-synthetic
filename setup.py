@@ -47,4 +47,13 @@ setup(name='ydata-synthetic',
       package_dir={'':'src'},
       include_package_data=True,
       options={"bdist_wheel": {"universal": True}},
-      install_requires=requirements)
+      install_requires=requirements,
+      extras_require={
+          "streamlit": [
+              "streamlit==0.18.1",
+              "typing-extensions==3.10.0",
+              "streamlit_pandas_profiling==0.1.3",
+              "ydata-profiling==4.0.0"
+          ],
+      },
+      )
