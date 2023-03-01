@@ -18,6 +18,7 @@ from keras.optimizers import Adam
 #Import ydata synthetic classes
 from ....synthesizers import TrainParameters
 from ....synthesizers.gan import BaseModel
+from ....utils.gumbel_softmax import GumbelSoftmaxActivation
 
 #Auxiliary Keras backend class to calculate the Random Weighted average
 #https://stackoverflow.com/questions/58133430/how-to-substitute-keras-layers-merge-merge-in-tensorflow-keras

@@ -4,7 +4,6 @@ numpy==1.23.*
 scikit-learn==1.2.*
 matplotlib==3.6.*
 tensorflow==2.11.0
-tensorflow-probability==0.19.0
 easydict==1.10
 pmlb==1.0.*
 tqdm<5.0
