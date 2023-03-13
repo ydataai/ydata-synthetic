@@ -1,5 +1,10 @@
 from typing import Union
+import os
+import json
 import streamlit as st
+
+from ydata.sdk.synthesizers import RegularSynthesizer
+from ydata.sdk.common.client import get_client
 
 from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
 from ydata_synthetic.synthesizers.regular.model import Model
@@ -12,7 +17,7 @@ def get_available_models(type: Union[str, DataType]):
 
     dtype = DataType(type)
     if dtype == DataType.TABULAR:
-        models_list = [e.value.upper() for e in Model if e.value not in ['cgan', 'cwgangp']]
+        models_list = [e.value.upper() for e in Model if e.value not in ['cgan', 'cwgangp']] + ['Fabric Regular Synthesizer']
     else:
         st.warning('Time-Series models are not yet supported .')
         models_list = ([''])
@@ -35,7 +40,7 @@ def run():
                 models_list = get_available_models(type=datatype)
                 model_name = st.selectbox('Select your model', models_list)
 
-        if model_name !='':
+        if model_name not in ['', 'Fabric Regular Synthesizer']:
             st.text("Select your synthesizer model parameters")
             col1, col2 = st.columns(2)
             with col1:
@@ -50,14 +55,14 @@ def run():
 
             # Create the Train parameters
             gan_args = ModelParameters(batch_size=batch_size,
-                                       lr=lr,
-                                       betas=(beta_1, beta_2),
-                                       noise_dim=noise_dim,
-                                       layers_dim=layer_dim)
+                                        lr=lr,
+                                        betas=(beta_1, beta_2),
+                                        noise_dim=noise_dim,
+                                        layers_dim=layer_dim)
 
             model = init_synth(datatype=datatype, modelname=model_name, model_parameters=gan_args)
 
-            if model!=None:
+            if model != None:
                 st.text("Set your synthesizer training parameters")
                 #Get the training parameters
                 epochs, label_col = training_parameters(model_name, df.columns)
@@ -72,11 +77,59 @@ def run():
                         else:
                             model.fit(data=df, num_cols=num_cols, cat_cols=cat_cols, train_arguments=train_args)
 
-                    st.success('Synthesizer was trained succesfully!!')
-
+                    st.success('Synthesizer was trained succesfully!')
                     st.info(f"The trained model will be saved at {model_path}.")
 
                     model.save(model_path)
+
+
+
+        if model_name == 'Fabric Regular Synthesizer':
+            valid_token = False
+            st.text("Model parameters")
+            col1, col2 = st.columns(2)
+            with col1:
+                token = st.text_input("SDK Token", type="password")
+                os.environ['YDATA_TOKEN'] = token
+
+            with col2:
+                st.write("##")
+                try:
+                    get_client()
+                    st.text('✅ Valid')
+                    valid_token = True
+                except:
+                    st.text('❌ Invalid')
+
+            if not valid_token:
+                st.error("""**Fabric Synthesizer requires a valid token.**    
+                In case you do not have an account, please, create one at https://ydata.ai/ydata-fabric-free-trial.    
+                To obtain the token, please, login to https://fabric.ydata.ai.    
+                The token is available on the homepage once you are connected.
+                """)
+                
+
+            with st.expander('**More settings**'):
+                model_path = st.text_input("Saved trained model to path:", value="trained_synth.pkl")
+            
+            st.subheader("3. Train your synthesizer")
+            if st.button('Click here to start the training process', disabled=not valid_token):
+                model = RegularSynthesizer()
+                with st.spinner("Please wait while your synthesizer trains..."):
+                    model.fit(X=df)
+
+                st.success('Synthesizer was trained succesfully!')
+                st.info(f"The trained model will be saved at {model_path}.")
+
+                model_data = {
+                    'uid': model.uid,
+                    'token': os.environ['YDATA_TOKEN']
+                }
+                with open(model_path, 'w') as outfile:
+                    json.dump(model_data, outfile)
+
+                    
+            
 
 if __name__ == '__main__':
     run()
