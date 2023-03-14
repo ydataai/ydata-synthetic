@@ -33,6 +33,5 @@ install: ### Installs required dependencies
 
 publish-docs: ### Publishes the documentation
 	echo "$(version)" > VERSION
-    pip install .
+	$(PIP) install .
 	mike deploy --push --update-aliases $(version) latest
-
