@@ -1,6 +1,0 @@
-.md-typeset .md-annotation__index > ::before {
-    content: attr(data-md-annotation-id);
-}
-.md-typeset :focus-within > .md-annotation__index > ::before {
-    transform: none;
-}

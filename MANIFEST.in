@@ -1,9 +1,0 @@
-include *.txt
-include *.md
-include LICENSE
-include VERSION
-
-exclude .gitignore
-exclude .releaserc.json
-exclude .dvcignore
-exclude .dvc
