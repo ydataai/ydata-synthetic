@@ -11,6 +11,7 @@ on:
     - requirements-docs.txt
     branches:
     - main
+    - dev
   release:
     types:
     - released
