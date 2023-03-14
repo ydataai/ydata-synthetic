@@ -69,7 +69,7 @@ jobs:
         pip install -r requirements-docs.txt
 
     - name: Build docs
-      run:
+      run: |
         echo "0.0dev0" > VERSION
         pip install .
         mkdocs build
