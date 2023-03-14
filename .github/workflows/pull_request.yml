@@ -5,7 +5,9 @@ on:
     branches:
     - renovate/**
   pull_request:
-    branches: [ master ]
+    branches: 
+    - master
+    - dev
 
 jobs:
   validate:
