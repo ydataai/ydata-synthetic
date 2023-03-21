@@ -116,7 +116,12 @@ def run():
             if st.button('Click here to start the training process', disabled=not valid_token):
                 model = RegularSynthesizer()
                 with st.spinner("Please wait while your synthesizer trains..."):
-                    model.fit(X=df)
+                    dtypes = {}
+                    for c in num_cols:
+                        dtypes[c] = 'numerical'
+                    for c in cat_cols:
+                        dtypes[c] = 'categorical'
+                    model.fit(X=df, dtypes=dtypes)
 
                 st.success('Synthesizer was trained succesfully!')
                 st.info(f"The trained model will be saved at {model_path}.")
