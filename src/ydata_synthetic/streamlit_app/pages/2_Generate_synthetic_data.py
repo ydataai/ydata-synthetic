@@ -46,7 +46,7 @@ def run():
         st.warning("The token used during training is not valid anymore. Please, use a new token.")
 
     if from_SDK and not valid_token:
-        st.error("""**Fabric Synthesizer requires a valid token.**    
+        st.error("""**ydata-sdk Synthesizer requires a valid token.**    
         In case you do not have an account, please, create one at https://ydata.ai/ydata-fabric-free-trial.    
         To obtain the token, please, login to https://fabric.ydata.ai.    
         The token is available on the homepage once you are connected.

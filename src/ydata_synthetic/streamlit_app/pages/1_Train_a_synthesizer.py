@@ -17,7 +17,7 @@ def get_available_models(type: Union[str, DataType]):
 
     dtype = DataType(type)
     if dtype == DataType.TABULAR:
-        models_list = [e.value.upper() for e in Model if e.value not in ['cgan', 'cwgangp']] + ['Fabric Regular Synthesizer']
+        models_list = [e.value.upper() for e in Model if e.value not in ['cgan', 'cwgangp']] + ['ydata-sdk Synthesizer']
     else:
         st.warning('Time-Series models are not yet supported .')
         models_list = ([''])
@@ -40,7 +40,7 @@ def run():
                 models_list = get_available_models(type=datatype)
                 model_name = st.selectbox('Select your model', models_list)
 
-        if model_name not in ['', 'Fabric Regular Synthesizer']:
+        if model_name not in ['', 'ydata-sdk Synthesizer']:
             st.text("Select your synthesizer model parameters")
             col1, col2 = st.columns(2)
             with col1:
@@ -84,7 +84,7 @@ def run():
 
 
 
-        if model_name == 'Fabric Regular Synthesizer':
+        if model_name == 'ydata-sdk Synthesizer':
             valid_token = False
             st.text("Model parameters")
             col1, col2 = st.columns(2)
@@ -102,7 +102,7 @@ def run():
                     st.text('❌ Invalid')
 
             if not valid_token:
-                st.error("""**Fabric Synthesizer requires a valid token.**    
+                st.error("""**ydata-sdk Synthesizer requires a valid token.**    
                 In case you do not have an account, please, create one at https://ydata.ai/ydata-fabric-free-trial.    
                 To obtain the token, please, login to https://fabric.ydata.ai.    
                 The token is available on the homepage once you are connected.
