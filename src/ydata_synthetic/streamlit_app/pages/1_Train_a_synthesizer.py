@@ -98,7 +98,7 @@ def run():
                     get_client()
                     st.text('✅ Valid')
                     valid_token = True
-                except:
+                except Exception:
                     st.text('❌ Invalid')
 
             if not valid_token:

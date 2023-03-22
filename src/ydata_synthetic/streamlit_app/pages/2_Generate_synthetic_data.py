@@ -39,7 +39,7 @@ def run():
                 get_client()
                 st.text('✅ Valid')
                 valid_token = True
-            except:
+            except Exception:
                 st.text('❌ Invalid')
     
     if from_SDK and 'token' in model_data and not valid_token:
