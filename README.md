@@ -78,14 +78,16 @@ The below models are supported:
 
 ### Examples
 Here you can find usage examples of the package and models to synthesize tabular data.
+  
   - Synthesizing the minority class with VanillaGAN on credit fraud dataset  [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ceshine/ydata-synthetic/blob/blog-post-20201214/examples/wgan_gp_example.ipynb)
+  - Tabular synthetic data generation with CTGAN on adult census income dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/regular/models/CTGAN_Adult_Census_Income_Data.ipynb)
   - Time Series synthetic data generation with TimeGAN on stock dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/timeseries/TimeGAN_Synthetic_stock_data.ipynb)
   - More examples are continuously added and can be found in `/examples` directory.
 
 ### Datasets for you to experiment
 Here are some example datasets for you to try with the synthesizers:
 #### Tabular datasets
-- [Adult census](https://archive.ics.uci.edu/ml/datasets/adult)
+- [Adult Census Income](https://www.kaggle.com/datasets/uciml/adult-census-income)
 - [Credit card fraud](https://www.kaggle.com/mlg-ulb/creditcardfraud)
 - [Cardiovascular Disease dataset](https://www.kaggle.com/datasets/sulianova/cardiovascular-disease-dataset)
 
