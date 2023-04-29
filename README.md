@@ -50,7 +50,7 @@ The streamlit app is available form *v1.0.0* onwards, and supports the following
 #### Installation
 
 ```commandline
-pip install ydata-syntehtic[streamlit]
+pip install ydata-synthetic[streamlit]
 ```
 #### Quickstart
 Use the code snippet below in a python file (Jupyter Notebooks are not supported):
