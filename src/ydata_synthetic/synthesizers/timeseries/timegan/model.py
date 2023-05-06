@@ -13,7 +13,7 @@ from keras.layers import (GRU, LSTM, Dense)
 from keras.optimizers import Adam
 from keras.losses import (BinaryCrossentropy, MeanSquaredError)
 
-from ....synthesizers.gan import BaseModel
+from ....synthesizers.base import BaseGANModel
 
 def make_net(model, n_layers, hidden_units, output_units, net_type='GRU'):
     if net_type=='GRU':
@@ -33,7 +33,7 @@ def make_net(model, n_layers, hidden_units, output_units, net_type='GRU'):
     return model
 
 
-class TimeGAN(BaseModel):
+class TimeGAN(BaseGANModel):
 
     __MODEL__='TimeGAN'
 
