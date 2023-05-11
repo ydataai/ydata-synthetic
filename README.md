@@ -79,7 +79,7 @@ The below models are supported:
 ### Examples
 Here you can find usage examples of the package and models to synthesize tabular data.
   
-  - Tabular synthetic data generation with CTGAN on adult census income dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/regular/models/CTGAN_Adult_Census_Income_Data.ipynb)
+  - Tabular synthetic data generation with CTGAN on adult census income dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Data-Centric-AI-Community/awesome-python-for-data-science/blob/main/workshop-ds/Workshop%20-%20Data-Centric%20AI%20pipelines%20-%20How%20and%20why.ipynb)
   - Time Series synthetic data generation with TimeGAN on stock dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/timeseries/TimeGAN_Synthetic_stock_data.ipynb)
   - More examples are continuously added and can be found in `/examples` directory.
 
