@@ -95,7 +95,8 @@ class GMM(BaseModel):
             path (str): The path where the model should be saved as pickle
         """
         try:
-            pickle.dumps(path)
+            with open(path, 'wb') as f:
+                pickle.dump(self, f, protocol=pickle.HIGHEST_PROTOCOL)
         except:
             raise Exception(f'The path {path} provided is not valid. Please validate your inputs')
 
@@ -106,11 +107,13 @@ class GMM(BaseModel):
         Returns:
             model (GMM): A trained GMM model
         """
-        with open(path, 'r') as f:
+        with open(path, 'rb') as f:
             model = pickle.load(f)
         return model
 
 if __name__=='__main__':
+
+    from ydata_synthetic.synthesizers.regular import RegularSynthesizer
     df = pd.read_csv('/home/fabiana/Documents/github/ydata-synthetic/data/adult.csv')
 
     df = df.drop('education.num', axis=1)
@@ -118,13 +121,13 @@ if __name__=='__main__':
            'sex']
     cont = list(set(df.columns) - set(cat))
 
-    synth = GMM()
+    synth = RegularSynthesizer(modelname='fast')
     synth.fit(df, num_cols=cont, cat_cols=cat)
 
     sample = synth.sample(1000)
 
-    synth.save('model.pkl')
-    synth.load('model.pkl')
+    synth.save('.model.pkl')
+    synth.load('.model.pkl')
 
     print(sample)
 

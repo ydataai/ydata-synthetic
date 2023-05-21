@@ -15,6 +15,7 @@ from ydata_synthetic.synthesizers.regular.cwgangp.model import CWGANGP
 from ydata_synthetic.synthesizers.regular.cramergan.model import CRAMERGAN
 from ydata_synthetic.synthesizers.regular.dragan.model import DRAGAN
 from ydata_synthetic.synthesizers.regular.ctgan.model import CTGAN
+from ydata_synthetic.synthesizers.regular.gmm.model import GMM
 
 
 @unique
@@ -27,6 +28,7 @@ class Model(Enum):
     CRAMER = 'cramer'
     DEEPREGRET = 'dragan'
     CONDITIONALTABULAR = 'ctgan'
+    FAST = 'fast'
 
     __MAPPING__ = {
         VANILLA : VanilllaGAN,
@@ -36,7 +38,8 @@ class Model(Enum):
         CWASSERTEINGP: CWGANGP,
         CRAMER: CRAMERGAN,
         DEEPREGRET: DRAGAN,
-        CONDITIONALTABULAR: CTGAN
+        CONDITIONALTABULAR: CTGAN,
+        FAST: GMM
     }
 
     @property
@@ -45,8 +48,13 @@ class Model(Enum):
 
 class RegularSynthesizer():
     "Abstraction class "
-    def __new__(cls, modelname: str, model_parameters, **kwargs):
-        return Model(modelname).function(model_parameters, **kwargs)
+    def __new__(cls, modelname: str, model_parameters =None, **kwargs):
+        model = None
+        if Model(modelname) == Model.FAST:
+            model=Model(modelname).function(**kwargs)
+        else:
+            model=Model(modelname).function(model_parameters, **kwargs)
+        return model
 
     @staticmethod
     def load(path):
