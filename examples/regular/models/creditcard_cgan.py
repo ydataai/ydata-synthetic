@@ -21,7 +21,6 @@ sorted_cols = ['V14', 'V4', 'V10', 'V17', 'V12', 'V26', 'Amount', 'V21', 'V8', '
                 'V3', 'V22', 'V6', 'V20', 'V27', 'V16', 'V13', 'V25', 'V24', 'V18', 'V2', 'V1', 'V5', 'V15',
                 'V9', 'V23', 'Class']
 processed_data = data[ sorted_cols ].copy()
-processed_data['Class'] = processed_data['Class'].apply(lambda x: 1 if x == "'1'" else 0)
 
 #For the purpose of this example we will only synthesize the minority class
 train_data = processed_data.loc[processed_data['Class'] == 1].copy()
@@ -47,7 +46,7 @@ beta_1 = 0.5
 beta_2 = 0.9
 
 log_step = 100
-epochs = 500 + 1
+epochs = 2 + 1
 learning_rate = 5e-4
 models_dir = '../cache'
 
