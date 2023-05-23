@@ -75,8 +75,8 @@ class BaseModel(ABC):
         assert n_samples>0, "Please insert a value bigger than 0 for n_samples parameter."
         ...
 
-    @abstractmethod
-    def load(self, path: str):
+    @classmethod
+    def load(cls, path: str):
         ...
 
     @abstractmethod
@@ -223,8 +223,8 @@ class BaseGANModel(BaseModel):
         make_keras_picklable()
         dump(self, path)
 
-    @staticmethod
-    def load(path):
+    @classmethod
+    def load(cls, path):
         """
         ### Description:
         Loads a saved synthesizer from a pickle.

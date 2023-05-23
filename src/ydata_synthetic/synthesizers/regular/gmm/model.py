@@ -3,7 +3,7 @@
 """
 from typing import List, Optional, Union
 
-import pickle
+from joblib import dump, load
 from tqdm import tqdm
 
 import pandas as pd
@@ -96,7 +96,7 @@ class GMM(BaseModel):
         """
         try:
             with open(path, 'wb') as f:
-                pickle.dump(self, f, protocol=pickle.HIGHEST_PROTOCOL)
+                dump(self, f)
         except:
             raise Exception(f'The path {path} provided is not valid. Please validate your inputs')
 
@@ -108,26 +108,5 @@ class GMM(BaseModel):
             model (GMM): A trained GMM model
         """
         with open(path, 'rb') as f:
-            model = pickle.load(f)
+            model = load(f)
         return model
-
-if __name__=='__main__':
-
-    from ydata_synthetic.synthesizers.regular import RegularSynthesizer
-    df = pd.read_csv('/home/fabiana/Documents/github/ydata-synthetic/data/adult.csv')
-
-    df = df.drop('education.num', axis=1)
-    cat = ['workclass', 'education', 'native.country', 'income', 'marital.status', 'occupation', 'relationship', 'race',
-           'sex']
-    cont = list(set(df.columns) - set(cat))
-
-    synth = RegularSynthesizer(modelname='fast')
-    synth.fit(df, num_cols=cont, cat_cols=cat)
-
-    sample = synth.sample(1000)
-
-    synth.save('.model.pkl')
-    synth.load('.model.pkl')
-
-    print(sample)
-
