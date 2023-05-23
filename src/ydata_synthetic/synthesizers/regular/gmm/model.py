@@ -6,7 +6,6 @@ from typing import List, Optional, Union
 from joblib import dump, load
 from tqdm import tqdm
 
-import pandas as pd
 from pandas import DataFrame
 from numpy import (array, arange)
 
