@@ -39,7 +39,7 @@ fraud_w_classes['Class'] = labels
 #----------------------------
 
 batch_size = 500
-epochs = 2+1
+epochs = 500+1
 learning_rate = 2e-4
 beta_1 = 0.5
 beta_2 = 0.9
