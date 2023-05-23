@@ -12,25 +12,30 @@ Join us on [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the
 # YData Synthetic
 A package to generate synthetic tabular and time-series data leveraging the state of the art generative models.
 
-## 🎊 We have **big news**: v1.0.0 is here
-> We have exciting news for you. The new version of `ydata-synthetic` include new and exciting features:
+## 🎊 The exciting features:
+> These are must try features whne it comes to synthetic data generation:
+  > - A new streamlit app that delivers the synthetic data generation experience with a UI interface. A low code experience for the quick generation of synthetic data
+  > - A new fast synthetic data generation model based on Gaussian Mixture. So you can quickstart in the world of synthetic data generation without the need for a GPU.
   > - A conditional architecture for tabular data: CTGAN, which will make the process of synthetic data generation easier and with higher quality!
-  > - A new streamlit app that delivers the synthetic data generation experience with a UI interface
-
+  
 ## Synthetic data
 ### What is synthetic data?
 Synthetic data is artificially generated data that is not collected from real world events. It replicates the statistical components of real data without containing any identifiable information, ensuring individuals' privacy.
 
 ### Why Synthetic Data?
 Synthetic data can be used for many applications:
-  - Privacy
+  - Privacy compliance for data-sharing and Machine Learning development
   - Remove bias
   - Balance datasets
   - Augment datasets
 
 # ydata-synthetic
-This repository contains material related with Generative Adversarial Networks for synthetic data generation, in particular regular tabular data and time-series.
-It consists a set of different GANs architectures developed using Tensorflow 2.0. Several example Jupyter Notebooks and Python scripts are included, to show how to use the different architectures.
+This repository contains material related with architectures and models for synthetic data, from Generative Adversarial Networks (GANs) to Gaussian Mixtures.
+The repo includes a full ecosystem for synthetic data generation, that includes different models for the generation of synthetic structure data and time-series.
+All the Deep Learning models are implemented leveraging Tensorflow 2.0.
+Several example Jupyter Notebooks and Python scripts are included, to show how to use the different architectures.
+
+Are you ready to learn more about synthetic data and the bext-practices for synthetic data generation?
 
 ## Quickstart
 The source code is currently hosted on GitHub at: https://github.com/ydataai/ydata-synthetic
@@ -78,8 +83,8 @@ The below models are supported:
 
 ### Examples
 Here you can find usage examples of the package and models to synthesize tabular data.
-  
-  - Tabular synthetic data generation with CTGAN on adult census income dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Data-Centric-AI-Community/awesome-python-for-data-science/blob/main/workshop-ds/Workshop%20-%20Data-Centric%20AI%20pipelines%20-%20How%20and%20why.ipynb)
+  - Fast tabular data synthesis on adult census income dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/regular/models/Fast_Adult_Census_Income_Data.ipynb)
+  - Tabular synthetic data generation with CTGAN on adult census income dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/regular/models/CTGAN_Adult_Census_Income_Data.ipynb)
   - Time Series synthetic data generation with TimeGAN on stock dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/timeseries/TimeGAN_Synthetic_stock_data.ipynb)
   - More examples are continuously added and can be found in `/examples` directory.
 
@@ -106,6 +111,7 @@ In this repository you can find the several GAN architectures that are used to c
   - [Cramer GAN (The Cramer Distance as a Solution to Biased Wasserstein Gradients)](https://arxiv.org/abs/1705.10743)
   - [CWGAN-GP (Conditional Wassertein GAN with Gradient Penalty)](https://cameronfabbri.github.io/papers/conditionalWGAN.pdf)
   - [CTGAN (Conditional Tabular GAN)](https://arxiv.org/pdf/1907.00503.pdf)
+  - [Gaussian Mixture](https://towardsdatascience.com/gaussian-mixture-models-explained-6986aaf5a95)
 
 ### Sequential data
   - [TimeGAN](https://papers.nips.cc/paper/2019/file/c9efe5f26cd17ba6216bbe2a7d26d490-Paper.pdf)

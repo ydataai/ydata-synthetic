@@ -16,9 +16,9 @@ from keras.optimizers import Adam
 
 #Import ydata synthetic classes
 from ....synthesizers import TrainParameters
-from ....synthesizers.gan import BaseModel
+from ....synthesizers.base import BaseGANModel
 
-class WGAN_GP(BaseModel):
+class WGAN_GP(BaseGANModel):
 
     __MODEL__='WGAN_GP'
 

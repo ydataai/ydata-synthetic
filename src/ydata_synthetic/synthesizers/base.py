@@ -1,7 +1,9 @@
 "Implements a GAN BaseModel synthesizer, not meant to be directly instantiated."
+from abc import ABC, abstractmethod
 from collections import namedtuple
 from typing import List, Optional, Union
 
+import pandas as pd
 import tqdm
 
 from numpy import array, vstack, ndarray
@@ -40,10 +42,50 @@ _train_parameters = ['cache_prefix', 'label_dim', 'epochs', 'sample_interval',
 ModelParameters = namedtuple('ModelParameters', _model_parameters, defaults=_model_parameters_df)
 TrainParameters = namedtuple('TrainParameters', _train_parameters, defaults=('', None, 300, 50, None, 10, 0.005, True))
 
+@typechecked
+class BaseModel(ABC):
+    """
+    Abstract class for synthetic data generation nmodels
+
+    The main methods are train (for fitting the synthesizer), save/load and sample (generating synthetic records).
+
+    """
+    __MODEL__ = None
+
+    @abstractmethod
+    def fit(self, data: Union[DataFrame, array],
+                  num_cols: Optional[List[str]] = None,
+                  cat_cols: Optional[List[str]] = None):
+        """
+        ### Description:
+        Trains and fit a synthesizer model to a given input dataset.
+
+        ### Args:
+        `data` (Union[DataFrame, array]): Training data
+        `num_cols` (Optional[List[str]]) : List with the names of the categorical columns
+        `cat_cols` (Optional[List[str]]): List of names of categorical columns
+
+        ### Returns:
+        **self:** *object*
+            Fitted synthesizer
+        """
+        ...
+    @abstractmethod
+    def sample(self, n_samples:int) -> pd.DataFrame:
+        assert n_samples>0, "Please insert a value bigger than 0 for n_samples parameter."
+        ...
+
+    @classmethod
+    def load(cls, path: str):
+        ...
+
+    @abstractmethod
+    def save(self, path: str):
+        ...
 
 # pylint: disable=R0902
 @typechecked
-class BaseModel():
+class BaseGANModel(BaseModel):
     """
     Base class of GAN synthesizer models.
     The main methods are train (for fitting the synthesizer), save/load and sample (obtain synthetic records).
@@ -51,8 +93,6 @@ class BaseModel():
         model_parameters (ModelParameters):
             Set of architectural parameters for model definition.
     """
-    __MODEL__ = None
-
     def __init__(
             self,
             model_parameters: ModelParameters
@@ -84,7 +124,7 @@ class BaseModel():
         self.gp_lambda = model_parameters.gp_lambda
         self.pac = model_parameters.pac
 
-        self.processor = None
+        self.processor=None
         if self.__MODEL__ in RegularModels.__members__ or \
             self.__MODEL__ == CTGANDataProcessor.SUPPORTED_MODEL:
             self.tau = model_parameters.tau_gs
@@ -183,8 +223,8 @@ class BaseModel():
         make_keras_picklable()
         dump(self, path)
 
-    @staticmethod
-    def load(path):
+    @classmethod
+    def load(cls, path):
         """
         ### Description:
         Loads a saved synthesizer from a pickle.

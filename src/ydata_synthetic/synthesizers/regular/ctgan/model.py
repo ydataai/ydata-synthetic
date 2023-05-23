@@ -12,10 +12,10 @@ from ydata_synthetic.synthesizers.regular.ctgan.utils \
     import ConditionalLoss, RealDataSampler, ConditionalSampler
  
 from ydata_synthetic.synthesizers.loss import gradient_penalty, Mode as ModeGP
-from ydata_synthetic.synthesizers.gan import BaseModel, ModelParameters, TrainParameters
+from ydata_synthetic.synthesizers.base import BaseGANModel, ModelParameters, TrainParameters
 from ydata_synthetic.preprocessing.regular.ctgan_processor import CTGANDataProcessor
 
-class CTGAN(BaseModel):
+class CTGAN(BaseGANModel):
     """
     Conditional Tabular GAN model.
     Based on the paper https://arxiv.org/abs/1907.00503.

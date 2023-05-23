@@ -12,10 +12,10 @@ from keras.layers import Dense, Dropout, Input
 from keras.optimizers import Adam
 
 #Import ydata synthetic classes
-from ....synthesizers.gan import BaseModel
+from ....synthesizers.base import BaseGANModel
 from ....synthesizers.loss import Mode, gradient_penalty
 
-class DRAGAN(BaseModel):
+class DRAGAN(BaseGANModel):
 
     __MODEL__='DRAGAN'
 

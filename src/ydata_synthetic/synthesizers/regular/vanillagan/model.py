@@ -14,11 +14,10 @@ from keras import Model
 from keras.optimizers import Adam
 
 #Import ydata synthetic classes
-from ....synthesizers.gan import BaseModel
+from ....synthesizers.base import BaseGANModel
 from ....synthesizers import TrainParameters
-from ....utils.gumbel_softmax import GumbelSoftmaxActivation
 
-class VanilllaGAN(BaseModel):
+class VanilllaGAN(BaseGANModel):
 
     __MODEL__='GAN'
 
