@@ -13,7 +13,7 @@ Join us on [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the
 A package to generate synthetic tabular and time-series data leveraging the state of the art generative models.
 
 ## 🎊 The exciting features:
-> These are must try features whne it comes to synthetic data generation:
+> These are must try features when it comes to synthetic data generation:
   > - A new streamlit app that delivers the synthetic data generation experience with a UI interface. A low code experience for the quick generation of synthetic data
   > - A new fast synthetic data generation model based on Gaussian Mixture. So you can quickstart in the world of synthetic data generation without the need for a GPU.
   > - A conditional architecture for tabular data: CTGAN, which will make the process of synthetic data generation easier and with higher quality!
