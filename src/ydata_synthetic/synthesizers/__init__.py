@@ -1,6 +1,6 @@
 from ydata_synthetic.synthesizers.base import ModelParameters, TrainParameters
 
-all = [
+__all__ = [
     "ModelParameters",
     "TrainParameters"
 ]
