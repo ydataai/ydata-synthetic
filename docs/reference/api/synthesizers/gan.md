@@ -1,3 +1,4 @@
 
 
-::: ydata_synthetic.synthesizers.gan.BaseModel
+
+::: ydata_synthetic.synthesizers.base.BaseGANModel

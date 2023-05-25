@@ -44,6 +44,15 @@ def main():
     - WGAN
     - WGANGP
     - CTGAN
+    - **ydata-sdk Synthesizer**
+    ''')
+
+    st.success('''In particular, **ydata-sdk Synthesizer** uses [`ydata-sdk`](https://docs.sdk.ydata.ai/) to leverage the state-of-the-art synthesizer model developed by YData.''')
+    st.info('''
+    Using **ydata-sdk Synthesizer** requires a valid token. The token is attached to a Fabric account.   
+    In case you do not have an account, you can create one at https://ydata.ai/ydata-fabric-free-trial.    
+    To obtain the token, please, login to https://fabric.ydata.ai.    
+    The token is available on the homepage once you are connected.
     ''')
 
     #best practives for synthetic data generation

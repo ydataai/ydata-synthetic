@@ -17,7 +17,7 @@ from keras.optimizers import Adam
 
 #Import ydata synthetic classes
 from ....synthesizers import TrainParameters
-from ....synthesizers.gan import BaseModel
+from ....synthesizers.base import BaseGANModel
 
 #Auxiliary Keras backend class to calculate the Random Weighted average
 #https://stackoverflow.com/questions/58133430/how-to-substitute-keras-layers-merge-merge-in-tensorflow-keras
@@ -33,7 +33,7 @@ class RandomWeightedAverage(tf.keras.layers.Layer):
     def compute_output_shape(self, input_shape):
         return input_shape[0]
 
-class WGAN(BaseModel):
+class WGAN(BaseGANModel):
 
     __MODEL__='WGAN'
 

@@ -1,1 +1,6 @@
-from ydata_synthetic.synthesizers.gan import ModelParameters, TrainParameters
+from ydata_synthetic.synthesizers.base import ModelParameters, TrainParameters
+
+__all__ = [
+    "ModelParameters",
+    "TrainParameters"
+]

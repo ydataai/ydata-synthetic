@@ -15,10 +15,10 @@ from tqdm import trange
 
 #Import ydata synthetic classes
 from ....synthesizers import TrainParameters
-from ....synthesizers.gan import BaseModel
+from ....synthesizers.base import BaseGANModel
 from ....synthesizers.loss import Mode, gradient_penalty
 
-class CRAMERGAN(BaseModel):
+class CRAMERGAN(BaseGANModel):
 
     __MODEL__='CRAMERGAN'
 
