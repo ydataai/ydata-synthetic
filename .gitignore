@@ -255,6 +255,7 @@ pythonenv*
 
 # mkdocs documentation
 /site
+/static/docs
 
 # mypy
 .mypy_cache/

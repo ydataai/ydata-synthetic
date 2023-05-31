@@ -31,5 +31,7 @@ clean: ### Removes build binaries
 install: ### Installs required dependencies
 	$(PIP) install dist/ydata-synthetic-$(version).tar.gz
 
-
-
+publish-docs: ### Publishes the documentation
+	echo "$(version)" > VERSION
+	$(PIP) install .
+	mike deploy --push --update-aliases $(version) latest
