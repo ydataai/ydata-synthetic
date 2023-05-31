@@ -1,6 +1,6 @@
 requests>=2.30, <2.31
 pandas==2.0.*
-numpy==1.24.*
+numpy==1.23.*
 scikit-learn==1.2.*
 matplotlib==3.7.*
 tensorflow==2.12.0
