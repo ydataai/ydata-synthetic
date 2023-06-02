@@ -10,7 +10,17 @@ nav:
     - Overview: 'index.md'
     - Installation: 'getting-started/installation.md'
     - Quickstart: 'getting-started/quickstart.md'
-    - Examples: 'getting-started/examples.md'
+  - Examples:
+      - Generate Tabular Data:
+        - CGAN: "examples/cgan_example.md"
+        - WGAN: "examples/wgan_example.md"
+        - WGAN-GP: "examples/wgangp_example.md"
+        - CTGAN: "examples/ctgan_example.md"
+        - DRAGAN: "examples/dragan_example.md"
+        - Cramer GAN: "examples/cramer_gan_example.md"
+        - CWGAN-GP: "examples/cwgangp_example.md"
+      - Generate Time-Series Data:
+        - TimeGAN: "examples/timegan_example.md"
   - Support: 
     - Help & Troubleshooting: 'support/help-troubleshooting.md'
     - Contribution Guidelines: 'support/help-troubleshooting.md'
