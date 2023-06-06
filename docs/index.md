@@ -1,5 +1,5 @@
 <p></p>
-<p align="center"><img width="250" src="https://user-images.githubusercontent.com/3348134/177604157-11181f6c-57e5-44b1-8f6c-774edbba5512.png" alt="YData Logo"></p>
+<p align="center"><img width="300" src="https://assets.ydata.ai/oss/ydata-synthetic_black.png" alt="YData Synthetic Logo"></p>
 <p></p>
 
 [![pypi](https://img.shields.io/pypi/v/ydata-synthetic)](https://pypi.org/project/ydata-synthetic)
@@ -11,8 +11,6 @@
 [![Code Coverage](https://codecov.io/gh/ydataai/ydata-synthetic/branch/master/graph/badge.svg?token=gMptB4YUnF)](https://codecov.io/gh/ydataai/ydata-synthetic)
 [![GitHub stars](https://img.shields.io/github/stars/ydataai/ydata-synthetic?style=social)](https://github.com/ydataai/ydata-synthetic)
 [![Discord](https://img.shields.io/discord/1037720091376238592?label=Discord&logo=Discord)](https://discord.com/invite/mw7xjJ7b7s)
- 
-
 
 ## Overview
 `ydata-synthetic` is the go-to Python package for **synthetic data generation for tabular and time-series data**. It uses the latest Generative AI models to learn the properties of real data and create realistic synthetic data. This project was created to educate the community about synthetic data and its applications in real-world domains, such as data augmentation, bias mitigation, data sharing, and privacy engineering. To learn more about Synthetic Data and its applications, [check this article](https://ydata.ai/resources/10-most-frequently-asked-questions-about-synthetic-data).
