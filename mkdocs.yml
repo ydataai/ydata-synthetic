@@ -41,18 +41,9 @@ theme:
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: red
+      primary: black
       accent: pink
-      toggle:
-        icon: material/toggle-switch-off-outline
-        name: Switch to dark mode
-    - media: "(prefers-color-scheme: dark)"
-      primary: red
-      accent: deep orange
-      scheme: slate
-      toggle:
-        icon: material/toggle-switch
-        name: Switch to light mode
+  logo: 'https://assets.ydata.ai/oss/ydata-synthetic-_red.png'
   features:
     - content.code.annotate
     - content.tabs.link

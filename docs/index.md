@@ -1,5 +1,5 @@
 <p></p>
-<p align="center"><img width="250" src="https://user-images.githubusercontent.com/3348134/177604157-11181f6c-57e5-44b1-8f6c-774edbba5512.png" alt="YData Logo"></p>
+<p align="center"><img width="300" src="https://assets.ydata.ai/oss/ydata-synthetic_black.png" alt="YData Logo"></p>
 <p></p>
 
 [![pypi](https://img.shields.io/pypi/v/ydata-synthetic)](https://pypi.org/project/ydata-synthetic)
