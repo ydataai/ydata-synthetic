@@ -104,7 +104,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="pink">
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="pink">
   
     
     
@@ -138,8 +138,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../../../../.." title="YData-Synthetic" class="md-header__button md-logo" aria-label="YData-Synthetic" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+  <img src="https://assets.ydata.ai/oss/ydata-synthetic-_red.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -165,19 +164,7 @@
       <form class="md-header__option" data-md-component="palette">
         
           
-          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="pink"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
-          
-            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-            </label>
-          
-        
-          
-          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
-          
-            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"/></svg>
-            </label>
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="pink"  aria-hidden="true"  type="radio" name="__palette" id="__palette_1">
           
         
       </form>
@@ -286,8 +273,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../../../../.." title="YData-Synthetic" class="md-nav__button md-logo" aria-label="YData-Synthetic" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+  <img src="https://assets.ydata.ai/oss/ydata-synthetic-_red.png" alt="logo">
 
     </a>
     YData-Synthetic
@@ -477,7 +463,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../support/help-troubleshooting/" class="md-nav__link">
+      <a href="../../../../../support/contribute/" class="md-nav__link">
         Contribution Guidelines
       </a>
     </li>
@@ -1619,7 +1605,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>real</code></td>
           <td>
           </td>
-          <td><p>A real sample</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>A real sample</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1628,7 +1618,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>fake</code></td>
           <td>
           </td>
-          <td><p>A fake sample</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>A fake sample</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1637,7 +1631,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>fake2</code></td>
           <td>
           </td>
-          <td><p>A second fake sample</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>A second fake sample</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1657,7 +1655,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
         <tr>
           <td>
           </td>
-          <td><p>Loss of the critic</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Loss of the critic</p>
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -1731,7 +1733,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td>
                 <code><span title="typing.Optional">Optional</span>[<span title="typing.NamedTuple">NamedTuple</span>]</code>
           </td>
-          <td><p>Defaults to None.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Defaults to None.</p>
+            </div>
+          </td>
           <td>
                 <code>None</code>
           </td>
@@ -1752,7 +1758,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td>
                 <code>generator_optimizer, critic_optimizer</code>
           </td>
-          <td><p>Generator and critic optimizers</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Generator and critic optimizers</p>
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -1843,7 +1853,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>real</code></td>
           <td>
           </td>
-          <td><p>A real sample</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>A real sample</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1852,7 +1866,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>fake</code></td>
           <td>
           </td>
-          <td><p>A fake sample</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>A fake sample</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1872,7 +1890,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
         <tr>
           <td>
           </td>
-          <td><p>Loss of the critic</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Loss of the critic</p>
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -1935,7 +1957,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>data</code></td>
           <td>
           </td>
-          <td><p>A pandas DataFrame or a Numpy array with the data to be synthesized</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>A pandas DataFrame or a Numpy array with the data to be synthesized</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1945,7 +1971,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td>
                 <code><span title="ydata_synthetic.synthesizers.TrainParameters">TrainParameters</span></code>
           </td>
-          <td><p>GAN training arguments.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>GAN training arguments.</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1955,7 +1985,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td>
                 <code><span title="typing.List">List</span>[str]</code>
           </td>
-          <td><p>List of columns of the data object to be handled as numerical</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>List of columns of the data object to be handled as numerical</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1965,7 +1999,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td>
                 <code><span title="typing.List">List</span>[str]</code>
           </td>
-          <td><p>List of columns of the data object to be handled as categorical</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>List of columns of the data object to be handled as categorical</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -2079,7 +2117,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>real</code></td>
           <td>
           </td>
-          <td><p>A real sample</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>A real sample</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -2088,7 +2130,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>fake</code></td>
           <td>
           </td>
-          <td><p>A fake sample</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>A fake sample</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -2097,7 +2143,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>fak2</code></td>
           <td>
           </td>
-          <td><p>A second fake sample</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>A second fake sample</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -2117,7 +2167,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
         <tr>
           <td>
           </td>
-          <td><p>Loss of the generator</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Loss of the generator</p>
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -2192,7 +2246,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>train</code></td>
           <td>
           </td>
-          <td><p>real data.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>real data.</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -2201,7 +2259,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>batch_size</code></td>
           <td>
           </td>
-          <td><p>batch size.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>batch size.</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -2211,7 +2273,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td>
                 <code>int</code>
           </td>
-          <td><p>Defaults to 0.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Defaults to 0.</p>
+            </div>
+          </td>
           <td>
                 <code>0</code>
           </td>
@@ -2231,7 +2297,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
         <tr>
           <td>
           </td>
-          <td><p>data batch.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>data batch.</p>
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -2316,7 +2386,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>real</code></td>
           <td>
           </td>
-          <td><p>real event.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>real event.</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -2325,7 +2399,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>fake</code></td>
           <td>
           </td>
-          <td><p>fake event.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>fake event.</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -2345,7 +2423,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
         <tr>
           <td>
           </td>
-          <td><p>gradient_penalty.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>gradient_penalty.</p>
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -2408,7 +2490,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>train_data</code></td>
           <td>
           </td>
-          <td><p>training data</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>training data</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -2417,7 +2503,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>optimizers</code></td>
           <td>
           </td>
-          <td><p>generator and critic optimizers </p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>generator and critic optimizers </p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -2438,7 +2528,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td>
                 <code>critic_loss, generator_loss</code>
           </td>
-          <td><p>Critic and generator loss.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Critic and generator loss.</p>
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -2503,7 +2597,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>x</code></td>
           <td>
           </td>
-          <td><p>real data event</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>real data event</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -2512,7 +2610,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>g_optimizer</code></td>
           <td>
           </td>
-          <td><p>generator optimizer</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>generator optimizer</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -2521,7 +2623,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
           <td><code>c_optimizer</code></td>
           <td>
           </td>
-          <td><p>critic optimizer</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>critic optimizer</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -2541,7 +2647,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
         <tr>
           <td>
           </td>
-          <td><p>(critic loss, generator loss)</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>(critic loss, generator loss)</p>
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>

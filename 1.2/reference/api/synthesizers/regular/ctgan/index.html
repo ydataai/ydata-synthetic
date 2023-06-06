@@ -104,7 +104,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="pink">
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="pink">
   
     
     
@@ -138,8 +138,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../../../../.." title="YData-Synthetic" class="md-header__button md-logo" aria-label="YData-Synthetic" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+  <img src="https://assets.ydata.ai/oss/ydata-synthetic-_red.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -165,19 +164,7 @@
       <form class="md-header__option" data-md-component="palette">
         
           
-          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="pink"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
-          
-            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-            </label>
-          
-        
-          
-          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
-          
-            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"/></svg>
-            </label>
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="pink"  aria-hidden="true"  type="radio" name="__palette" id="__palette_1">
           
         
       </form>
@@ -286,8 +273,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../../../../.." title="YData-Synthetic" class="md-nav__button md-logo" aria-label="YData-Synthetic" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+  <img src="https://assets.ydata.ai/oss/ydata-synthetic-_red.png" alt="logo">
 
     </a>
     YData-Synthetic
@@ -477,7 +463,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../support/help-troubleshooting/" class="md-nav__link">
+      <a href="../../../../../support/contribute/" class="md-nav__link">
         Contribution Guidelines
       </a>
     </li>
@@ -1101,7 +1087,11 @@ Based on the paper https://arxiv.org/abs/1907.00503.</p>
           <td>
                 <code><span title="ydata_synthetic.synthesizers.base.ModelParameters">ModelParameters</span></code>
           </td>
-          <td><p>Parameters used to create the CTGAN model.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Parameters used to create the CTGAN model.</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1766,7 +1756,11 @@ Based on the paper https://arxiv.org/abs/1907.00503.</p>
           <td>
                 <code><span title="pandas.DataFrame">DataFrame</span></code>
           </td>
-          <td><p>A pandas DataFrame with the data to be synthesized.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>A pandas DataFrame with the data to be synthesized.</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1776,7 +1770,11 @@ Based on the paper https://arxiv.org/abs/1907.00503.</p>
           <td>
                 <code><span title="ydata_synthetic.synthesizers.base.TrainParameters">TrainParameters</span></code>
           </td>
-          <td><p>CTGAN training arguments.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>CTGAN training arguments.</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1786,7 +1784,11 @@ Based on the paper https://arxiv.org/abs/1907.00503.</p>
           <td>
                 <code>list[str]</code>
           </td>
-          <td><p>List of columns to be handled as numerical</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>List of columns to be handled as numerical</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1796,7 +1798,11 @@ Based on the paper https://arxiv.org/abs/1907.00503.</p>
           <td>
                 <code>list[str]</code>
           </td>
-          <td><p>List of columns to be handled as categorical</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>List of columns to be handled as categorical</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1981,7 +1987,11 @@ Only the required components to sample new data are loaded.</p>
           <td><code>class_dict</code></td>
           <td>
           </td>
-          <td><p>Class dict loaded from the pickle file.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Class dict loaded from the pickle file.</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -2080,7 +2090,11 @@ Only the required components to sample new data are loaded.</p>
           <td>
                 <code>int</code>
           </td>
-          <td><p>Number of samples to be generated.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Number of samples to be generated.</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -2175,7 +2189,11 @@ Only the required components to sample new data are saved.</p>
           <td><code>path</code></td>
           <td>
           </td>
-          <td><p>Path of the pickle file.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Path of the pickle file.</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
