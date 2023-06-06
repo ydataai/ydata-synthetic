@@ -13,7 +13,7 @@ nav:
     - Examples: 'getting-started/examples.md'
   - Support: 
     - Help & Troubleshooting: 'support/help-troubleshooting.md'
-    - Contribution Guidelines: 'support/help-troubleshooting.md'
+    - Contribution Guidelines: 'support/contribute.md'
   - Reference:
     - Changelog: 'reference/changelog.md'
     - API:
