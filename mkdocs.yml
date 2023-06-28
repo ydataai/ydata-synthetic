@@ -21,6 +21,8 @@ nav:
         - CWGAN-GP: "examples/cwgangp_example.md"
       - Generate Time-Series Data:
         - TimeGAN: "examples/timegan_example.md"
+  - Integrations:
+      - Great Expectations: "integrations/gx_integration.md"
   - Support: 
     - Help & Troubleshooting: 'support/help-troubleshooting.md'
     - Contribution Guidelines: 'support/contribute.md'
