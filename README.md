@@ -7,7 +7,7 @@
 
 <p align="center"><img width="300" src="https://assets.ydata.ai/oss/ydata-synthetic_black.png" alt="YData Synthetic Logo"></p>
 
-Join us on [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/mw7xjJ7b7s)
+Join us on [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://tiny.ydata.ai/dcai-ydata-synthetic)
 
 # YData Synthetic
 A package to generate synthetic tabular and time-series data leveraging the state of the art generative models.
@@ -123,7 +123,7 @@ We are open to collaboration! If you want to start contributing you only need to
   3. We would review every PRs and either accept or ask for revisions.
 
 ## Support
-For support in using this library, please join our Discord server. Our Discord community is very friendly and great about quickly answering questions about the use and development of the library. [Click here to join our Discord community!](https://discord.com/invite/mw7xjJ7b7s)
+For support in using this library, please join our Discord server. Our Discord community is very friendly and great about quickly answering questions about the use and development of the library. [Click here to join our Discord community!](https://tiny.ydata.ai/dcai-ydata-synthetic)
 
 ## License
 [MIT License](https://github.com/ydataai/ydata-synthetic/blob/master/LICENSE)
