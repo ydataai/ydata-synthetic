@@ -23,6 +23,11 @@
 - 💻 **Best Generation Experience in Open Source:** Including a guided UI experience for the generation of synthetic data, from reading the data to visualization of synthetic data. All served by a slick Streamlit app. 
 :fontawesome-brands-youtube:{ style="color: #EE0F0F" } Here's a [quick overview](https://www.youtube.com/watch?v=ep0PhwsFx0A) – :octicons-clock-24: 1min
 
+!!! question
+
+    **Looking for an end-to-end solution to Synthetic Data Generation?**
+
+    [YData Fabric](https://ydata.ai/products/synthetic_data) enables the generation of high-quality datasets within a full UI experience, from data preparation to synthetic data generation and evaluation. Check out the [Community Version](https://ydata.ai/ydata-fabric-free-trial).
 
 ## Supported Data Types
     
