@@ -10,6 +10,7 @@ nav:
     - Overview: 'index.md'
     - Installation: 'getting-started/installation.md'
     - Quickstart: 'getting-started/quickstart.md'
+    - FAQs: 'getting-started/faqs.md'
   - Examples:
       - Generate Tabular Data:
         - CGAN: "examples/cgan_example.md"
