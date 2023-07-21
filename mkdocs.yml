@@ -11,7 +11,7 @@ nav:
     - Installation: 'getting-started/installation.md'
     - Quickstart: 'getting-started/quickstart.md'
     - FAQs: 'getting-started/faqs.md'
-  - Examples:
+  - Synthetic Data Generation:
       - Generate Tabular Data:
         - CGAN: "examples/cgan_example.md"
         - WGAN: "examples/wgan_example.md"
@@ -22,6 +22,7 @@ nav:
         - CWGAN-GP: "examples/cwgangp_example.md"
       - Generate Time-Series Data:
         - TimeGAN: "examples/timegan_example.md"
+      - Frequently Asked Questions: "examples/faqs.md"
   - Integrations:
       - Great Expectations: "integrations/gx_integration.md"
   - Support: 
