@@ -29,6 +29,11 @@ Synthetic data can be used for many applications:
   - Balance datasets
   - Augment datasets
 
+> **Looking for an end-to-end solution to Synthetic Data Generation?**<br>
+> [YData Fabric](https://ydata.ai/products/synthetic_data) enables the generation of high-quality datasets within a full UI experience, from data preparation to synthetic data generation and evaluation.<br>
+> Check out the [Community Version](https://ydata.ai/ydata-fabric-free-trial).
+
+
 # ydata-synthetic
 This repository contains material related with architectures and models for synthetic data, from Generative Adversarial Networks (GANs) to Gaussian Mixtures.
 The repo includes a full ecosystem for synthetic data generation, that includes different models for the generation of synthetic structure data and time-series.
