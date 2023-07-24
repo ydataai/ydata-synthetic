@@ -1427,14 +1427,13 @@
 
 <a id="ydata_synthetic.synthesizers.regular.model.CRAMERGAN"></a>
   <div class="doc doc-contents first">
-      <p class="doc doc-class-bases">
-        Bases: <code><a class="autorefs autorefs-internal" title="ydata_synthetic.synthesizers.base.BaseGANModel" href="../gan/#ydata_synthetic.synthesizers.base.BaseGANModel">BaseGANModel</a></code></p>
+          <p class="doc doc-class-bases">
+            Bases: <code><a class="autorefs autorefs-internal" title="ydata_synthetic.synthesizers.base.BaseGANModel" href="../gan/#ydata_synthetic.synthesizers.base.BaseGANModel">BaseGANModel</a></code></p>
 
 
-
-        <details class="quote">
-          <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-21"> 21</a></span>
+            <details class="quote">
+              <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-21"> 21</a></span>
 <span class="normal"><a href="#__codelineno-0-22"> 22</a></span>
 <span class="normal"><a href="#__codelineno-0-23"> 23</a></span>
 <span class="normal"><a href="#__codelineno-0-24"> 24</a></span>
@@ -1846,11 +1845,12 @@
 <a id="__codelineno-0-225" name="__codelineno-0-225"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">critic</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="n">model_checkpoint_base_name</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;critic&#39;</span><span class="p">,</span> <span class="n">iteration</span><span class="p">))</span>
 <a id="__codelineno-0-226" name="__codelineno-0-226"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Epoch: </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2"> | critic_loss: </span><span class="si">{</span><span class="n">c_loss</span><span class="si">}</span><span class="s2"> | gen_loss: </span><span class="si">{</span><span class="n">g_loss</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-        </details>
+            </details>
 
   
 
   <div class="doc doc-children">
+
 
 
 
@@ -1876,9 +1876,9 @@
 <p>Based according to the WGAN paper - https://arxiv.org/pdf/1705.10743.pdf
 CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.10743</p>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-25">25</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-25">25</a></span>
 <span class="normal"><a href="#__codelineno-0-26">26</a></span>
 <span class="normal"><a href="#__codelineno-0-27">27</a></span>
 <span class="normal"><a href="#__codelineno-0-28">28</a></span>
@@ -1892,10 +1892,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
 <a id="__codelineno-0-30" name="__codelineno-0-30"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">gradient_penalty_weight</span> <span class="o">=</span> <span class="n">gradient_penalty_weight</span>
 <a id="__codelineno-0-31" name="__codelineno-0-31"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model_parameters</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -1910,6 +1911,8 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
   <div class="doc doc-contents ">
   
       <p>Compute the loss of the critic.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -1964,6 +1967,8 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -1985,9 +1990,9 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-139">139</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-139">139</a></span>
 <span class="normal"><a href="#__codelineno-0-140">140</a></span>
 <span class="normal"><a href="#__codelineno-0-141">141</a></span>
 <span class="normal"><a href="#__codelineno-0-142">142</a></span>
@@ -2019,10 +2024,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
 <a id="__codelineno-0-153" name="__codelineno-0-153"></a>    <span class="n">gp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gradient_penalty</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="p">[</span><span class="n">fake</span><span class="p">,</span> <span class="n">fake2</span><span class="p">])</span>
 <a id="__codelineno-0-154" name="__codelineno-0-154"></a>    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="o">-</span> <span class="n">loss_surrogate</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">gradient_penalty_weight</span><span class="o">*</span><span class="n">gp</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2037,6 +2043,8 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
   <div class="doc doc-contents ">
   
       <p>Define the trainable model components.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2066,6 +2074,8 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2077,7 +2087,7 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     <tbody>
         <tr>
           <td>
-                <code>generator_optimizer, critic_optimizer</code>
+                <code>(generator_optimizer, critic_optimizer)</code>
           </td>
           <td>
             <div class="doc-md-description">
@@ -2088,9 +2098,9 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-33">33</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-33">33</a></span>
 <span class="normal"><a href="#__codelineno-0-34">34</a></span>
 <span class="normal"><a href="#__codelineno-0-35">35</a></span>
 <span class="normal"><a href="#__codelineno-0-36">36</a></span>
@@ -2140,10 +2150,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
 <a id="__codelineno-0-56" name="__codelineno-0-56"></a>
 <a id="__codelineno-0-57" name="__codelineno-0-57"></a>    <span class="k">return</span> <span class="n">g_optimizer</span><span class="p">,</span> <span class="n">c_optimizer</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2158,6 +2169,8 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
   <div class="doc doc-contents ">
   
       <p>Computes the critic distance function f between two samples.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2199,6 +2212,8 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2220,9 +2235,9 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-127">127</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-127">127</a></span>
 <span class="normal"><a href="#__codelineno-0-128">128</a></span>
 <span class="normal"><a href="#__codelineno-0-129">129</a></span>
 <span class="normal"><a href="#__codelineno-0-130">130</a></span>
@@ -2244,10 +2259,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
 <a id="__codelineno-0-136" name="__codelineno-0-136"></a><span class="sd">    &quot;&quot;&quot;</span>
 <a id="__codelineno-0-137" name="__codelineno-0-137"></a>    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">critic</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">critic</span><span class="p">(</span><span class="n">fake</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">critic</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2262,6 +2278,8 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
   <div class="doc doc-contents ">
   
       <p>Fit a synthesizer model to a given input dataset.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2332,9 +2350,9 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-192">192</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-192">192</a></span>
 <span class="normal"><a href="#__codelineno-0-193">193</a></span>
 <span class="normal"><a href="#__codelineno-0-194">194</a></span>
 <span class="normal"><a href="#__codelineno-0-195">195</a></span>
@@ -2404,10 +2422,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
 <a id="__codelineno-0-225" name="__codelineno-0-225"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">critic</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="n">model_checkpoint_base_name</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;critic&#39;</span><span class="p">,</span> <span class="n">iteration</span><span class="p">))</span>
 <a id="__codelineno-0-226" name="__codelineno-0-226"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Epoch: </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2"> | critic_loss: </span><span class="si">{</span><span class="n">c_loss</span><span class="si">}</span><span class="s2"> | gen_loss: </span><span class="si">{</span><span class="n">g_loss</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2422,6 +2441,8 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
   <div class="doc doc-contents ">
   
       <p>Compute generator loss function according to the CramerGAN paper.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2476,6 +2497,8 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2497,9 +2520,9 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-111">111</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-111">111</a></span>
 <span class="normal"><a href="#__codelineno-0-112">112</a></span>
 <span class="normal"><a href="#__codelineno-0-113">113</a></span>
 <span class="normal"><a href="#__codelineno-0-114">114</a></span>
@@ -2529,10 +2552,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
 <a id="__codelineno-0-124" name="__codelineno-0-124"></a>             <span class="n">tf</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">critic</span><span class="p">(</span><span class="n">fake</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">critic</span><span class="p">(</span><span class="n">fake2</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <a id="__codelineno-0-125" name="__codelineno-0-125"></a>    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">g_loss</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2551,6 +2575,8 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
   <div class="doc doc-contents ">
   
       <p>Get real data batches from the passed data object.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2606,6 +2632,8 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2627,9 +2655,9 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-156">156</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-156">156</a></span>
 <span class="normal"><a href="#__codelineno-0-157">157</a></span>
 <span class="normal"><a href="#__codelineno-0-158">158</a></span>
 <span class="normal"><a href="#__codelineno-0-159">159</a></span>
@@ -2673,10 +2701,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
 <a id="__codelineno-0-176" name="__codelineno-0-176"></a>    <span class="n">train_ix</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">train_ix</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">train_ix</span><span class="p">)</span>  <span class="c1"># duplicate to cover ranges past the end of the set</span>
 <a id="__codelineno-0-177" name="__codelineno-0-177"></a>    <span class="k">return</span> <span class="n">train</span><span class="p">[</span><span class="n">train_ix</span><span class="p">[</span><span class="n">start_i</span><span class="p">:</span> <span class="n">stop_i</span><span class="p">]]</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2691,6 +2720,8 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
   <div class="doc doc-contents ">
   
       <p>Compute gradient penalty.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2732,6 +2763,8 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2753,9 +2786,9 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-59">59</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-59">59</a></span>
 <span class="normal"><a href="#__codelineno-0-60">60</a></span>
 <span class="normal"><a href="#__codelineno-0-61">61</a></span>
 <span class="normal"><a href="#__codelineno-0-62">62</a></span>
@@ -2777,10 +2810,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
 <a id="__codelineno-0-68" name="__codelineno-0-68"></a>    <span class="n">gp</span> <span class="o">=</span> <span class="n">gradient_penalty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_crit</span><span class="p">,</span> <span class="n">real</span><span class="p">,</span> <span class="n">fake</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">Mode</span><span class="o">.</span><span class="n">CRAMER</span><span class="p">)</span>
 <a id="__codelineno-0-69" name="__codelineno-0-69"></a>    <span class="k">return</span> <span class="n">gp</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2795,6 +2829,8 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
   <div class="doc doc-contents ">
   
       <p>Perform a training step.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2836,6 +2872,8 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2847,7 +2885,7 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     <tbody>
         <tr>
           <td>
-                <code>critic_loss, generator_loss</code>
+                <code>(critic_loss, generator_loss)</code>
           </td>
           <td>
             <div class="doc-md-description">
@@ -2858,9 +2896,9 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-179">179</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-179">179</a></span>
 <span class="normal"><a href="#__codelineno-0-180">180</a></span>
 <span class="normal"><a href="#__codelineno-0-181">181</a></span>
 <span class="normal"><a href="#__codelineno-0-182">182</a></span>
@@ -2884,10 +2922,11 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
 <a id="__codelineno-0-189" name="__codelineno-0-189"></a>    <span class="n">critic_loss</span><span class="p">,</span> <span class="n">g_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_gradients</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="o">*</span><span class="n">optimizers</span><span class="p">)</span>
 <a id="__codelineno-0-190" name="__codelineno-0-190"></a>    <span class="k">return</span> <span class="n">critic_loss</span><span class="p">,</span> <span class="n">g_loss</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2902,6 +2941,8 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
   <div class="doc doc-contents ">
   
       <p>Compute and apply the gradients for both the Generator and the Critic.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2956,6 +2997,8 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2977,9 +3020,9 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-71"> 71</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cramergan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-71"> 71</a></span>
 <span class="normal"><a href="#__codelineno-0-72"> 72</a></span>
 <span class="normal"><a href="#__codelineno-0-73"> 73</a></span>
 <span class="normal"><a href="#__codelineno-0-74"> 74</a></span>
@@ -3057,7 +3100,7 @@ CramerGAN, a solution to biased Wassertein Gradients https://arxiv.org/abs/1705.
 <a id="__codelineno-0-108" name="__codelineno-0-108"></a>
 <a id="__codelineno-0-109" name="__codelineno-0-109"></a>    <span class="k">return</span> <span class="n">c_loss</span><span class="p">,</span> <span class="n">g_loss</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>

@@ -1390,12 +1390,14 @@
 
 <a id="ydata_synthetic.preprocessing.regular.ctgan_processor.CTGANDataProcessor"></a>
   <div class="doc doc-contents first">
-      <p class="doc doc-class-bases">
-        Bases: <code><a class="autorefs autorefs-internal" title="ydata_synthetic.preprocessing.base_processor.BaseProcessor" href="../../base/#ydata_synthetic.preprocessing.base_processor.BaseProcessor">BaseProcessor</a></code></p>
+          <p class="doc doc-class-bases">
+            Bases: <code><a class="autorefs autorefs-internal" title="ydata_synthetic.preprocessing.base_processor.BaseProcessor" href="../../base/#ydata_synthetic.preprocessing.base_processor.BaseProcessor">BaseProcessor</a></code></p>
 
   
       <p>CTGAN data preprocessing class.
 It works like any other transformer in scikit-learn with the methods fit, transform and inverse_transform.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -1467,10 +1469,9 @@ It works like any other transformer in scikit-learn with the methods fit, transf
     </tbody>
   </table>
 
-
-        <details class="quote">
-          <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/ctgan_processor.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-29"> 29</a></span>
+            <details class="quote">
+              <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/ctgan_processor.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-29"> 29</a></span>
 <span class="normal"><a href="#__codelineno-0-30"> 30</a></span>
 <span class="normal"><a href="#__codelineno-0-31"> 31</a></span>
 <span class="normal"><a href="#__codelineno-0-32"> 32</a></span>
@@ -1856,7 +1857,7 @@ It works like any other transformer in scikit-learn with the methods fit, transf
 <a id="__codelineno-0-220" name="__codelineno-0-220"></a>        <span class="n">transformed_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">transformed_data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">col_names</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtypes</span><span class="p">)</span>
 <a id="__codelineno-0-221" name="__codelineno-0-221"></a>        <span class="k">return</span> <span class="n">transformed_data</span>
 </code></pre></div></td></tr></table></div>
-        </details>
+            </details>
 
   
 
@@ -1912,6 +1913,7 @@ It works like any other transformer in scikit-learn with the methods fit, transf
 
 
 
+
 <div class="doc doc-object doc-function">
 
 
@@ -1925,6 +1927,8 @@ It works like any other transformer in scikit-learn with the methods fit, transf
   <div class="doc doc-contents ">
   
       <p>Fits the data processor to a passed DataFrame.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -1955,6 +1959,8 @@ Should be aligned with the num/cat columns defined in initialization.</p>
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -1977,9 +1983,9 @@ Should be aligned with the num/cat columns defined in initialization.</p>
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/ctgan_processor.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-71"> 71</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/ctgan_processor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-71"> 71</a></span>
 <span class="normal"><a href="#__codelineno-0-72"> 72</a></span>
 <span class="normal"><a href="#__codelineno-0-73"> 73</a></span>
 <span class="normal"><a href="#__codelineno-0-74"> 74</a></span>
@@ -2093,10 +2099,11 @@ Should be aligned with the num/cat columns defined in initialization.</p>
 <a id="__codelineno-0-126" name="__codelineno-0-126"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_output_dimensions</span> <span class="o">=</span> <span class="n">cur_idx</span>
 <a id="__codelineno-0-127" name="__codelineno-0-127"></a>    <span class="k">return</span> <span class="bp">self</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2111,6 +2118,8 @@ Should be aligned with the num/cat columns defined in initialization.</p>
   <div class="doc doc-contents ">
   
       <p>Reverts the data transformations on a passed DataFrame.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2142,6 +2151,8 @@ Can be used to revert transformations of training data or for synthetic samples.
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2164,9 +2175,9 @@ Can be used to revert transformations of training data or for synthetic samples.
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/ctgan_processor.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-179">179</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/ctgan_processor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-179">179</a></span>
 <span class="normal"><a href="#__codelineno-0-180">180</a></span>
 <span class="normal"><a href="#__codelineno-0-181">181</a></span>
 <span class="normal"><a href="#__codelineno-0-182">182</a></span>
@@ -2252,10 +2263,11 @@ Can be used to revert transformations of training data or for synthetic samples.
 <a id="__codelineno-0-220" name="__codelineno-0-220"></a>    <span class="n">transformed_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">transformed_data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">col_names</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtypes</span><span class="p">)</span>
 <a id="__codelineno-0-221" name="__codelineno-0-221"></a>    <span class="k">return</span> <span class="n">transformed_data</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2270,6 +2282,8 @@ Can be used to revert transformations of training data or for synthetic samples.
   <div class="doc doc-contents ">
   
       <p>Transforms the passed DataFrame with the fitted data processor.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2300,6 +2314,8 @@ Should be aligned with the columns types defined in initialization.</p>
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2322,9 +2338,9 @@ Should be aligned with the columns types defined in initialization.</p>
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/ctgan_processor.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-129">129</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/ctgan_processor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-129">129</a></span>
 <span class="normal"><a href="#__codelineno-0-130">130</a></span>
 <span class="normal"><a href="#__codelineno-0-131">131</a></span>
 <span class="normal"><a href="#__codelineno-0-132">132</a></span>
@@ -2422,7 +2438,7 @@ Should be aligned with the columns types defined in initialization.</p>
 <a id="__codelineno-0-176" name="__codelineno-0-176"></a>
 <a id="__codelineno-0-177" name="__codelineno-0-177"></a>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">transformed_data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>

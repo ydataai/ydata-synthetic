@@ -1306,12 +1306,14 @@
 
 <a id="ydata_synthetic.synthesizers.base.BaseGANModel"></a>
   <div class="doc doc-contents first">
-      <p class="doc doc-class-bases">
-        Bases: <code><span title="ydata_synthetic.synthesizers.base.BaseModel">BaseModel</span></code></p>
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="ydata_synthetic.synthesizers.base.BaseModel">BaseModel</span></code></p>
 
   
       <p>Base class of GAN synthesizer models.
 The main methods are train (for fitting the synthesizer), save/load and sample (obtain synthetic records).</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -1341,10 +1343,9 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
     </tbody>
   </table>
 
-
-        <details class="quote">
-          <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-87"> 87</a></span>
+            <details class="quote">
+              <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-87"> 87</a></span>
 <span class="normal"><a href="#__codelineno-0-88"> 88</a></span>
 <span class="normal"><a href="#__codelineno-0-89"> 89</a></span>
 <span class="normal"><a href="#__codelineno-0-90"> 90</a></span>
@@ -1648,7 +1649,7 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
 <a id="__codelineno-0-237" name="__codelineno-0-237"></a>        <span class="n">synth</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 <a id="__codelineno-0-238" name="__codelineno-0-238"></a>        <span class="k">return</span> <span class="n">synth</span>
 </code></pre></div></td></tr></table></div>
-        </details>
+            </details>
 
   
 
@@ -1704,6 +1705,7 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
 
 
 
+
 <div class="doc doc-object doc-function">
 
 
@@ -1719,9 +1721,9 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
       <p>Define the trainable model components.</p>
 <p>Optionally validate model structure with mock inputs and initialize optimizers.</p>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-146">146</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-146">146</a></span>
 <span class="normal"><a href="#__codelineno-0-147">147</a></span>
 <span class="normal"><a href="#__codelineno-0-148">148</a></span>
 <span class="normal"><a href="#__codelineno-0-149">149</a></span>
@@ -1731,10 +1733,11 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
 <a id="__codelineno-0-149" name="__codelineno-0-149"></a><span class="sd">    Optionally validate model structure with mock inputs and initialize optimizers.&quot;&quot;&quot;</span>
 <a id="__codelineno-0-150" name="__codelineno-0-150"></a>    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -1749,6 +1752,8 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
   <div class="doc doc-contents ">
   
       <p>Trains and fit a synthesizer model to a given input dataset.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -1820,6 +1825,8 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -1842,9 +1849,9 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-162">162</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-162">162</a></span>
 <span class="normal"><a href="#__codelineno-0-163">163</a></span>
 <span class="normal"><a href="#__codelineno-0-164">164</a></span>
 <span class="normal"><a href="#__codelineno-0-165">165</a></span>
@@ -1900,10 +1907,11 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
 <a id="__codelineno-0-188" name="__codelineno-0-188"></a>    <span class="k">else</span><span class="p">:</span>
 <a id="__codelineno-0-189" name="__codelineno-0-189"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;A DataProcessor is not available for the </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__MODEL__</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -1922,6 +1930,8 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
   <div class="doc doc-contents ">
   
       <p>Loads a saved synthesizer from a pickle.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -1951,9 +1961,9 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-222">222</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-222">222</a></span>
 <span class="normal"><a href="#__codelineno-0-223">223</a></span>
 <span class="normal"><a href="#__codelineno-0-224">224</a></span>
 <span class="normal"><a href="#__codelineno-0-225">225</a></span>
@@ -1987,10 +1997,11 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
 <a id="__codelineno-0-237" name="__codelineno-0-237"></a>    <span class="n">synth</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 <a id="__codelineno-0-238" name="__codelineno-0-238"></a>    <span class="k">return</span> <span class="n">synth</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2005,6 +2016,8 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
   <div class="doc doc-contents ">
   
       <p>Generates samples from the trained synthesizer.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2034,6 +2047,8 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2056,9 +2071,9 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-191">191</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-191">191</a></span>
 <span class="normal"><a href="#__codelineno-0-192">192</a></span>
 <span class="normal"><a href="#__codelineno-0-193">193</a></span>
 <span class="normal"><a href="#__codelineno-0-194">194</a></span>
@@ -2092,10 +2107,11 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
 <a id="__codelineno-0-206" name="__codelineno-0-206"></a>        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
 <a id="__codelineno-0-207" name="__codelineno-0-207"></a>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">array</span><span class="p">(</span><span class="n">vstack</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2110,6 +2126,8 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
   <div class="doc doc-contents ">
   
       <p>Saves a synthesizer as a pickle.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2139,9 +2157,9 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-209">209</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-209">209</a></span>
 <span class="normal"><a href="#__codelineno-0-210">210</a></span>
 <span class="normal"><a href="#__codelineno-0-211">211</a></span>
 <span class="normal"><a href="#__codelineno-0-212">212</a></span>
@@ -2165,7 +2183,7 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
 <a id="__codelineno-0-219" name="__codelineno-0-219"></a>    <span class="n">make_keras_picklable</span><span class="p">()</span>
 <a id="__codelineno-0-220" name="__codelineno-0-220"></a>    <span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>

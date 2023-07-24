@@ -1404,11 +1404,13 @@
 
 <a id="ydata_synthetic.preprocessing.base_processor.BaseProcessor"></a>
   <div class="doc doc-contents first">
-      <p class="doc doc-class-bases">
-        Bases: <code><span title="abc.ABC">ABC</span></code>, <code><span title="sklearn.base.BaseEstimator">BaseEstimator</span></code>, <code><span title="sklearn.base.TransformerMixin">TransformerMixin</span></code></p>
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="abc.ABC">ABC</span></code>, <code><span title="sklearn.base.BaseEstimator">BaseEstimator</span></code>, <code><span title="sklearn.base.TransformerMixin">TransformerMixin</span></code></p>
 
   
       <p>This data processor works like a scikit learn transformer in with the methods fit, transform and inverse transform.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -1452,10 +1454,9 @@
     </tbody>
   </table>
 
-
-        <details class="quote">
-          <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/base_processor.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-16"> 16</a></span>
+            <details class="quote">
+              <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/base_processor.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-16"> 16</a></span>
 <span class="normal"><a href="#__codelineno-0-17"> 17</a></span>
 <span class="normal"><a href="#__codelineno-0-18"> 18</a></span>
 <span class="normal"><a href="#__codelineno-0-19"> 19</a></span>
@@ -1679,7 +1680,7 @@
 <a id="__codelineno-0-126" name="__codelineno-0-126"></a><span class="sd">        &quot;&quot;&quot;</span>
 <a id="__codelineno-0-127" name="__codelineno-0-127"></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div></td></tr></table></div>
-        </details>
+            </details>
 
   
 
@@ -1777,6 +1778,7 @@
 
 
 
+
 <div class="doc doc-object doc-function">
 
 
@@ -1794,6 +1796,8 @@
   <div class="doc doc-contents ">
   
       <p>Fits the DataProcessor to a passed DataFrame.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -1824,6 +1828,8 @@ Should be aligned with the num/cat columns defined in initialization.</p>
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -1846,9 +1852,9 @@ Should be aligned with the num/cat columns defined in initialization.</p>
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/base_processor.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-89">89</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/base_processor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-89">89</a></span>
 <span class="normal"><a href="#__codelineno-0-90">90</a></span>
 <span class="normal"><a href="#__codelineno-0-91">91</a></span>
 <span class="normal"><a href="#__codelineno-0-92">92</a></span>
@@ -1870,10 +1876,11 @@ Should be aligned with the num/cat columns defined in initialization.</p>
 <a id="__codelineno-0-98" name="__codelineno-0-98"></a><span class="sd">    &quot;&quot;&quot;</span>
 <a id="__codelineno-0-99" name="__codelineno-0-99"></a>    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -1892,6 +1899,8 @@ Should be aligned with the num/cat columns defined in initialization.</p>
   <div class="doc doc-contents ">
   
       <p>Inverts the data transformation pipelines on a passed DataFrame.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -1923,6 +1932,8 @@ Can be used to revert transformations of training data or for synthetic samples.
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -1945,9 +1956,9 @@ Can be used to revert transformations of training data or for synthetic samples.
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/base_processor.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-115">115</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/base_processor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-115">115</a></span>
 <span class="normal"><a href="#__codelineno-0-116">116</a></span>
 <span class="normal"><a href="#__codelineno-0-117">117</a></span>
 <span class="normal"><a href="#__codelineno-0-118">118</a></span>
@@ -1973,10 +1984,11 @@ Can be used to revert transformations of training data or for synthetic samples.
 <a id="__codelineno-0-126" name="__codelineno-0-126"></a><span class="sd">    &quot;&quot;&quot;</span>
 <a id="__codelineno-0-127" name="__codelineno-0-127"></a>    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -1995,6 +2007,8 @@ Can be used to revert transformations of training data or for synthetic samples.
   <div class="doc doc-contents ">
   
       <p>Transforms the passed DataFrame with the fit DataProcessor.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2025,6 +2039,8 @@ Should be aligned with the columns types defined in initialization.</p>
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2047,9 +2063,9 @@ Should be aligned with the columns types defined in initialization.</p>
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/base_processor.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-102">102</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/base_processor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-102">102</a></span>
 <span class="normal"><a href="#__codelineno-0-103">103</a></span>
 <span class="normal"><a href="#__codelineno-0-104">104</a></span>
 <span class="normal"><a href="#__codelineno-0-105">105</a></span>
@@ -2071,7 +2087,7 @@ Should be aligned with the columns types defined in initialization.</p>
 <a id="__codelineno-0-111" name="__codelineno-0-111"></a><span class="sd">    &quot;&quot;&quot;</span>
 <a id="__codelineno-0-112" name="__codelineno-0-112"></a>    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>

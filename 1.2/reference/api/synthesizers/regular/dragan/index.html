@@ -1420,14 +1420,13 @@
 
 <a id="ydata_synthetic.synthesizers.regular.model.DRAGAN"></a>
   <div class="doc doc-contents first">
-      <p class="doc doc-class-bases">
-        Bases: <code><a class="autorefs autorefs-internal" title="ydata_synthetic.synthesizers.base.BaseGANModel" href="../gan/#ydata_synthetic.synthesizers.base.BaseGANModel">BaseGANModel</a></code></p>
+          <p class="doc doc-class-bases">
+            Bases: <code><a class="autorefs autorefs-internal" title="ydata_synthetic.synthesizers.base.BaseGANModel" href="../gan/#ydata_synthetic.synthesizers.base.BaseGANModel">BaseGANModel</a></code></p>
 
 
-
-        <details class="quote">
-          <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-18"> 18</a></span>
+            <details class="quote">
+              <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-18"> 18</a></span>
 <span class="normal"><a href="#__codelineno-0-19"> 19</a></span>
 <span class="normal"><a href="#__codelineno-0-20"> 20</a></span>
 <span class="normal"><a href="#__codelineno-0-21"> 21</a></span>
@@ -1817,11 +1816,12 @@
 <a id="__codelineno-0-211" name="__codelineno-0-211"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="n">model_checkpoint_base_name</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;generator&#39;</span><span class="p">,</span> <span class="n">epoch</span><span class="p">))</span>
 <a id="__codelineno-0-212" name="__codelineno-0-212"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="n">model_checkpoint_base_name</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;discriminator&#39;</span><span class="p">,</span> <span class="n">epoch</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
-        </details>
+            </details>
 
   
 
   <div class="doc doc-children">
+
 
 
 
@@ -1844,6 +1844,8 @@
   <div class="doc doc-contents ">
   
       <p>DRAGAN model architecture implementation.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -1899,9 +1901,9 @@
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-22">22</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-22">22</a></span>
 <span class="normal"><a href="#__codelineno-0-23">23</a></span>
 <span class="normal"><a href="#__codelineno-0-24">24</a></span>
 <span class="normal"><a href="#__codelineno-0-25">25</a></span>
@@ -1925,10 +1927,11 @@
 <a id="__codelineno-0-32" name="__codelineno-0-32"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">gradient_penalty_weight</span> <span class="o">=</span> <span class="n">gradient_penalty_weight</span>
 <a id="__codelineno-0-33" name="__codelineno-0-33"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model_parameters</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -1943,6 +1946,8 @@
   <div class="doc doc-contents ">
   
       <p>Calculates the critic losses.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -1971,6 +1976,8 @@
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -1992,9 +1999,9 @@
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-103">103</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-103">103</a></span>
 <span class="normal"><a href="#__codelineno-0-104">104</a></span>
 <span class="normal"><a href="#__codelineno-0-105">105</a></span>
 <span class="normal"><a href="#__codelineno-0-106">106</a></span>
@@ -2042,10 +2049,11 @@
 <a id="__codelineno-0-125" name="__codelineno-0-125"></a>              <span class="o">+</span> <span class="n">gp</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gradient_penalty_weight</span><span class="p">)</span>
 <a id="__codelineno-0-126" name="__codelineno-0-126"></a>    <span class="k">return</span> <span class="n">d_loss</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2060,6 +2068,8 @@
   <div class="doc doc-contents ">
   
       <p>Define the trainable model components.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2089,6 +2099,8 @@
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2100,7 +2112,7 @@
     <tbody>
         <tr>
           <td>
-                <code>generator_optimizer, discriminator_optimizer</code>
+                <code>(generator_optimizer, discriminator_optimizer)</code>
           </td>
           <td>
             <div class="doc-md-description">
@@ -2111,9 +2123,9 @@
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-35">35</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-35">35</a></span>
 <span class="normal"><a href="#__codelineno-0-36">36</a></span>
 <span class="normal"><a href="#__codelineno-0-37">37</a></span>
 <span class="normal"><a href="#__codelineno-0-38">38</a></span>
@@ -2153,10 +2165,11 @@
 <a id="__codelineno-0-53" name="__codelineno-0-53"></a>    <span class="n">d_optimizer</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_lr</span><span class="p">,</span> <span class="n">beta_1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">beta_1</span><span class="p">,</span> <span class="n">beta_2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">beta_2</span><span class="p">,</span> <span class="n">clipvalue</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
 <a id="__codelineno-0-54" name="__codelineno-0-54"></a>    <span class="k">return</span> <span class="n">g_optimizer</span><span class="p">,</span> <span class="n">d_optimizer</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2171,6 +2184,8 @@
   <div class="doc doc-contents ">
   
       <p>Fit a synthesizer model to a given input dataset.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2238,9 +2253,9 @@
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-174">174</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-174">174</a></span>
 <span class="normal"><a href="#__codelineno-0-175">175</a></span>
 <span class="normal"><a href="#__codelineno-0-176">176</a></span>
 <span class="normal"><a href="#__codelineno-0-177">177</a></span>
@@ -2318,10 +2333,11 @@
 <a id="__codelineno-0-211" name="__codelineno-0-211"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="n">model_checkpoint_base_name</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;generator&#39;</span><span class="p">,</span> <span class="n">epoch</span><span class="p">))</span>
 <a id="__codelineno-0-212" name="__codelineno-0-212"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="n">model_checkpoint_base_name</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;discriminator&#39;</span><span class="p">,</span> <span class="n">epoch</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2336,6 +2352,8 @@
   <div class="doc doc-contents ">
   
       <p>Calculates the Generator losses.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2364,6 +2382,8 @@
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2385,9 +2405,9 @@
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-128">128</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-128">128</a></span>
 <span class="normal"><a href="#__codelineno-0-129">129</a></span>
 <span class="normal"><a href="#__codelineno-0-130">130</a></span>
 <span class="normal"><a href="#__codelineno-0-131">131</a></span>
@@ -2417,10 +2437,11 @@
 <a id="__codelineno-0-141" name="__codelineno-0-141"></a>    <span class="n">g_loss</span> <span class="o">=</span> <span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">logits_fake</span><span class="p">)</span>
 <a id="__codelineno-0-142" name="__codelineno-0-142"></a>    <span class="k">return</span> <span class="n">g_loss</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2435,6 +2456,8 @@
   <div class="doc doc-contents ">
   
       <p>Get real data batches from the passed data object.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2490,6 +2513,8 @@
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2511,9 +2536,9 @@
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-144">144</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-144">144</a></span>
 <span class="normal"><a href="#__codelineno-0-145">145</a></span>
 <span class="normal"><a href="#__codelineno-0-146">146</a></span>
 <span class="normal"><a href="#__codelineno-0-147">147</a></span>
@@ -2545,10 +2570,11 @@
 <a id="__codelineno-0-158" name="__codelineno-0-158"></a>        <span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">buffer_size</span><span class="p">)</span>
 <a id="__codelineno-0-159" name="__codelineno-0-159"></a>    <span class="k">return</span> <span class="n">train_loader</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2563,6 +2589,8 @@
   <div class="doc doc-contents ">
   
       <p>Compute gradient penalty.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2604,6 +2632,8 @@
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2625,9 +2655,9 @@
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-56">56</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-56">56</a></span>
 <span class="normal"><a href="#__codelineno-0-57">57</a></span>
 <span class="normal"><a href="#__codelineno-0-58">58</a></span>
 <span class="normal"><a href="#__codelineno-0-59">59</a></span>
@@ -2649,10 +2679,11 @@
 <a id="__codelineno-0-65" name="__codelineno-0-65"></a>    <span class="n">gp</span> <span class="o">=</span> <span class="n">gradient_penalty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">discriminator</span><span class="p">,</span> <span class="n">real</span><span class="p">,</span> <span class="n">fake</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span> <span class="n">Mode</span><span class="o">.</span><span class="n">DRAGAN</span><span class="p">)</span>
 <a id="__codelineno-0-66" name="__codelineno-0-66"></a>    <span class="k">return</span> <span class="n">gp</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2667,6 +2698,8 @@
   <div class="doc doc-contents ">
   
       <p>Perform a training step.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2708,6 +2741,8 @@
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2719,7 +2754,7 @@
     <tbody>
         <tr>
           <td>
-                <code>critic_loss, generator_loss</code>
+                <code>(critic_loss, generator_loss)</code>
           </td>
           <td>
             <div class="doc-md-description">
@@ -2730,9 +2765,9 @@
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-161">161</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-161">161</a></span>
 <span class="normal"><a href="#__codelineno-0-162">162</a></span>
 <span class="normal"><a href="#__codelineno-0-163">163</a></span>
 <span class="normal"><a href="#__codelineno-0-164">164</a></span>
@@ -2756,10 +2791,11 @@
 <a id="__codelineno-0-171" name="__codelineno-0-171"></a>    <span class="n">d_loss</span><span class="p">,</span> <span class="n">g_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_gradients</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="o">*</span><span class="n">optimizers</span><span class="p">)</span>
 <a id="__codelineno-0-172" name="__codelineno-0-172"></a>    <span class="k">return</span> <span class="n">d_loss</span><span class="p">,</span> <span class="n">g_loss</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2774,6 +2810,8 @@
   <div class="doc doc-contents ">
   
       <p>Compute the gradients for Generator and Discriminator.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2831,6 +2869,8 @@
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2852,9 +2892,9 @@
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-68"> 68</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/dragan/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-68"> 68</a></span>
 <span class="normal"><a href="#__codelineno-0-69"> 69</a></span>
 <span class="normal"><a href="#__codelineno-0-70"> 70</a></span>
 <span class="normal"><a href="#__codelineno-0-71"> 71</a></span>
@@ -2922,7 +2962,7 @@
 <a id="__codelineno-0-100" name="__codelineno-0-100"></a>
 <a id="__codelineno-0-101" name="__codelineno-0-101"></a>    <span class="k">return</span> <span class="n">d_loss</span><span class="p">,</span> <span class="n">gen_loss</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>

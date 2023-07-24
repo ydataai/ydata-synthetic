@@ -1378,12 +1378,14 @@
 
 <a id="ydata_synthetic.preprocessing.regular.processor.RegularDataProcessor"></a>
   <div class="doc doc-contents first">
-      <p class="doc doc-class-bases">
-        Bases: <code><a class="autorefs autorefs-internal" title="ydata_synthetic.preprocessing.base_processor.BaseProcessor" href="../../base/#ydata_synthetic.preprocessing.base_processor.BaseProcessor">BaseProcessor</a></code></p>
+          <p class="doc doc-class-bases">
+            Bases: <code><a class="autorefs autorefs-internal" title="ydata_synthetic.preprocessing.base_processor.BaseProcessor" href="../../base/#ydata_synthetic.preprocessing.base_processor.BaseProcessor">BaseProcessor</a></code></p>
 
   
       <p>Main class for Regular/Tabular Data Preprocessing.
 It works like any other transformer in scikit learn with the methods fit, transform and inverse transform.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -1427,10 +1429,9 @@ It works like any other transformer in scikit learn with the methods fit, transf
     </tbody>
   </table>
 
-
-        <details class="quote">
-          <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/processor.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-27"> 27</a></span>
+            <details class="quote">
+              <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/processor.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-27"> 27</a></span>
 <span class="normal"><a href="#__codelineno-0-28"> 28</a></span>
 <span class="normal"><a href="#__codelineno-0-29"> 29</a></span>
 <span class="normal"><a href="#__codelineno-0-30"> 30</a></span>
@@ -1620,11 +1621,12 @@ It works like any other transformer in scikit learn with the methods fit, transf
 <a id="__codelineno-0-120" name="__codelineno-0-120"></a>
 <a id="__codelineno-0-121" name="__codelineno-0-121"></a>        <span class="k">return</span> <span class="n">result</span>
 </code></pre></div></td></tr></table></div>
-        </details>
+            </details>
 
   
 
   <div class="doc doc-children">
+
 
 
 
@@ -1647,6 +1649,8 @@ It works like any other transformer in scikit learn with the methods fit, transf
   <div class="doc doc-contents ">
   
       <p>Fits the DataProcessor to a passed DataFrame.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -1677,6 +1681,8 @@ Should be aligned with the num/cat columns defined in initialization.</p>
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -1699,9 +1705,9 @@ Should be aligned with the num/cat columns defined in initialization.</p>
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/processor.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-46">46</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/processor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-46">46</a></span>
 <span class="normal"><a href="#__codelineno-0-47">47</a></span>
 <span class="normal"><a href="#__codelineno-0-48">48</a></span>
 <span class="normal"><a href="#__codelineno-0-49">49</a></span>
@@ -1759,10 +1765,11 @@ Should be aligned with the num/cat columns defined in initialization.</p>
 <a id="__codelineno-0-73" name="__codelineno-0-73"></a>
 <a id="__codelineno-0-74" name="__codelineno-0-74"></a>    <span class="k">return</span> <span class="bp">self</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -1777,6 +1784,8 @@ Should be aligned with the num/cat columns defined in initialization.</p>
   <div class="doc doc-contents ">
   
       <p>Inverts the data transformation pipelines on a passed DataFrame.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -1808,6 +1817,8 @@ Can be used to revert transformations of training data or for synthetic samples.
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -1830,9 +1841,9 @@ Can be used to revert transformations of training data or for synthetic samples.
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/processor.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-95"> 95</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/processor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-95"> 95</a></span>
 <span class="normal"><a href="#__codelineno-0-96"> 96</a></span>
 <span class="normal"><a href="#__codelineno-0-97"> 97</a></span>
 <span class="normal"><a href="#__codelineno-0-98"> 98</a></span>
@@ -1886,10 +1897,11 @@ Can be used to revert transformations of training data or for synthetic samples.
 <a id="__codelineno-0-120" name="__codelineno-0-120"></a>
 <a id="__codelineno-0-121" name="__codelineno-0-121"></a>    <span class="k">return</span> <span class="n">result</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -1904,6 +1916,8 @@ Can be used to revert transformations of training data or for synthetic samples.
   <div class="doc doc-contents ">
   
       <p>Transforms the passed DataFrame with the fit DataProcessor.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -1934,6 +1948,8 @@ Should be aligned with the columns types defined in initialization.</p>
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -1956,9 +1972,9 @@ Should be aligned with the columns types defined in initialization.</p>
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/processor.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-76">76</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/processor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-76">76</a></span>
 <span class="normal"><a href="#__codelineno-0-77">77</a></span>
 <span class="normal"><a href="#__codelineno-0-78">78</a></span>
 <span class="normal"><a href="#__codelineno-0-79">79</a></span>
@@ -1994,7 +2010,7 @@ Should be aligned with the columns types defined in initialization.</p>
 <a id="__codelineno-0-92" name="__codelineno-0-92"></a>
 <a id="__codelineno-0-93" name="__codelineno-0-93"></a>    <span class="k">return</span> <span class="n">transformed</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>

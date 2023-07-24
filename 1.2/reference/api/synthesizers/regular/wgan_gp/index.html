@@ -1413,14 +1413,13 @@
 
 <a id="ydata_synthetic.synthesizers.regular.model.WGAN_GP"></a>
   <div class="doc doc-contents first">
-      <p class="doc doc-class-bases">
-        Bases: <code><a class="autorefs autorefs-internal" title="ydata_synthetic.synthesizers.base.BaseGANModel" href="../gan/#ydata_synthetic.synthesizers.base.BaseGANModel">BaseGANModel</a></code></p>
+          <p class="doc doc-class-bases">
+            Bases: <code><a class="autorefs autorefs-internal" title="ydata_synthetic.synthesizers.base.BaseGANModel" href="../gan/#ydata_synthetic.synthesizers.base.BaseGANModel">BaseGANModel</a></code></p>
 
 
-
-        <details class="quote">
-          <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-21"> 21</a></span>
+            <details class="quote">
+              <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-21"> 21</a></span>
 <span class="normal"><a href="#__codelineno-0-22"> 22</a></span>
 <span class="normal"><a href="#__codelineno-0-23"> 23</a></span>
 <span class="normal"><a href="#__codelineno-0-24"> 24</a></span>
@@ -1828,11 +1827,12 @@
 <a id="__codelineno-0-223" name="__codelineno-0-223"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="n">model_checkpoint_base_name</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;generator&#39;</span><span class="p">,</span> <span class="n">epoch</span><span class="p">))</span>
 <a id="__codelineno-0-224" name="__codelineno-0-224"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">critic</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="n">model_checkpoint_base_name</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;critic&#39;</span><span class="p">,</span> <span class="n">epoch</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
-        </details>
+            </details>
 
   
 
   <div class="doc doc-children">
+
 
 
 
@@ -1855,6 +1855,8 @@
   <div class="doc doc-contents ">
   
       <p>Compute critic loss.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -1883,6 +1885,8 @@
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -1904,9 +1908,9 @@
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-107">107</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-107">107</a></span>
 <span class="normal"><a href="#__codelineno-0-108">108</a></span>
 <span class="normal"><a href="#__codelineno-0-109">109</a></span>
 <span class="normal"><a href="#__codelineno-0-110">110</a></span>
@@ -1954,10 +1958,11 @@
 <a id="__codelineno-0-129" name="__codelineno-0-129"></a>              <span class="o">+</span> <span class="n">gp</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gradient_penalty_weight</span><span class="p">)</span>
 <a id="__codelineno-0-130" name="__codelineno-0-130"></a>    <span class="k">return</span> <span class="n">c_loss</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -1972,6 +1977,8 @@
   <div class="doc doc-contents ">
   
       <p>Define the trainable model components.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2001,6 +2008,8 @@
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2012,7 +2021,7 @@
     <tbody>
         <tr>
           <td>
-                <code>generator_optimizer, critic_optimizer</code>
+                <code>(generator_optimizer, critic_optimizer)</code>
           </td>
           <td>
             <div class="doc-md-description">
@@ -2023,9 +2032,9 @@
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-33">33</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-33">33</a></span>
 <span class="normal"><a href="#__codelineno-0-34">34</a></span>
 <span class="normal"><a href="#__codelineno-0-35">35</a></span>
 <span class="normal"><a href="#__codelineno-0-36">36</a></span>
@@ -2063,10 +2072,11 @@
 <a id="__codelineno-0-50" name="__codelineno-0-50"></a>    <span class="n">c_optimizer</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_lr</span><span class="p">,</span> <span class="n">beta_1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">beta_1</span><span class="p">,</span> <span class="n">beta_2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">beta_2</span><span class="p">)</span>
 <a id="__codelineno-0-51" name="__codelineno-0-51"></a>    <span class="k">return</span> <span class="n">g_optimizer</span><span class="p">,</span> <span class="n">c_optimizer</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2081,6 +2091,8 @@
   <div class="doc doc-contents ">
   
       <p>Fit a synthesizer model to a given input dataset.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2151,9 +2163,9 @@
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-186">186</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-186">186</a></span>
 <span class="normal"><a href="#__codelineno-0-187">187</a></span>
 <span class="normal"><a href="#__codelineno-0-188">188</a></span>
 <span class="normal"><a href="#__codelineno-0-189">189</a></span>
@@ -2231,10 +2243,11 @@
 <a id="__codelineno-0-223" name="__codelineno-0-223"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="n">model_checkpoint_base_name</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;generator&#39;</span><span class="p">,</span> <span class="n">epoch</span><span class="p">))</span>
 <a id="__codelineno-0-224" name="__codelineno-0-224"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">critic</span><span class="o">.</span><span class="n">save_weights</span><span class="p">(</span><span class="n">model_checkpoint_base_name</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;critic&#39;</span><span class="p">,</span> <span class="n">epoch</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2249,6 +2262,8 @@
   <div class="doc doc-contents ">
   
       <p>Compute generator loss.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2303,6 +2318,8 @@
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2324,9 +2341,9 @@
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-132">132</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-132">132</a></span>
 <span class="normal"><a href="#__codelineno-0-133">133</a></span>
 <span class="normal"><a href="#__codelineno-0-134">134</a></span>
 <span class="normal"><a href="#__codelineno-0-135">135</a></span>
@@ -2362,10 +2379,11 @@
 <a id="__codelineno-0-148" name="__codelineno-0-148"></a>    <span class="n">g_loss</span> <span class="o">=</span> <span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">logits_fake</span><span class="p">)</span>
 <a id="__codelineno-0-149" name="__codelineno-0-149"></a>    <span class="k">return</span> <span class="n">g_loss</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2380,6 +2398,8 @@
   <div class="doc doc-contents ">
   
       <p>Get real data batches from the passed data object.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2435,6 +2455,8 @@
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2456,9 +2478,9 @@
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-151">151</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-151">151</a></span>
 <span class="normal"><a href="#__codelineno-0-152">152</a></span>
 <span class="normal"><a href="#__codelineno-0-153">153</a></span>
 <span class="normal"><a href="#__codelineno-0-154">154</a></span>
@@ -2500,10 +2522,11 @@
 <a id="__codelineno-0-170" name="__codelineno-0-170"></a>    <span class="n">train_ix</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">train_ix</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">train_ix</span><span class="p">)</span>  <span class="c1"># duplicate to cover ranges past the end of the set</span>
 <a id="__codelineno-0-171" name="__codelineno-0-171"></a>    <span class="k">return</span> <span class="n">train</span><span class="p">[</span><span class="n">train_ix</span><span class="p">[</span><span class="n">start_i</span><span class="p">:</span> <span class="n">stop_i</span><span class="p">]]</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2518,6 +2541,8 @@
   <div class="doc doc-contents ">
   
       <p>Compute gradient penalty.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2559,6 +2584,8 @@
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2580,9 +2607,9 @@
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-53">53</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-53">53</a></span>
 <span class="normal"><a href="#__codelineno-0-54">54</a></span>
 <span class="normal"><a href="#__codelineno-0-55">55</a></span>
 <span class="normal"><a href="#__codelineno-0-56">56</a></span>
@@ -2618,10 +2645,11 @@
 <a id="__codelineno-0-69" name="__codelineno-0-69"></a>    <span class="n">d_regularizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">((</span><span class="n">ddx</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
 <a id="__codelineno-0-70" name="__codelineno-0-70"></a>    <span class="k">return</span> <span class="n">d_regularizer</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2636,6 +2664,8 @@
   <div class="doc doc-contents ">
   
       <p>Perform a training step.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2677,6 +2707,8 @@
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2688,7 +2720,7 @@
     <tbody>
         <tr>
           <td>
-                <code>critic_loss, generator_loss</code>
+                <code>(critic_loss, generator_loss)</code>
           </td>
           <td>
             <div class="doc-md-description">
@@ -2699,9 +2731,9 @@
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-173">173</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-173">173</a></span>
 <span class="normal"><a href="#__codelineno-0-174">174</a></span>
 <span class="normal"><a href="#__codelineno-0-175">175</a></span>
 <span class="normal"><a href="#__codelineno-0-176">176</a></span>
@@ -2725,10 +2757,11 @@
 <a id="__codelineno-0-183" name="__codelineno-0-183"></a>    <span class="n">cri_loss</span><span class="p">,</span> <span class="n">ge_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_gradients</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="o">*</span><span class="n">optimizers</span><span class="p">)</span>
 <a id="__codelineno-0-184" name="__codelineno-0-184"></a>    <span class="k">return</span> <span class="n">cri_loss</span><span class="p">,</span> <span class="n">ge_loss</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
@@ -2743,6 +2776,8 @@
   <div class="doc doc-contents ">
   
       <p>Compute and apply the gradients for both the Generator and the Critic.</p>
+
+
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -2797,6 +2832,8 @@
     </tbody>
   </table>
 
+
+
   <p><strong>Returns:</strong></p>
   <table>
     <thead>
@@ -2818,9 +2855,9 @@
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-72"> 72</a></span>
+          <details class="quote">
+            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/wgangp/model.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-72"> 72</a></span>
 <span class="normal"><a href="#__codelineno-0-73"> 73</a></span>
 <span class="normal"><a href="#__codelineno-0-74"> 74</a></span>
 <span class="normal"><a href="#__codelineno-0-75"> 75</a></span>
@@ -2888,7 +2925,7 @@
 <a id="__codelineno-0-104" name="__codelineno-0-104"></a>
 <a id="__codelineno-0-105" name="__codelineno-0-105"></a>    <span class="k">return</span> <span class="n">critic_loss</span><span class="p">,</span> <span class="n">gen_loss</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
