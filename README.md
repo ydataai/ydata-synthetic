@@ -130,5 +130,8 @@ We are open to collaboration! If you want to start contributing you only need to
 ## Support
 For support in using this library, please join our Discord server. Our Discord community is very friendly and great about quickly answering questions about the use and development of the library. [Click here to join our Discord community!](https://tiny.ydata.ai/dcai-ydata-synthetic)
 
+## FAQs
+Have a question? Check out the [Frequently Asked Questions](https://ydata.ai/resources/10-most-asked-questions-on-ydata-synthetic) about `ydata-synthetic`. If you feel something is missing, feel free to [book a beary informal chat with us](https://meetings.hubspot.com/fabiana-clemente).
+
 ## License
 [MIT License](https://github.com/ydataai/ydata-synthetic/blob/master/LICENSE)
