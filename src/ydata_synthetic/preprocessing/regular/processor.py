@@ -62,7 +62,7 @@ class RegularDataProcessor(BaseProcessor):
             ("scaler", MinMaxScaler()),
         ])
         self._cat_pipeline = Pipeline([
-            ("encoder", OneHotEncoder(sparse=False, handle_unknown='ignore')),
+            ("encoder", OneHotEncoder(sparse_output=False, handle_unknown='ignore')),
         ])
 
         self.num_pipeline.fit(X[self.num_cols]) if self.num_cols else zeros([len(X), 0])
