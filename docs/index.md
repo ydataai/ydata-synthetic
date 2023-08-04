@@ -56,3 +56,4 @@ The following architectures are currently supported:
 - [CWGAN-GP](https://cameronfabbri.github.io/papers/conditionalWGAN.pdf) (Conditional Wassertein GAN with Gradient Penalty)
 - [CTGAN](https://arxiv.org/pdf/1907.00503.pdf) (Conditional Tabular GAN)
 - [TimeGAN](https://papers.nips.cc/paper/2019/file/c9efe5f26cd17ba6216bbe2a7d26d490-Paper.pdf) (specifically for *time-series* data)
+- [DoppelGANger](https://dl.acm.org/doi/pdf/10.1145/3419394.3423643) (specifically for *time-series* data)
