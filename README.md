@@ -120,6 +120,7 @@ In this repository you can find the several GAN architectures that are used to c
 
 ### Sequential data
   - [TimeGAN](https://papers.nips.cc/paper/2019/file/c9efe5f26cd17ba6216bbe2a7d26d490-Paper.pdf)
+  - [DoppelGANger](https://dl.acm.org/doi/pdf/10.1145/3419394.3423643)
 
 ## Contributing
 We are open to collaboration! If you want to start contributing you only need to:

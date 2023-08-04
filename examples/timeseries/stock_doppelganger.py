@@ -28,6 +28,7 @@ if path.exists('doppelganger_stock'):
 else:
     model_dop_gan = TimeSeriesSynthesizer(modelname='doppelganger', model_parameters=model_args)
     model_dop_gan.fit(stock_data, train_args, num_cols=["Open", "High", "Low", "Close", "Adj_Close", "Volume"])
+    model_dop_gan.save('doppelganger_stock')
 
 # Generating new synthetic samples
 synth_data = model_dop_gan.sample(n_samples=500)

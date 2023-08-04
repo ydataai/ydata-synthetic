@@ -21,6 +21,7 @@ nav:
         - CWGAN-GP: "examples/cwgangp_example.md"
       - Generate Time-Series Data:
         - TimeGAN: "examples/timegan_example.md"
+        - DoppelGANger: "examples/doppelganger_example.md"
       - Frequently Asked Questions: "examples/faqs.md"
   - Integrations:
       - Great Expectations: "integrations/gx_integration.md"
@@ -43,6 +44,7 @@ nav:
           - WGAN: 'reference/api/synthesizers/regular/wgan.md'
         - Timeseries:
           - TimeGAN: 'reference/api/synthesizers/timeseries/timegan.md'
+          - DoppelGANger: 'reference/api/synthesizers/timeseries/doppelganger.md'
       - Preprocessing:
         - BaseProcessor: 'reference/api/preprocessing/base.md'
         - Regular:
