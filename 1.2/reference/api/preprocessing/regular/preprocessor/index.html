@@ -637,6 +637,8 @@
         
           
         
+          
+        
       
       
         <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
@@ -659,6 +661,20 @@
     <li class="md-nav__item">
       <a href="../../../../../examples/timegan_example/" class="md-nav__link">
         TimeGAN
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../examples/doppelganger_example/" class="md-nav__link">
+        DoppelGANger
       </a>
     </li>
   
@@ -1132,6 +1148,8 @@
         
           
         
+          
+        
       
       
         <label class="md-nav__link" for="__nav_5_2_1_3" id="__nav_5_2_1_3_label" tabindex="0">
@@ -1154,6 +1172,20 @@
     <li class="md-nav__item">
       <a href="../../../synthesizers/timeseries/timegan/" class="md-nav__link">
         TimeGAN
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../synthesizers/timeseries/doppelganger/" class="md-nav__link">
+        DoppelGANger
       </a>
     </li>
   
@@ -1579,7 +1611,7 @@ It works like any other transformer in scikit learn with the methods fit, transf
 <a id="__codelineno-0-62" name="__codelineno-0-62"></a>            <span class="p">(</span><span class="s2">&quot;scaler&quot;</span><span class="p">,</span> <span class="n">MinMaxScaler</span><span class="p">()),</span>
 <a id="__codelineno-0-63" name="__codelineno-0-63"></a>        <span class="p">])</span>
 <a id="__codelineno-0-64" name="__codelineno-0-64"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_cat_pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([</span>
-<a id="__codelineno-0-65" name="__codelineno-0-65"></a>            <span class="p">(</span><span class="s2">&quot;encoder&quot;</span><span class="p">,</span> <span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">handle_unknown</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)),</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65"></a>            <span class="p">(</span><span class="s2">&quot;encoder&quot;</span><span class="p">,</span> <span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">sparse_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">handle_unknown</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)),</span>
 <a id="__codelineno-0-66" name="__codelineno-0-66"></a>        <span class="p">])</span>
 <a id="__codelineno-0-67" name="__codelineno-0-67"></a>
 <a id="__codelineno-0-68" name="__codelineno-0-68"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">num_pipeline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_cols</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_cols</span> <span class="k">else</span> <span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="mi">0</span><span class="p">])</span>
@@ -1770,7 +1802,7 @@ Should be aligned with the num/cat columns defined in initialization.</p>
 <a id="__codelineno-0-62" name="__codelineno-0-62"></a>        <span class="p">(</span><span class="s2">&quot;scaler&quot;</span><span class="p">,</span> <span class="n">MinMaxScaler</span><span class="p">()),</span>
 <a id="__codelineno-0-63" name="__codelineno-0-63"></a>    <span class="p">])</span>
 <a id="__codelineno-0-64" name="__codelineno-0-64"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_cat_pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([</span>
-<a id="__codelineno-0-65" name="__codelineno-0-65"></a>        <span class="p">(</span><span class="s2">&quot;encoder&quot;</span><span class="p">,</span> <span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">handle_unknown</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)),</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65"></a>        <span class="p">(</span><span class="s2">&quot;encoder&quot;</span><span class="p">,</span> <span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">sparse_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">handle_unknown</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)),</span>
 <a id="__codelineno-0-66" name="__codelineno-0-66"></a>    <span class="p">])</span>
 <a id="__codelineno-0-67" name="__codelineno-0-67"></a>
 <a id="__codelineno-0-68" name="__codelineno-0-68"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">num_pipeline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_cols</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_cols</span> <span class="k">else</span> <span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="mi">0</span><span class="p">])</span>
