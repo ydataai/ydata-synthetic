@@ -2,6 +2,49 @@ import tensorflow as tf
 import numpy as np
 
 
+def linear(input_, output_size, scope_name="linear"):
+    """
+    Adapted from https://github.com/fjxmlzn/DoppelGANger/blob/master/gan/op.py.
+    """
+    with tf.compat.v1.variable_scope(scope_name):
+        input_ = tf.reshape(
+            input_,
+            [-1, np.prod(input_.get_shape().as_list()[1:])])
+        output = tf.compat.v1.layers.dense(
+            input_,
+            output_size)
+        return output
+
+
+def flatten(input_, scope_name="flatten"):
+    """
+    Adapted from https://github.com/fjxmlzn/DoppelGANger/blob/master/gan/op.py.
+    """
+    with tf.compat.v1.variable_scope(scope_name):
+        output = tf.reshape(
+            input_,
+            [-1, np.prod(input_.get_shape().as_list()[1:])])
+        return output
+
+
+class batch_norm(object):
+    """
+    Adapted from https://github.com/fjxmlzn/DoppelGANger/blob/master/gan/op.py.
+    """
+    def __init__(self, epsilon=1e-5, momentum=0.9, name="batch_norm"):
+        with tf.compat.v1.variable_scope(name):
+            self.epsilon = epsilon
+            self.momentum = momentum
+            self.name = name
+
+    def __call__(self, x, train=True):
+        return tf.keras.layers.BatchNormalization(momentum=self.momentum,
+                                                  epsilon=self.epsilon,
+                                                  scale=True,
+                                                  trainable=train,
+                                                  name=self.name)(x)
+
+
 class Network(object):
     """
     Adapted from https://github.com/fjxmlzn/DoppelGANger/blob/master/gan/network.py.
@@ -30,16 +73,16 @@ class Discriminator(Network):
 
     def build(self, input_feature, input_attribute):
         with tf.compat.v1.variable_scope(self.scope_name, reuse=tf.compat.v1.AUTO_REUSE):
-            input_feature = tf.keras.layers.Flatten()(input_feature)
-            input_attribute = tf.keras.layers.Flatten()(input_attribute)
+            input_feature = flatten(input_feature)
+            input_attribute = flatten(input_attribute)
             input_ = tf.concat([input_feature, input_attribute], 1)
             layers = [input_feature, input_attribute, input_]
             for i in range(self.num_layers - 1):
                 with tf.compat.v1.variable_scope("layer{}".format(i)):
-                    layers.append(tf.keras.layers.Dense(units=self.num_units)(layers[-1]))
+                    layers.append(linear(layers[-1], self.num_units))
                     layers.append(tf.nn.relu(layers[-1]))
             with tf.compat.v1.variable_scope("layer{}".format(self.num_layers - 1)):
-                layers.append(tf.keras.layers.Dense(units=1)(layers[-1]))
+                layers.append(linear(layers[-1], 1))
                 layers.append(tf.squeeze(layers[-1], 1))
             return layers[-1]
 
@@ -58,14 +101,14 @@ class AttrDiscriminator(Network):
 
     def build(self, input_attribute):
         with tf.compat.v1.variable_scope(self.scope_name, reuse=tf.compat.v1.AUTO_REUSE):
-            input_attribute = tf.keras.layers.Flatten()(input_attribute)
+            input_attribute = flatten(input_attribute)
             layers = [input_attribute]
             for i in range(self.num_layers - 1):
                 with tf.compat.v1.variable_scope("layer{}".format(i)):
-                    layers.append(tf.keras.layers.Dense(units=self.num_units)(layers[-1]))
+                    layers.append(linear(layers[-1], self.num_units))
                     layers.append(tf.nn.relu(layers[-1]))
             with tf.compat.v1.variable_scope("layer{}".format(self.num_layers - 1)):
-                layers.append(tf.keras.layers.Dense(units=1)(layers[-1]))
+                layers.append(linear(layers[-1], 1))
                 layers.append(tf.squeeze(layers[-1], 1))
             return layers[-1]
 
@@ -77,7 +120,7 @@ class DoppelGANgerGenerator(Network):
     def __init__(self, feed_back, noise,
                  measurement_cols_metadata, attribute_cols_metadata, sample_len,
                  attribute_num_units=100, attribute_num_layers=3,
-                 feature_num_units=100, feature_num_layers=1,
+                 feature_num_units=100, feature_num_layers=1, use_tanh=False,
                  scope_name="DoppelGANgerGenerator", *args, **kwargs):
         super(DoppelGANgerGenerator, self).__init__(
             scope_name=scope_name, *args, **kwargs)
@@ -89,18 +132,18 @@ class DoppelGANgerGenerator(Network):
         self.measurement_cols_metadata = measurement_cols_metadata
         self.attribute_cols_metadata = attribute_cols_metadata
         self.feature_num_layers = feature_num_layers
+        self.use_tanh = use_tanh
         self.sample_len = sample_len
         self.feature_out_dim = (np.sum([t.output_dim for t in measurement_cols_metadata]) *
                                 self.sample_len)
         self.attribute_out_dim = np.sum([t.output_dim for t in attribute_cols_metadata])
         if not self.noise and not self.feed_back:
-            raise Exception("noise and feed_back should have at least "
-                            "one True")
+            raise Exception("noise and feed_back should have at least one True")
 
-        self.real_attribute_outputs = self.attribute_cols_metadata  # []
-        self.addi_attribute_outputs = []
-        self.real_attribute_out_dim = sum([c.output_dim for c in self.attribute_cols_metadata])
-        self.addi_attribute_out_dim = 0
+        self.real_attribute_outputs = [c for c in self.attribute_cols_metadata if c.real]
+        self.addi_attribute_outputs = [c for c in self.attribute_cols_metadata if not c.real]
+        self.real_attribute_out_dim = sum([c.output_dim for c in self.attribute_cols_metadata if c.real])
+        self.addi_attribute_out_dim = sum([c.output_dim for c in self.attribute_cols_metadata if not c.real])
 
         self.gen_flag_id = len(self.measurement_cols_metadata) - 1
         self.STR_REAL = "real"
@@ -108,14 +151,14 @@ class DoppelGANgerGenerator(Network):
 
     # noqa: MC0001
     def build(self, attribute_input_noise, addi_attribute_input_noise,
-              feature_input_noise, feature_input_data, attribute=None):
+              feature_input_noise, feature_input_data, train, attribute=None):
         with tf.compat.v1.variable_scope(self.scope_name, reuse=tf.compat.v1.AUTO_REUSE):
             batch_size = tf.shape(input=feature_input_noise)[0]
 
             if attribute is None:
                 all_attribute = []
                 all_discrete_attribute = []
-                if len(self.addi_attribute_outputs) > 0:
+                if len(self.addi_attribute_outputs) > 0 and len(self.real_attribute_outputs) > 0:
                     all_attribute_input_noise = \
                         [attribute_input_noise,
                          addi_attribute_input_noise]
@@ -127,6 +170,11 @@ class DoppelGANgerGenerator(Network):
                     all_attribute_out_dim = \
                         [self.real_attribute_out_dim,
                          self.addi_attribute_out_dim]
+                elif len(self.addi_attribute_outputs) > 0:
+                    all_attribute_input_noise = [addi_attribute_input_noise]
+                    all_attribute_outputs = [self.addi_attribute_outputs]
+                    all_attribute_part_name = [self.STR_ADDI]
+                    all_attribute_out_dim = [self.addi_attribute_out_dim]
                 else:
                     all_attribute_input_noise = [attribute_input_noise]
                     all_attribute_outputs = [self.real_attribute_outputs]
@@ -164,11 +212,9 @@ class DoppelGANgerGenerator(Network):
 
                     for i in range(self.attribute_num_layers - 1):
                         with tf.compat.v1.variable_scope("layer{}".format(i)):
-                            layers.append(tf.keras.layers.Dense(units=self.attribute_num_units)(layers[-1]))
+                            layers.append(linear(layers[-1], self.attribute_num_units))
                             layers.append(tf.nn.relu(layers[-1]))
-                            layers.append(tf.keras.layers.BatchNormalization(momentum=0.9,
-                                                                             epsilon=1e-5,
-                                                                             scale=True)(layers[-1]))
+                            layers.append(batch_norm()(layers[-1], train=train))
                     with tf.compat.v1.variable_scope(
                             "layer{}".format(self.attribute_num_layers - 1),
                             reuse=tf.compat.v1.AUTO_REUSE):
@@ -179,14 +225,17 @@ class DoppelGANgerGenerator(Network):
                                                    reuse=tf.compat.v1.AUTO_REUSE):
                                 output = all_attribute_outputs[part_i][i]
 
-                                sub_output_ori = tf.keras.layers.Dense(units=output.output_dim)(layers[-1])
+                                sub_output_ori = linear(layers[-1], output.output_dim)
                                 if output.discrete:
                                     sub_output = tf.nn.softmax(sub_output_ori)
                                     sub_output_discrete = tf.one_hot(
                                         tf.argmax(input=sub_output, axis=1),
                                         output.output_dim)
                                 else:
-                                    sub_output = tf.nn.sigmoid(sub_output_ori)
+                                    if self.use_tanh:
+                                        sub_output = tf.nn.tanh(sub_output_ori)
+                                    else:
+                                        sub_output = tf.nn.sigmoid(sub_output_ori)
                                     sub_output_discrete = sub_output
                                 part_attribute.append(sub_output)
                                 part_discrete_attribute.append(
@@ -222,9 +271,11 @@ class DoppelGANgerGenerator(Network):
                 for i in range(self.feature_num_layers):
                     with tf.compat.v1.variable_scope("unit{}".format(i),
                                            reuse=tf.compat.v1.AUTO_REUSE):
-                        cell = tf.keras.layers.LSTMCell(units=self.feature_num_units)
+                        cell = tf.compat.v1.nn.rnn_cell.LSTMCell(
+                            num_units=self.feature_num_units,
+                            state_is_tuple=True)
                         all_cell.append(cell)
-                rnn_network = tf.keras.layers.StackedRNNCells(all_cell)
+                rnn_network = tf.compat.v1.nn.rnn_cell.MultiRNNCell(all_cell)
 
                 feature_input_data_dim = \
                     len(feature_input_data.get_shape().as_list())
@@ -271,11 +322,14 @@ class DoppelGANgerGenerator(Network):
                             with tf.compat.v1.variable_scope("output{}".format(id_),
                                                    reuse=tf.compat.v1.AUTO_REUSE):
                                 output = self.measurement_cols_metadata[k]
-                                sub_output = tf.keras.layers.Dense(units=output.output_dim)(cell_new_output)
+                                sub_output = linear(cell_new_output, output.output_dim)
                                 if output.discrete:
                                     sub_output = tf.nn.softmax(sub_output)
                                 else:
-                                    sub_output = tf.nn.sigmoid(sub_output)
+                                    if self.use_tanh:
+                                        sub_output = tf.nn.tanh(sub_output)
+                                    else:
+                                        sub_output = tf.nn.sigmoid(sub_output)
                                 new_output_all.append(sub_output)
                                 id_ += 1
                     new_output = tf.concat(new_output_all, axis=1)

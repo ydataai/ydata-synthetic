@@ -15,9 +15,11 @@ class DoppelGANgerNetwork(object):
                  batch_size,
                  data_feature,
                  data_attribute,
+                 attribute_cols_metadata,
                  sample_len,
                  generator,
                  discriminator,
+                 rounds,
                  d_gp_coe,
                  num_packing,
                  attr_discriminator=None,
@@ -46,6 +48,7 @@ class DoppelGANgerNetwork(object):
             sample_len: The time series batch size
             generator: An instance of network.DoppelGANgerGenerator
             discriminator: An instance of network.Discriminator
+            rounds: Number of steps per batch
             d_gp_coe: Weight of gradient penalty loss in Wasserstein GAN
             num_packing: Packing degree in PacGAN (a method for solving mode
                 collapse in NeurIPS 2018, see https://arxiv.org/abs/1712.04086)
@@ -75,9 +78,11 @@ class DoppelGANgerNetwork(object):
         self.batch_size = batch_size
         self.data_feature = data_feature
         self.data_attribute = data_attribute
+        self.attribute_cols_metadata = attribute_cols_metadata
         self.sample_len = sample_len
         self.generator = generator
         self.discriminator = discriminator
+        self.rounds = rounds
         self.attr_discriminator = attr_discriminator
         self.d_gp_coe = d_gp_coe
         self.attr_d_gp_coe = attr_d_gp_coe
@@ -100,6 +105,7 @@ class DoppelGANgerNetwork(object):
             self.sample_feature_dim = self.data_feature.shape[2]
         if self.data_attribute is not None:
             self.sample_attribute_dim = self.data_attribute.shape[1]
+            self.sample_real_attribute_dim = sum([c.output_dim for c in self.attribute_cols_metadata if c.real])
 
         self.EPS = 1e-8
 
@@ -138,6 +144,16 @@ class DoppelGANgerNetwork(object):
                     [None, self.sample_len * self.sample_feature_dim],
                     name="g_feature_input_data_train_{}".format(i)))
 
+        batch_size = tf.shape(input=self.g_feature_input_noise_train_pl_l[0])[0]
+        self.real_attribute_mask_tensor = []
+        for col_meta in self.attribute_cols_metadata:
+            if col_meta.real:
+                sub_mask_tensor = tf.ones((batch_size, col_meta.output_dim))
+            else:
+                sub_mask_tensor = tf.zeros((batch_size, col_meta.output_dim))
+            self.real_attribute_mask_tensor.append(sub_mask_tensor)
+        self.real_attribute_mask_tensor = tf.concat(self.real_attribute_mask_tensor,axis=1)
+
         self.g_output_feature_train_tf_l = []
         self.g_output_attribute_train_tf_l = []
         self.g_output_gen_flag_train_tf_l = []
@@ -151,13 +167,15 @@ class DoppelGANgerNetwork(object):
                     self.g_real_attribute_input_noise_train_pl_l[i],
                     self.g_addi_attribute_input_noise_train_pl_l[i],
                     self.g_feature_input_noise_train_pl_l[i],
-                    self.g_feature_input_data_train_pl_l[i])
+                    self.g_feature_input_data_train_pl_l[i],
+                    train=True)
 
             if self.fix_feature_network:
                 g_output_feature_train_tf = tf.zeros_like(
                     g_output_feature_train_tf)
                 g_output_gen_flag_train_tf = tf.zeros_like(
                     g_output_gen_flag_train_tf)
+                g_output_attribute_train_tf *= self.real_attribute_mask_tensor
 
             self.g_output_feature_train_tf_l.append(
                 g_output_feature_train_tf)
@@ -202,6 +220,8 @@ class DoppelGANgerNetwork(object):
                 tf.float32,
                 [None, self.sample_attribute_dim],
                 name="real_attribute_{}".format(i))
+            if self.fix_feature_network:
+                real_attribute_pl *= self.real_attribute_mask_tensor
             self.real_attribute_pl_l.append(real_attribute_pl)
         self.real_feature_pl = tf.concat(
             self.real_feature_pl_l,
@@ -246,7 +266,8 @@ class DoppelGANgerNetwork(object):
                 self.g_real_attribute_input_noise_test_pl,
                 self.g_addi_attribute_input_noise_test_pl,
                 self.g_feature_input_noise_test_pl,
-                self.g_feature_input_data_test_teacher_pl)
+                self.g_feature_input_data_test_teacher_pl,
+                train=False)
 
         self.g_feature_input_data_test_free_pl = tf.compat.v1.placeholder(
             tf.float32,
@@ -260,11 +281,12 @@ class DoppelGANgerNetwork(object):
                 self.g_real_attribute_input_noise_test_pl,
                 self.g_addi_attribute_input_noise_test_pl,
                 self.g_feature_input_noise_test_pl,
-                self.g_feature_input_data_test_free_pl)
+                self.g_feature_input_data_test_free_pl,
+                train=False)
 
         self.given_attribute_attribute_pl = tf.compat.v1.placeholder(
             tf.float32,
-            [None, self.sample_attribute_dim],
+            [None, self.sample_real_attribute_dim],
             name="given_attribute")
         (self.g_output_feature_given_attribute_test_free_tf,
          self.g_output_attribute_given_attribute_test_free_tf,
@@ -275,6 +297,7 @@ class DoppelGANgerNetwork(object):
                 self.g_addi_attribute_input_noise_test_pl,
                 self.g_feature_input_noise_test_pl,
                 self.g_feature_input_data_test_free_pl,
+                train=False,
                 attribute=self.given_attribute_attribute_pl)
 
     def build_loss(self):
@@ -539,17 +562,18 @@ class DoppelGANgerNetwork(object):
                     feed_dict[self.g_feature_input_data_train_pl_l[i]] = \
                         batch_feature_input_data
 
-                self.sess.run(self.d_op, feed_dict=feed_dict)
-                if self.attr_discriminator is not None:
-                    self.sess.run(self.attr_d_op, feed_dict=feed_dict)
-
-                self.sess.run(self.g_op, feed_dict=feed_dict)
+                for _ in range(self.rounds):
+                    self.sess.run(self.d_op, feed_dict=feed_dict)
+                    if self.attr_discriminator is not None:
+                        self.sess.run(self.attr_d_op, feed_dict=feed_dict)
+                    self.sess.run(self.g_op, feed_dict=feed_dict)
 
     def save(self, path):
         dump({
             "epoch": self.epoch,
             "batch_size": self.batch_size,
             "sample_len": self.sample_len,
+            "rounds": self.rounds,
             "d_gp_coe": self.d_gp_coe,
             "attr_d_gp_coe": self.attr_d_gp_coe,
             "g_attr_d_coe": self.g_attr_d_coe,
@@ -565,5 +589,6 @@ class DoppelGANgerNetwork(object):
             "attr_d_beta1": self.attr_d_beta1, 
             "sample_time": self.sample_time,
             "sample_feature_dim": self.sample_feature_dim,
-            "sample_attribute_dim": self.sample_attribute_dim            
+            "sample_attribute_dim": self.sample_attribute_dim,
+            "sample_real_attribute_dim": self.sample_real_attribute_dim        
         }, path)

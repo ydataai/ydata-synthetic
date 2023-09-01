@@ -32,17 +32,18 @@ from ydata_synthetic.synthesizers.saving_keras import make_keras_picklable
 _model_parameters = ['batch_size', 'lr', 'betas', 'layers_dim', 'noise_dim',
                      'n_cols', 'seq_len', 'condition', 'n_critic', 'n_features', 
                      'tau_gs', 'generator_dims', 'critic_dims', 'l2_scale', 
-                     'latent_dim', 'gp_lambda', 'pac', 'gamma']
+                     'latent_dim', 'gp_lambda', 'pac', 'gamma', 'tanh']
 _model_parameters_df = [128, 1e-4, (None, None), 128, 264,
                         None, None, None, 1, None, 0.2, [256, 256], 
-                        [256, 256], 1e-6, 128, 10.0, 10, 1]
+                        [256, 256], 1e-6, 128, 10.0, 10, 1, False]
 
 _train_parameters = ['cache_prefix', 'label_dim', 'epochs', 'sample_interval', 
                      'labels', 'n_clusters', 'epsilon', 'log_frequency', 
-                     'measurement_cols', 'sequence_length', 'number_sequences']
+                     'measurement_cols', 'sequence_length', 'number_sequences', 
+                     'sample_length', 'rounds']
 
 ModelParameters = namedtuple('ModelParameters', _model_parameters, defaults=_model_parameters_df)
-TrainParameters = namedtuple('TrainParameters', _train_parameters, defaults=('', None, 300, 50, None, 10, 0.005, True, None, 1, 1))
+TrainParameters = namedtuple('TrainParameters', _train_parameters, defaults=('', None, 300, 50, None, 10, 0.005, True, None, 1, 1, 1, 1))
 
 @typechecked
 class BaseModel(ABC):
@@ -126,6 +127,7 @@ class BaseGANModel(BaseModel):
         self.gp_lambda = model_parameters.gp_lambda
         self.pac = model_parameters.pac
 
+        self.use_tanh = model_parameters.tanh
         self.processor=None
         if self.__MODEL__ in RegularModels.__members__ or \
             self.__MODEL__ == CTGANDataProcessor.SUPPORTED_MODEL:
@@ -190,9 +192,12 @@ class BaseGANModel(BaseModel):
         elif self.__MODEL__ == DoppelGANgerProcessor.SUPPORTED_MODEL:
             measurement_cols = train_arguments.measurement_cols
             sequence_length = train_arguments.sequence_length
+            sample_length = train_arguments.sample_length
             self.processor = DoppelGANgerProcessor(num_cols=num_cols, cat_cols=cat_cols,
                                                    measurement_cols=measurement_cols,
-                                                   sequence_length=sequence_length).fit(data)
+                                                   sequence_length=sequence_length,
+                                                   sample_length=sample_length,
+                                                   normalize_tanh=self.use_tanh).fit(data)
         else:
             print(f'A DataProcessor is not available for the {self.__MODEL__}.')
 

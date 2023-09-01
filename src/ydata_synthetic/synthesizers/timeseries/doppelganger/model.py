@@ -42,8 +42,14 @@ class DoppelGANger(BaseGANModel):
         super().fit(data=data, num_cols=num_cols, cat_cols=cat_cols, train_arguments=train_arguments)
 
         self._sequence_length = train_arguments.sequence_length
+        self._sample_length = train_arguments.sample_length
+        self._rounds = train_arguments.rounds
+
         if data.shape[0] % self._sequence_length != 0:
-            raise ValueError("The sequence length must be a multiple of the number of samples.")
+            raise ValueError("The number of samples must be a multiple of the sequence length.")
+
+        if self._sequence_length % self._sample_length != 0:
+            raise ValueError("The sequence length must be a multiple of the sample length.")
 
         data_features, data_attributes = self.processor.transform(data)
         measurement_cols_metadata = self.processor.measurement_cols_metadata
@@ -52,9 +58,10 @@ class DoppelGANger(BaseGANModel):
         generator = DoppelGANgerGenerator(
             feed_back=False,
             noise=True,
+            use_tanh=self.use_tanh,
             measurement_cols_metadata=measurement_cols_metadata,
             attribute_cols_metadata=attribute_cols_metadata,
-            sample_len=self._sequence_length)
+            sample_len=self._sample_length)
         discriminator = Discriminator()
         attr_discriminator = AttrDiscriminator()
 
@@ -66,9 +73,11 @@ class DoppelGANger(BaseGANModel):
                 batch_size=self.batch_size,
                 data_feature=data_features,
                 data_attribute=data_attributes,
-                sample_len=self._sequence_length,
+                attribute_cols_metadata=attribute_cols_metadata,
+                sample_len=self._sample_length,
                 generator=generator,
                 discriminator=discriminator,
+                rounds=self._rounds,
                 attr_discriminator=attr_discriminator,
                 d_gp_coe=self.gp_lambda,
                 attr_d_gp_coe=self.gp_lambda,
@@ -98,16 +107,17 @@ class DoppelGANger(BaseGANModel):
 
         real_attribute_input_noise = self._gan_model.gen_attribute_input_noise(n_samples)
         addi_attribute_input_noise = self._gan_model.gen_attribute_input_noise(n_samples)
-        feature_input_noise = self._gan_model.gen_feature_input_noise(n_samples)
+        length = int(self._sequence_length / self._sample_length)
+        feature_input_noise = self._gan_model.gen_feature_input_noise(n_samples, length=length)
         input_data = self._gan_model.gen_feature_input_data_free(n_samples)
 
         with self._tf_session.as_default() as sess:
             self._gan_model.sess = sess
-            data_features, data_attributes, _, _ = self._gan_model.sample_from(
+            data_features, data_attributes, gen_flags, _ = self._gan_model.sample_from(
                 real_attribute_input_noise, addi_attribute_input_noise,
                 feature_input_noise, input_data)
 
-        return self.processor.inverse_transform(data_features, data_attributes)
+        return self.processor.inverse_transform(data_features, data_attributes, gen_flags)
 
     def save(self, path):
         """
@@ -123,7 +133,9 @@ class DoppelGANger(BaseGANModel):
         dump({
             "processor": self.processor.__dict__,
             "measurement_cols_metadata": self.processor.measurement_cols_metadata,
-            "attribute_cols_metadata": self.processor.attribute_cols_metadata
+            "attribute_cols_metadata": self.processor.attribute_cols_metadata,
+            "_sequence_length": self._sequence_length,
+            "_sample_length": self._sample_length
         }, os.path.join(path, "doppelganger_metadata.pkl"))
 
     @staticmethod
@@ -141,6 +153,8 @@ class DoppelGANger(BaseGANModel):
 
         dp_model.processor = DoppelGANgerProcessor()
         dp_model.processor.__dict__ = dp_metadata["processor"]
+        dp_model._sequence_length = dp_metadata["_sequence_length"]
+        dp_model._sample_length = dp_metadata["_sample_length"]
 
         generator = DoppelGANgerGenerator(
             feed_back=False,
@@ -158,9 +172,11 @@ class DoppelGANger(BaseGANModel):
                 batch_size=dp_network_parms["batch_size"],
                 data_feature=None,
                 data_attribute=None,
+                attribute_cols_metadata=dp_metadata["attribute_cols_metadata"],
                 sample_len=dp_network_parms["sample_len"],
                 generator=generator,
                 discriminator=discriminator,
+                rounds=dp_network_parms["rounds"],
                 attr_discriminator=attr_discriminator,
                 d_gp_coe=dp_network_parms["d_gp_coe"],
                 attr_d_gp_coe=dp_network_parms["attr_d_gp_coe"],
@@ -179,6 +195,7 @@ class DoppelGANger(BaseGANModel):
             dp_model._gan_model.sample_time = dp_network_parms["sample_time"]
             dp_model._gan_model.sample_feature_dim = dp_network_parms["sample_feature_dim"]
             dp_model._gan_model.sample_attribute_dim = dp_network_parms["sample_attribute_dim"]
+            dp_model._gan_model.sample_real_attribute_dim = dp_network_parms["sample_real_attribute_dim"]
             dp_model._gan_model.build()
 
             saver = tf.compat.v1.train.Saver()
