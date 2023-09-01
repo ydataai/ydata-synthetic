@@ -10,11 +10,11 @@ DoppelGANger is a model that uses a Generative Adversarial Network (GAN) framewo
 
 - 📑 **Paper:** [Using GANs for Sharing Networked Time Series Data: Challenges, Initial Promise, and Open Questions](https://dl.acm.org/doi/pdf/10.1145/3419394.3423643)
 
-Here’s an example of how to synthetize time-series data with DoppelGANger using the [Yahoo Stock Price](https://www.kaggle.com/datasets/arashnic/time-series-forecasting-with-yahoo-stock-price) dataset:
+Here’s an example of how to synthetize time-series data with DoppelGANger using the [Measuring Broadband America](https://www.fcc.gov/reports-research/reports/measuring-broadband-america/raw-data-measuring-broadband-america-seventh) dataset:
 
 
 ```python
---8<-- "examples/timeseries/stock_doppelganger.py"
+--8<-- "examples/timeseries/mba_doppelganger.py"
 ```
 
 
