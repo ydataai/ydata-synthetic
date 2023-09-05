@@ -8,6 +8,8 @@
       
       
       
+        <link rel="canonical" href="https://ydata.ai/docs/synthetic/1.3.0/reference/api/preprocessing/regular/ctgan_preprocessor/">
+      
       
         <link rel="prev" href="../preprocessor/">
       
@@ -1339,7 +1341,7 @@
       
         <li class="md-nav__item">
   <a href="#ydata_synthetic.preprocessing.regular.ctgan_processor.CTGANDataProcessor" class="md-nav__link">
-    ydata_synthetic.preprocessing.regular.ctgan_processor.CTGANDataProcessor
+    CTGANDataProcessor
   </a>
   
 </li>
@@ -1429,11 +1431,15 @@
                 
                   
 
+  
+  
+
 
 
   <h1>CTGANDataProcessor</h1>
 
 <div class="doc doc-object doc-class">
+
 
 
 <a id="ydata_synthetic.preprocessing.regular.ctgan_processor.CTGANDataProcessor"></a>
@@ -1443,82 +1449,19 @@
 
   
       <p>CTGAN data preprocessing class.
-It works like any other transformer in scikit-learn with the methods fit, transform and inverse_transform.</p>
-
-
-
-  <p><strong>Parameters:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>n_clusters</code></td>
-          <td>
-                <code>int), default=10</code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>Number of clusters.</p>
-            </div>
-          </td>
-          <td>
-                <code>10</code>
-          </td>
-        </tr>
-        <tr>
-          <td><code>epsilon</code></td>
-          <td>
-                <code>float), default=0.005</code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>Epsilon value.</p>
-            </div>
-          </td>
-          <td>
-                <code>0.005</code>
-          </td>
-        </tr>
-        <tr>
-          <td><code>num_cols</code></td>
-          <td>
-                <code>list of strings</code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>List of names of numerical columns.</p>
-            </div>
-          </td>
-          <td>
-                <code>None</code>
-          </td>
-        </tr>
-        <tr>
-          <td><code>cat_cols</code></td>
-          <td>
-                <code>list of strings</code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>List of names of categorical columns.</p>
-            </div>
-          </td>
-          <td>
-                <code>None</code>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+It works like any other transformer in scikit-learn with the methods fit, transform and inverse_transform.
+Args:
+    n_clusters (int), default=10:
+        Number of clusters.
+    epsilon (float), default=0.005:
+        Epsilon value.
+    num_cols (list of strings):
+        List of names of numerical columns.
+    cat_cols (list of strings):
+        List of names of categorical columns.</p>
 
             <details class="quote">
-              <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/ctgan_processor.py</code></summary>
+              <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/ctgan_processor.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-29"> 29</a></span>
 <span class="normal"><a href="#__codelineno-0-30"> 30</a></span>
 <span class="normal"><a href="#__codelineno-0-31"> 31</a></span>
@@ -1921,8 +1864,9 @@ It works like any other transformer in scikit-learn with the methods fit, transf
 
 
 
+
 <h2 id="ydata_synthetic.preprocessing.regular.ctgan_processor.CTGANDataProcessor.metadata" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">metadata</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ColumnMetadata</span><span class="p">]</span></code>
+          <code class="highlight language-python"><span class="n">metadata</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ColumnMetadata</span><span class="p">]</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
@@ -1942,8 +1886,9 @@ It works like any other transformer in scikit-learn with the methods fit, transf
 
 
 
+
 <h2 id="ydata_synthetic.preprocessing.regular.ctgan_processor.CTGANDataProcessor.output_dimensions" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">output_dimensions</span><span class="p">:</span> <span class="nb">int</span></code>
+          <code class="highlight language-python"><span class="n">output_dimensions</span><span class="p">:</span> <span class="nb">int</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
@@ -1966,8 +1911,9 @@ It works like any other transformer in scikit-learn with the methods fit, transf
 
 
 
+
 <h2 id="ydata_synthetic.preprocessing.regular.ctgan_processor.CTGANDataProcessor.fit" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></code>
 
 </h2>
 
@@ -2006,33 +1952,10 @@ Should be aligned with the num/cat columns defined in initialization.</p>
         </tr>
     </tbody>
   </table>
-
-
-
-  <p><strong>Returns:</strong></p>
-  <table>
-    <thead>
-      <tr>
-<th>Name</th>        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-<td><code>self</code></td>          <td>
-                <code><a class="autorefs autorefs-internal" title="ydata_synthetic.preprocessing.regular.ctgan_processor.CTGANDataProcessor" href="#ydata_synthetic.preprocessing.regular.ctgan_processor.CTGANDataProcessor">CTGANDataProcessor</a></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>The fitted data processor.</p>
-            </div>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+      
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/ctgan_processor.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/ctgan_processor.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-71"> 71</a></span>
 <span class="normal"><a href="#__codelineno-0-72"> 72</a></span>
 <span class="normal"><a href="#__codelineno-0-73"> 73</a></span>
@@ -2157,8 +2080,9 @@ Should be aligned with the num/cat columns defined in initialization.</p>
 
 
 
+
 <h2 id="ydata_synthetic.preprocessing.regular.ctgan_processor.CTGANDataProcessor.inverse_transform" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">inverse_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">inverse_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></code>
 
 </h2>
 
@@ -2198,33 +2122,10 @@ Can be used to revert transformations of training data or for synthetic samples.
         </tr>
     </tbody>
   </table>
-
-
-
-  <p><strong>Returns:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td>
-                <code><span title="pandas">pd</span>.<span title="pandas.DataFrame">DataFrame</span></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>DataFrame with all performed transformations reverted.</p>
-            </div>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+      
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/ctgan_processor.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/ctgan_processor.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-179">179</a></span>
 <span class="normal"><a href="#__codelineno-0-180">180</a></span>
 <span class="normal"><a href="#__codelineno-0-181">181</a></span>
@@ -2321,8 +2222,9 @@ Can be used to revert transformations of training data or for synthetic samples.
 
 
 
+
 <h2 id="ydata_synthetic.preprocessing.regular.ctgan_processor.CTGANDataProcessor.transform" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></code>
 
 </h2>
 
@@ -2361,33 +2263,10 @@ Should be aligned with the columns types defined in initialization.</p>
         </tr>
     </tbody>
   </table>
-
-
-
-  <p><strong>Returns:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td>
-                <code><span title="numpy">np</span>.<span title="numpy.ndarray">ndarray</span></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>Processed version of the passed DataFrame.</p>
-            </div>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+      
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/ctgan_processor.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/preprocessing/regular/ctgan_processor.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-129">129</a></span>
 <span class="normal"><a href="#__codelineno-0-130">130</a></span>
 <span class="normal"><a href="#__codelineno-0-131">131</a></span>

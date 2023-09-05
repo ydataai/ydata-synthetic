@@ -8,6 +8,8 @@
       
       
       
+        <link rel="canonical" href="https://ydata.ai/docs/synthetic/1.3.0/reference/api/synthesizers/gan/">
+      
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
@@ -1345,11 +1347,15 @@
                 
                   
 
+  
+  
+
 
 
   <h1>Gan</h1>
 
 <div class="doc doc-object doc-class">
+
 
 
 <a id="ydata_synthetic.synthesizers.base.BaseGANModel"></a>
@@ -1359,40 +1365,13 @@
 
   
       <p>Base class of GAN synthesizer models.
-The main methods are train (for fitting the synthesizer), save/load and sample (obtain synthetic records).</p>
-
-
-
-  <p><strong>Parameters:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>model_parameters</code></td>
-          <td>
-                <code><span title="ydata_synthetic.synthesizers.base.ModelParameters">ModelParameters</span></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>Set of architectural parameters for model definition.</p>
-            </div>
-          </td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+The main methods are train (for fitting the synthesizer), save/load and sample (obtain synthetic records).
+Args:
+    model_parameters (ModelParameters):
+        Set of architectural parameters for model definition.</p>
 
             <details class="quote">
-              <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
+              <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-89"> 89</a></span>
 <span class="normal"><a href="#__codelineno-0-90"> 90</a></span>
 <span class="normal"><a href="#__codelineno-0-91"> 91</a></span>
@@ -1725,8 +1704,9 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
 
 
 
+
 <h2 id="ydata_synthetic.synthesizers.base.BaseGANModel.model_name" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">model_name</span></code>
+          <code class="highlight language-python"><span class="n">model_name</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
@@ -1746,8 +1726,9 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
 
 
 
+
 <h2 id="ydata_synthetic.synthesizers.base.BaseGANModel.model_parameters" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">model_parameters</span></code>
+          <code class="highlight language-python"><span class="n">model_parameters</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
@@ -1770,8 +1751,9 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
 
 
 
+
 <h2 id="ydata_synthetic.synthesizers.base.BaseGANModel.define_gan" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">define_gan</span><span class="p">()</span></code>
+          <code class="highlight language-python"><span class="n">define_gan</span><span class="p">()</span></code>
 
 </h2>
 
@@ -1782,7 +1764,7 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
 <p>Optionally validate model structure with mock inputs and initialize optimizers.</p>
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-148">148</a></span>
 <span class="normal"><a href="#__codelineno-0-149">149</a></span>
 <span class="normal"><a href="#__codelineno-0-150">150</a></span>
@@ -1803,8 +1785,9 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
 
 
 
+
 <h2 id="ydata_synthetic.synthesizers.base.BaseGANModel.fit" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">num_cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cat_cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">train_arguments</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">num_cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cat_cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">train_arguments</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h2>
 
@@ -1910,7 +1893,7 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
   </table>
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-164">164</a></span>
 <span class="normal"><a href="#__codelineno-0-165">165</a></span>
 <span class="normal"><a href="#__codelineno-0-166">166</a></span>
@@ -1989,8 +1972,9 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
 
 
 
+
 <h2 id="ydata_synthetic.synthesizers.base.BaseGANModel.load" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
@@ -2034,7 +2018,7 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
   </table>
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-230">230</a></span>
 <span class="normal"><a href="#__codelineno-0-231">231</a></span>
 <span class="normal"><a href="#__codelineno-0-232">232</a></span>
@@ -2079,8 +2063,9 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
 
 
 
+
 <h2 id="ydata_synthetic.synthesizers.base.BaseGANModel.sample" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">sample</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">sample</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)</span></code>
 
 </h2>
 
@@ -2132,7 +2117,7 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
     <tbody>
         <tr>
 <td><code>synth_sample</code></td>          <td>
-                <code>pandas.<span title="pandas.DataFrame">DataFrame</span></code>
+                <code><span title="pandas.DataFrame">DataFrame</span></code>
           </td>
           <td>
             <div class="doc-md-description">
@@ -2144,7 +2129,7 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
   </table>
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-199">199</a></span>
 <span class="normal"><a href="#__codelineno-0-200">200</a></span>
 <span class="normal"><a href="#__codelineno-0-201">201</a></span>
@@ -2189,8 +2174,9 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
 
 
 
+
 <h2 id="ydata_synthetic.synthesizers.base.BaseGANModel.save" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></code>
 
 </h2>
 
@@ -2230,7 +2216,7 @@ The main methods are train (for fitting the synthesizer), save/load and sample (
   </table>
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/synthesizers/base.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-217">217</a></span>
 <span class="normal"><a href="#__codelineno-0-218">218</a></span>
 <span class="normal"><a href="#__codelineno-0-219">219</a></span>

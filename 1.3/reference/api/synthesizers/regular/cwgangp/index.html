@@ -8,6 +8,8 @@
       
       
       
+        <link rel="canonical" href="https://ydata.ai/docs/synthetic/1.3.0/reference/api/synthesizers/regular/cwgangp/">
+      
       
         <link rel="prev" href="../ctgan/">
       
@@ -1095,55 +1097,55 @@
       
         <li class="md-nav__item">
   <a href="#ydata_synthetic.synthesizers.regular.model.CWGANGP" class="md-nav__link">
-    ydata_synthetic.synthesizers.regular.model.CWGANGP
+    CWGANGP
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#ydata_synthetic.synthesizers.regular.cwgangp.model.CWGANGP.__init__" class="md-nav__link">
+  <a href="#ydata_synthetic.synthesizers.regular.model.CWGANGP.__init__" class="md-nav__link">
     __init__()
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#ydata_synthetic.synthesizers.regular.cwgangp.model.CWGANGP.c_lossfn" class="md-nav__link">
+  <a href="#ydata_synthetic.synthesizers.regular.model.CWGANGP.c_lossfn" class="md-nav__link">
     c_lossfn()
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#ydata_synthetic.synthesizers.regular.cwgangp.model.CWGANGP.define_gan" class="md-nav__link">
+  <a href="#ydata_synthetic.synthesizers.regular.model.CWGANGP.define_gan" class="md-nav__link">
     define_gan()
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#ydata_synthetic.synthesizers.regular.cwgangp.model.CWGANGP.fit" class="md-nav__link">
+  <a href="#ydata_synthetic.synthesizers.regular.model.CWGANGP.fit" class="md-nav__link">
     fit()
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#ydata_synthetic.synthesizers.regular.cwgangp.model.CWGANGP.g_lossfn" class="md-nav__link">
+  <a href="#ydata_synthetic.synthesizers.regular.model.CWGANGP.g_lossfn" class="md-nav__link">
     g_lossfn()
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#ydata_synthetic.synthesizers.regular.cwgangp.model.CWGANGP.get_data_batch" class="md-nav__link">
+  <a href="#ydata_synthetic.synthesizers.regular.model.CWGANGP.get_data_batch" class="md-nav__link">
     get_data_batch()
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#ydata_synthetic.synthesizers.regular.cwgangp.model.CWGANGP.gradient_penalty" class="md-nav__link">
+  <a href="#ydata_synthetic.synthesizers.regular.model.CWGANGP.gradient_penalty" class="md-nav__link">
     gradient_penalty()
   </a>
   
@@ -1445,11 +1447,15 @@
                 
                   
 
+  
+  
+
 
 
   <h1>CWGANGP</h1>
 
 <div class="doc doc-object doc-class">
+
 
 
 <a id="ydata_synthetic.synthesizers.regular.model.CWGANGP"></a>
@@ -1459,7 +1465,7 @@
 
 
             <details class="quote">
-              <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cwgangp/model.py</code></summary>
+              <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cwgangp/model.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-21"> 21</a></span>
 <span class="normal"><a href="#__codelineno-0-22"> 22</a></span>
 <span class="normal"><a href="#__codelineno-0-23"> 23</a></span>
@@ -1847,8 +1853,9 @@
 
 
 
-<h2 id="ydata_synthetic.synthesizers.regular.cwgangp.model.CWGANGP.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">model_parameters</span><span class="p">,</span> <span class="n">n_generator</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_critic</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gradient_penalty_weight</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span></code>
+
+<h2 id="ydata_synthetic.synthesizers.regular.model.CWGANGP.__init__" class="doc doc-heading">
+          <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">model_parameters</span><span class="p">,</span> <span class="n">n_generator</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_critic</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gradient_penalty_weight</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span></code>
 
 </h2>
 
@@ -1862,7 +1869,7 @@
     https://arxiv.org/pdf/2008.09202.pdf</p>
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cwgangp/model.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cwgangp/model.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-25">25</a></span>
 <span class="normal"><a href="#__codelineno-0-26">26</a></span>
 <span class="normal"><a href="#__codelineno-0-27">27</a></span>
@@ -1905,8 +1912,9 @@
 
 
 
-<h2 id="ydata_synthetic.synthesizers.regular.cwgangp.model.CWGANGP.c_lossfn" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">c_lossfn</span><span class="p">(</span><span class="n">real</span><span class="p">)</span></code>
+
+<h2 id="ydata_synthetic.synthesizers.regular.model.CWGANGP.c_lossfn" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">c_lossfn</span><span class="p">(</span><span class="n">real</span><span class="p">)</span></code>
 
 </h2>
 
@@ -1968,7 +1976,7 @@
   </table>
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cwgangp/model.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cwgangp/model.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-104">104</a></span>
 <span class="normal"><a href="#__codelineno-0-105">105</a></span>
 <span class="normal"><a href="#__codelineno-0-106">106</a></span>
@@ -2029,8 +2037,9 @@
 
 
 
-<h2 id="ydata_synthetic.synthesizers.regular.cwgangp.model.CWGANGP.define_gan" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">define_gan</span><span class="p">(</span><span class="n">activation_info</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<h2 id="ydata_synthetic.synthesizers.regular.model.CWGANGP.define_gan" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">define_gan</span><span class="p">(</span><span class="n">activation_info</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h2>
 
@@ -2070,7 +2079,7 @@
   </table>
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cwgangp/model.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cwgangp/model.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-42">42</a></span>
 <span class="normal"><a href="#__codelineno-0-43">43</a></span>
 <span class="normal"><a href="#__codelineno-0-44">44</a></span>
@@ -2125,8 +2134,9 @@
 
 
 
-<h2 id="ydata_synthetic.synthesizers.regular.cwgangp.model.CWGANGP.fit" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">label_cols</span><span class="p">,</span> <span class="n">train_arguments</span><span class="p">,</span> <span class="n">num_cols</span><span class="p">,</span> <span class="n">cat_cols</span><span class="p">)</span></code>
+
+<h2 id="ydata_synthetic.synthesizers.regular.model.CWGANGP.fit" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">label_cols</span><span class="p">,</span> <span class="n">train_arguments</span><span class="p">,</span> <span class="n">num_cols</span><span class="p">,</span> <span class="n">cat_cols</span><span class="p">)</span></code>
 
 </h2>
 
@@ -2221,7 +2231,7 @@
   </table>
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cwgangp/model.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cwgangp/model.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-149">149</a></span>
 <span class="normal"><a href="#__codelineno-0-150">150</a></span>
 <span class="normal"><a href="#__codelineno-0-151">151</a></span>
@@ -2328,8 +2338,9 @@
 
 
 
-<h2 id="ydata_synthetic.synthesizers.regular.cwgangp.model.CWGANGP.g_lossfn" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">g_lossfn</span><span class="p">(</span><span class="n">real</span><span class="p">)</span></code>
+
+<h2 id="ydata_synthetic.synthesizers.regular.model.CWGANGP.g_lossfn" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">g_lossfn</span><span class="p">(</span><span class="n">real</span><span class="p">)</span></code>
 
 </h2>
 
@@ -2366,32 +2377,10 @@
         </tr>
     </tbody>
   </table>
-
-
-
-  <p><strong>Returns:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>Generator loss</p>
-            </div>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+      
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cwgangp/model.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cwgangp/model.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-130">130</a></span>
 <span class="normal"><a href="#__codelineno-0-131">131</a></span>
 <span class="normal"><a href="#__codelineno-0-132">132</a></span>
@@ -2438,8 +2427,9 @@
 
 
 
-<h2 id="ydata_synthetic.synthesizers.regular.cwgangp.model.CWGANGP.get_data_batch" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">get_data_batch</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
+
+<h2 id="ydata_synthetic.synthesizers.regular.model.CWGANGP.get_data_batch" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">get_data_batch</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
@@ -2532,7 +2522,7 @@
   </table>
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cwgangp/model.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cwgangp/model.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-85"> 85</a></span>
 <span class="normal"><a href="#__codelineno-0-86"> 86</a></span>
 <span class="normal"><a href="#__codelineno-0-87"> 87</a></span>
@@ -2579,8 +2569,9 @@
 
 
 
-<h2 id="ydata_synthetic.synthesizers.regular.cwgangp.model.CWGANGP.gradient_penalty" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">gradient_penalty</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">fake</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span></code>
+
+<h2 id="ydata_synthetic.synthesizers.regular.model.CWGANGP.gradient_penalty" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">gradient_penalty</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">fake</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span></code>
 
 </h2>
 
@@ -2643,32 +2634,10 @@
         </tr>
     </tbody>
   </table>
-
-
-
-  <p><strong>Returns:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>gradient_penalty</p>
-            </div>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+      
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cwgangp/model.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/synthesizers/regular/cwgangp/model.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-65">65</a></span>
 <span class="normal"><a href="#__codelineno-0-66">66</a></span>
 <span class="normal"><a href="#__codelineno-0-67">67</a></span>

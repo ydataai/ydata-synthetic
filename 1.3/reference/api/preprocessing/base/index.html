@@ -8,6 +8,8 @@
       
       
       
+        <link rel="canonical" href="https://ydata.ai/docs/synthetic/1.3.0/reference/api/preprocessing/base/">
+      
       
         <link rel="prev" href="../../synthesizers/timeseries/doppelganger/">
       
@@ -1278,7 +1280,7 @@
       
         <li class="md-nav__item">
   <a href="#ydata_synthetic.preprocessing.base_processor.BaseProcessor" class="md-nav__link">
-    ydata_synthetic.preprocessing.base_processor.BaseProcessor
+    BaseProcessor
   </a>
   
 </li>
@@ -1443,11 +1445,15 @@
                 
                   
 
+  
+  
+
 
 
   <h1>BaseProcessor</h1>
 
 <div class="doc doc-object doc-class">
+
 
 
 <a id="ydata_synthetic.preprocessing.base_processor.BaseProcessor"></a>
@@ -1456,54 +1462,15 @@
             Bases: <code><span title="abc.ABC">ABC</span></code>, <code><span title="sklearn.base.BaseEstimator">BaseEstimator</span></code>, <code><span title="sklearn.base.TransformerMixin">TransformerMixin</span></code></p>
 
   
-      <p>This data processor works like a scikit learn transformer in with the methods fit, transform and inverse transform.</p>
-
-
-
-  <p><strong>Parameters:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>num_cols</code></td>
-          <td>
-                <code>list of strings</code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>List of names of numerical columns.</p>
-            </div>
-          </td>
-          <td>
-                <code>None</code>
-          </td>
-        </tr>
-        <tr>
-          <td><code>cat_cols</code></td>
-          <td>
-                <code>list of strings</code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>List of names of categorical columns.</p>
-            </div>
-          </td>
-          <td>
-                <code>None</code>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+      <p>This data processor works like a scikit learn transformer in with the methods fit, transform and inverse transform.
+Args:
+    num_cols (list of strings):
+        List of names of numerical columns.
+    cat_cols (list of strings):
+        List of names of categorical columns.</p>
 
             <details class="quote">
-              <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/base_processor.py</code></summary>
+              <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/preprocessing/base_processor.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-16"> 16</a></span>
 <span class="normal"><a href="#__codelineno-0-17"> 17</a></span>
 <span class="normal"><a href="#__codelineno-0-18"> 18</a></span>
@@ -1744,8 +1711,9 @@
 
 
 
+
 <h2 id="ydata_synthetic.preprocessing.base_processor.BaseProcessor.cat_pipeline" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">cat_pipeline</span><span class="p">:</span> <span class="n">BaseEstimator</span></code>
+          <code class="highlight language-python"><span class="n">cat_pipeline</span><span class="p">:</span> <span class="n">BaseEstimator</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
@@ -1765,8 +1733,9 @@
 
 
 
+
 <h2 id="ydata_synthetic.preprocessing.base_processor.BaseProcessor.col_transform_info" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">col_transform_info</span><span class="p">:</span> <span class="n">SimpleNamespace</span></code>
+          <code class="highlight language-python"><span class="n">col_transform_info</span><span class="p">:</span> <span class="n">SimpleNamespace</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
@@ -1786,8 +1755,9 @@
 
 
 
+
 <h2 id="ydata_synthetic.preprocessing.base_processor.BaseProcessor.num_pipeline" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">num_pipeline</span><span class="p">:</span> <span class="n">BaseEstimator</span></code>
+          <code class="highlight language-python"><span class="n">num_pipeline</span><span class="p">:</span> <span class="n">BaseEstimator</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
@@ -1807,8 +1777,9 @@
 
 
 
+
 <h2 id="ydata_synthetic.preprocessing.base_processor.BaseProcessor.types" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">types</span><span class="p">:</span> <span class="n">Series</span></code>
+          <code class="highlight language-python"><span class="n">types</span><span class="p">:</span> <span class="n">Series</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
@@ -1831,8 +1802,9 @@
 
 
 
+
 <h2 id="ydata_synthetic.preprocessing.base_processor.BaseProcessor.fit" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
@@ -1843,65 +1815,16 @@
 
   <div class="doc doc-contents ">
   
-      <p>Fits the DataProcessor to a passed DataFrame.</p>
-
-
-
-  <p><strong>Parameters:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>X</code></td>
-          <td>
-                <code><span title="pandas.DataFrame">DataFrame</span></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>DataFrame used to fit the processor parameters.
-Should be aligned with the num/cat columns defined in initialization.</p>
-            </div>
-          </td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-
-
-  <p><strong>Returns:</strong></p>
-  <table>
-    <thead>
-      <tr>
-<th>Name</th>        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-<td><code>self</code></td>          <td>
-                <code>DataProcessor</code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>The fitted data processor.</p>
-            </div>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+      <p>Fits the DataProcessor to a passed DataFrame.
+Args:
+    X (DataFrame):
+        DataFrame used to fit the processor parameters.
+        Should be aligned with the num/cat columns defined in initialization.
+Returns:
+    self (DataProcessor): The fitted data processor.</p>
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/base_processor.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/preprocessing/base_processor.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-89">89</a></span>
 <span class="normal"><a href="#__codelineno-0-90">90</a></span>
 <span class="normal"><a href="#__codelineno-0-91">91</a></span>
@@ -1934,8 +1857,9 @@ Should be aligned with the num/cat columns defined in initialization.</p>
 
 
 
+
 <h2 id="ydata_synthetic.preprocessing.base_processor.BaseProcessor.inverse_transform" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">inverse_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">inverse_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
@@ -1946,66 +1870,18 @@ Should be aligned with the num/cat columns defined in initialization.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Inverts the data transformation pipelines on a passed DataFrame.</p>
-
-
-
-  <p><strong>Parameters:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>X</code></td>
-          <td>
-                <code><span title="numpy.ndarray">ndarray</span></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>Numpy array to be brought back to the original data format.
-Should share the schema of data transformed by this DataProcessor.
-Can be used to revert transformations of training data or for synthetic samples.</p>
-            </div>
-          </td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-
-
-  <p><strong>Returns:</strong></p>
-  <table>
-    <thead>
-      <tr>
-<th>Name</th>        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-<td><code>result</code></td>          <td>
-                <code><span title="pandas.DataFrame">DataFrame</span></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>DataFrame with all performed transformations inverted.</p>
-            </div>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+      <p>Inverts the data transformation pipelines on a passed DataFrame.
+Args:
+    X (ndarray):
+        Numpy array to be brought back to the original data format.
+        Should share the schema of data transformed by this DataProcessor.
+        Can be used to revert transformations of training data or for synthetic samples.
+Returns:
+    result (DataFrame):
+        DataFrame with all performed transformations inverted.</p>
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/base_processor.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/preprocessing/base_processor.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-115">115</a></span>
 <span class="normal"><a href="#__codelineno-0-116">116</a></span>
 <span class="normal"><a href="#__codelineno-0-117">117</a></span>
@@ -2042,8 +1918,9 @@ Can be used to revert transformations of training data or for synthetic samples.
 
 
 
+
 <h2 id="ydata_synthetic.preprocessing.base_processor.BaseProcessor.transform" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
@@ -2054,65 +1931,16 @@ Can be used to revert transformations of training data or for synthetic samples.
 
   <div class="doc doc-contents ">
   
-      <p>Transforms the passed DataFrame with the fit DataProcessor.</p>
-
-
-
-  <p><strong>Parameters:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>X</code></td>
-          <td>
-                <code><span title="pandas.DataFrame">DataFrame</span></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>DataFrame used to fit the processor parameters.
-Should be aligned with the columns types defined in initialization.</p>
-            </div>
-          </td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-
-
-  <p><strong>Returns:</strong></p>
-  <table>
-    <thead>
-      <tr>
-<th>Name</th>        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-<td><code>transformed</code></td>          <td>
-                <code><span title="numpy.ndarray">ndarray</span></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>Processed version of the passed DataFrame.</p>
-            </div>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+      <p>Transforms the passed DataFrame with the fit DataProcessor.
+Args:
+    X (DataFrame):
+        DataFrame used to fit the processor parameters.
+        Should be aligned with the columns types defined in initialization.
+Returns:
+    transformed (ndarray): Processed version of the passed DataFrame.</p>
 
           <details class="quote">
-            <summary>Source code in <code>/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/ydata_synthetic/preprocessing/base_processor.py</code></summary>
+            <summary>Source code in <code>.venv/lib/python3.10/site-packages/ydata_synthetic/preprocessing/base_processor.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-102">102</a></span>
 <span class="normal"><a href="#__codelineno-0-103">103</a></span>
 <span class="normal"><a href="#__codelineno-0-104">104</a></span>
