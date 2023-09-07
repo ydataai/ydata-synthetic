@@ -1,173 +1,173 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/examples/cgan_example/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/examples/cramer_gan_example/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/examples/ctgan_example/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/examples/cwgangp_example/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/examples/doppelganger_example/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/examples/dragan_example/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/examples/faqs/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/examples/timegan_example/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/examples/wgan_example/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/examples/wgangp_example/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/getting-started/installation/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/getting-started/quickstart/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/integrations/gx_integration/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/changelog/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/api/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/api/preprocessing/base/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/api/preprocessing/regular/ctgan_preprocessor/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/api/preprocessing/regular/preprocessor/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/api/synthesizers/cgan/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/api/synthesizers/gan/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/api/synthesizers/regular/cgan/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/api/synthesizers/regular/cramergan/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/api/synthesizers/regular/ctgan/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/api/synthesizers/regular/cwgangp/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/api/synthesizers/regular/dragan/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/api/synthesizers/regular/gan/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/api/synthesizers/regular/vanilllagan/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/api/synthesizers/regular/wgan/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/api/synthesizers/regular/wgan_gp/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/api/synthesizers/timeseries/doppelganger/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/reference/api/synthesizers/timeseries/timegan/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/support/contribute/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://ydata.ai/docs/synthetic/1.3.0/support/help-troubleshooting/</loc>
-         <lastmod>2023-09-05</lastmod>
+         <loc>None</loc>
+         <lastmod>2023-09-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
