@@ -1,5 +1,5 @@
-from ydata_synthetic.synthesizers.timeseries.timegan.model import TimeGAN
+from ydata_synthetic.synthesizers.timeseries.model import TimeSeriesSynthesizer
 
 __all__ = [
-    'TimeGAN',
+    'TimeSeriesSynthesizer'
 ]
