@@ -91,6 +91,7 @@ Here you can find usage examples of the package and models to synthesize tabular
   - Fast tabular data synthesis on adult census income dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/regular/models/Fast_Adult_Census_Income_Data.ipynb)
   - Tabular synthetic data generation with CTGAN on adult census income dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/regular/models/CTGAN_Adult_Census_Income_Data.ipynb)
   - Time Series synthetic data generation with TimeGAN on stock dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/timeseries/TimeGAN_Synthetic_stock_data.ipynb)
+  - Time Series synthetic data generation with DoppelGANger on FCC MBA dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/timeseries/DoppelGANger_FCC_MBA_Dataset.ipynb)
   - More examples are continuously added and can be found in `/examples` directory.
 
 ### Datasets for you to experiment
@@ -102,6 +103,7 @@ Here are some example datasets for you to try with the synthesizers:
 
 #### Sequential datasets
 - [Stock data](https://github.com/ydataai/ydata-synthetic/tree/master/data)
+- [FCC MBA data](https://github.com/ydataai/ydata-synthetic/tree/master/data)
 
 ## Project Resources
 
