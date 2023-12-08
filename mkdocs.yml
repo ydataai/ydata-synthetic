@@ -11,53 +11,58 @@ nav:
     - Installation: 'getting-started/installation.md'
     - Quickstart: 'getting-started/quickstart.md'
   - Synthetic Data Generation:
-      - Generate Tabular Data:
-        - CGAN: "examples/cgan_example.md"
-        - WGAN: "examples/wgan_example.md"
-        - WGAN-GP: "examples/wgangp_example.md"
-        - CTGAN: "examples/ctgan_example.md"
-        - DRAGAN: "examples/dragan_example.md"
-        - Cramer GAN: "examples/cramer_gan_example.md"
-        - CWGAN-GP: "examples/cwgangp_example.md"
-      - Generate Time-Series Data:
-        - TimeGAN: "examples/timegan_example.md"
-        - DoppelGANger: "examples/doppelganger_example.md"
-      - Frequently Asked Questions: "examples/faqs.md"
+      - "synthetic_data/index.md"
+      - UI interface - Streamlit app: "synthetic_data/streamlit_app.md"
+      - Generate Single Table:
+        - GMM: "synthetic_data/single_table/gmm_example.md"
+        - CGAN: "synthetic_data/single_table/cgan_example.md"
+        - WGAN: "synthetic_data/single_table/wgan_example.md"
+        - WGAN-GP: "synthetic_data/single_table/wgangp_example.md"
+        - CTGAN: "synthetic_data/single_table/ctgan_example.md"
+        - DRAGAN: "synthetic_data/single_table/dragan_example.md"
+        - Cramer GAN: "synthetic_data/single_table/cramer_gan_example.md"
+        - CWGAN-GP: "synthetic_data/single_table/cwgangp_example.md"
+      - Generate Time-Series:
+        - TimeGAN: "synthetic_data/time_series/timegan_example.md"
+        - DoppelGANger: "synthetic_data/time_series/doppelganger_example.md"
+      - Generate Multiple Tables:
+          - Fabric Multi-Table **: "synthetic_data/multi_table/fabric_multitable.md"
+      - Frequently Asked Questions: "synthetic_data/faqs.md"
   - Integrations:
       - Great Expectations: "integrations/gx_integration.md"
   - Support: 
     - Help & Troubleshooting: 'support/help-troubleshooting.md'
     - Contribution Guidelines: 'support/contribute.md'
+    - Contribution Guidelines: 'support/contribute.md'
   - Reference:
-    - Changelog: 'reference/changelog.md'
-    - API:
-      - Synthesizers:
-        - GAN: 'reference/api/synthesizers/regular/gan.md'
-        - Regular:
-          - CGAN: 'reference/api/synthesizers/regular/cgan.md'
-          - CRAMERGAN: 'reference/api/synthesizers/regular/cramergan.md'
-          - CTGAN: 'reference/api/synthesizers/regular/ctgan.md'
-          - CWGANGP: 'reference/api/synthesizers/regular/cwgangp.md'
-          - DRAGAN: 'reference/api/synthesizers/regular/dragan.md'
-          - VANILLAGAN: 'reference/api/synthesizers/regular/vanillagan.md'
-          - WGAN_GP: 'reference/api/synthesizers/regular/wgan_gp.md'
-          - WGAN: 'reference/api/synthesizers/regular/wgan.md'
-        - Timeseries:
-          - TimeGAN: 'reference/api/synthesizers/timeseries/timegan.md'
-          - DoppelGANger: 'reference/api/synthesizers/timeseries/doppelganger.md'
-      - Preprocessing:
-        - BaseProcessor: 'reference/api/preprocessing/base.md'
-        - Regular:
-          - RegularDataProcessor: 'reference/api/preprocessing/regular/preprocessor.md'
-          - CTGANDataProcessor: 'reference/api/preprocessing/regular/ctgan_preprocessor.md'
+      - Changelog: 'reference/changelog.md'
+      - API:
+          - Synthesizers:
+              - GAN: 'reference/api/synthesizers/regular/gan.md'
+              - Regular:
+                  - CGAN: 'reference/api/synthesizers/regular/cgan.md'
+                  - CRAMERGAN: 'reference/api/synthesizers/regular/cramergan.md'
+                  - CTGAN: 'reference/api/synthesizers/regular/ctgan.md'
+                  - CWGANGP: 'reference/api/synthesizers/regular/cwgangp.md'
+                  - DRAGAN: 'reference/api/synthesizers/regular/dragan.md'
+                  - VANILLAGAN: 'reference/api/synthesizers/regular/vanillagan.md'
+                  - WGAN_GP: 'reference/api/synthesizers/regular/wgan_gp.md'
+                  - WGAN: 'reference/api/synthesizers/regular/wgan.md'
+              - Timeseries:
+                  - TimeGAN: 'reference/api/synthesizers/timeseries/timegan.md'
+                  - DoppelGANger: 'reference/api/synthesizers/timeseries/doppelganger.md'
+          - Preprocessing:
+              - BaseProcessor: 'reference/api/preprocessing/base.md'
+              - Regular:
+                  - RegularDataProcessor: 'reference/api/preprocessing/regular/preprocessor.md'
+                  - CTGANDataProcessor: 'reference/api/preprocessing/regular/ctgan_preprocessor.md'
 theme:
   name: material
   language: en
   palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: black
-      accent: pink
+    - scheme: ydata
+      media: "(prefers-color-scheme: light)"
+      primary: custom
   logo: 'https://assets.ydata.ai/oss/ydata-synthetic-_red.png'
   features:
     - content.code.annotate
