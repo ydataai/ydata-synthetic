@@ -23,6 +23,11 @@
 - 💻 **Best Generation Experience in Open Source:** Including a guided UI experience for the generation of synthetic data, from reading the data to visualization of synthetic data. All served by a slick Streamlit app. 
 :fontawesome-brands-youtube:{ style="color: #EE0F0F" } Here's a [quick overview](https://www.youtube.com/watch?v=ep0PhwsFx0A) – :octicons-clock-24: 1min
 
+!!! question
+
+    **Looking for an end-to-end solution to Synthetic Data Generation?**
+
+    [YData Fabric](https://ydata.ai/products/synthetic_data) enables the generation of high-quality datasets within a full UI experience, from data preparation to synthetic data generation and evaluation. Check out the [Community Version](https://ydata.ai/ydata-fabric-free-trial).
 
 ## Supported Data Types
     
@@ -51,3 +56,4 @@ The following architectures are currently supported:
 - [CWGAN-GP](https://cameronfabbri.github.io/papers/conditionalWGAN.pdf) (Conditional Wassertein GAN with Gradient Penalty)
 - [CTGAN](https://arxiv.org/pdf/1907.00503.pdf) (Conditional Tabular GAN)
 - [TimeGAN](https://papers.nips.cc/paper/2019/file/c9efe5f26cd17ba6216bbe2a7d26d490-Paper.pdf) (specifically for *time-series* data)
+- [DoppelGANger](https://dl.acm.org/doi/pdf/10.1145/3419394.3423643) (specifically for *time-series* data)

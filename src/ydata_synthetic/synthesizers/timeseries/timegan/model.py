@@ -2,10 +2,11 @@
     TimeGAN class implemented accordingly with:
     Original code can be found here: https://bitbucket.org/mvdschaar/mlforhealthlabpub/src/master/alg/timegan/
 """
-from tqdm import tqdm, trange
+from tqdm import tqdm
 import numpy as np
+from pandas import DataFrame
 
-from tensorflow import function, GradientTape, sqrt, abs, reduce_mean, ones_like, zeros_like, convert_to_tensor,float32
+from tensorflow import function, GradientTape, sqrt, abs, reduce_mean, ones_like, zeros_like, convert_to_tensor, float32
 from tensorflow import data as tfdata
 from tensorflow import nn
 from keras import (Model, Sequential, Input)
@@ -13,7 +14,8 @@ from keras.layers import (GRU, LSTM, Dense)
 from keras.optimizers import Adam
 from keras.losses import (BinaryCrossentropy, MeanSquaredError)
 
-from ....synthesizers.base import BaseGANModel
+from ydata_synthetic.synthesizers.base import BaseGANModel, ModelParameters, TrainParameters
+from ydata_synthetic.preprocessing.timeseries.utils import real_data_loading
 
 def make_net(model, n_layers, hidden_units, output_units, net_type='GRU'):
     if net_type=='GRU':
@@ -35,14 +37,51 @@ def make_net(model, n_layers, hidden_units, output_units, net_type='GRU'):
 
 class TimeGAN(BaseGANModel):
 
-    __MODEL__='TimeGAN'
+    __MODEL__ = 'TimeGAN'
 
-    def __init__(self, model_parameters, hidden_dim, seq_len, n_seq, gamma):
-        self.seq_len=seq_len
-        self.n_seq=n_seq
-        self.hidden_dim=hidden_dim
-        self.gamma=gamma
+    def __init__(self, model_parameters: ModelParameters):
         super().__init__(model_parameters)
+        self.seq_len = None
+        self.n_seq = None
+        self.hidden_dim = model_parameters.latent_dim
+        self.gamma = model_parameters.gamma
+        self.num_cols = None
+
+    def fit(self, data: DataFrame,
+        train_arguments: TrainParameters,
+        num_cols: list[str] | None = None,
+        cat_cols: list[str] | None = None):
+        """
+        Fits the TimeGAN model.
+
+        Args:
+            data: A pandas DataFrame with the data to be synthesized.
+            train_arguments: TimeGAN training arguments.
+            num_cols: List of columns to be handled as numerical
+            cat_cols: List of columns to be handled as categorical
+        """
+        super().fit(data=data, num_cols=num_cols, cat_cols=cat_cols, train_arguments=train_arguments)
+        if cat_cols:
+            raise NotImplementedError("TimeGAN does not support categorical features.")
+        self.num_cols = num_cols
+        self.seq_len = train_arguments.sequence_length
+        self.n_seq = train_arguments.number_sequences
+        processed_data = real_data_loading(data[self.num_cols].values, seq_len=self.seq_len)
+        self.train(data=processed_data, train_steps=train_arguments.epochs)
+
+    def sample(self, n_samples: int):
+        """
+        Samples new data from the TimeGAN.
+
+        Args:
+            n_samples: Number of samples to be generated.
+        """
+        Z_ = next(self.get_batch_noise(size=n_samples))
+        records = self.generator(Z_)
+        data = []
+        for i in range(records.shape[0]):
+            data.append(DataFrame(records[i], columns=self.num_cols))
+        return data
 
     def define_gan(self):
         self.generator_aux=Generator(self.hidden_dim).build()
@@ -220,9 +259,9 @@ class TimeGAN(BaseGANModel):
         while True:
             yield np.random.uniform(low=0, high=1, size=(self.seq_len, self.n_seq))
 
-    def get_batch_noise(self):
+    def get_batch_noise(self, size=None):
         return iter(tfdata.Dataset.from_generator(self._generate_noise, output_types=float32)
-                                .batch(self.batch_size)
+                                .batch(self.batch_size if size is None else size)
                                 .repeat())
 
     def train(self, data, train_steps):
@@ -269,15 +308,6 @@ class TimeGAN(BaseGANModel):
             step_d_loss = self.discriminator_loss(X_, Z_)
             if step_d_loss > 0.15:
                 step_d_loss = self.train_discriminator(X_, Z_, discriminator_opt)
-
-    def sample(self, n_samples):
-        steps = n_samples // self.batch_size + 1
-        data = []
-        for _ in trange(steps, desc='Synthetic data generation'):
-            Z_ = next(self.get_batch_noise())
-            records = self.generator(Z_)
-            data.append(records)
-        return np.array(np.vstack(data))
 
 
 class Generator(Model):

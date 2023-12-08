@@ -7,7 +7,7 @@
 
 <p align="center"><img width="300" src="https://assets.ydata.ai/oss/ydata-synthetic_black.png" alt="YData Synthetic Logo"></p>
 
-Join us on [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/mw7xjJ7b7s)
+Join us on [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://tiny.ydata.ai/dcai-ydata-synthetic)
 
 # YData Synthetic
 A package to generate synthetic tabular and time-series data leveraging the state of the art generative models.
@@ -28,6 +28,11 @@ Synthetic data can be used for many applications:
   - Remove bias
   - Balance datasets
   - Augment datasets
+
+> **Looking for an end-to-end solution to Synthetic Data Generation?**<br>
+> [YData Fabric](https://ydata.ai/products/synthetic_data) enables the generation of high-quality datasets within a full UI experience, from data preparation to synthetic data generation and evaluation.<br>
+> Check out the [Community Version](https://ydata.ai/ydata-fabric-free-trial).
+
 
 # ydata-synthetic
 This repository contains material related with architectures and models for synthetic data, from Generative Adversarial Networks (GANs) to Gaussian Mixtures.
@@ -86,6 +91,7 @@ Here you can find usage examples of the package and models to synthesize tabular
   - Fast tabular data synthesis on adult census income dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/regular/models/Fast_Adult_Census_Income_Data.ipynb)
   - Tabular synthetic data generation with CTGAN on adult census income dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/regular/models/CTGAN_Adult_Census_Income_Data.ipynb)
   - Time Series synthetic data generation with TimeGAN on stock dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/timeseries/TimeGAN_Synthetic_stock_data.ipynb)
+  - Time Series synthetic data generation with DoppelGANger on FCC MBA dataset [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/timeseries/DoppelGANger_FCC_MBA_Dataset.ipynb)
   - More examples are continuously added and can be found in `/examples` directory.
 
 ### Datasets for you to experiment
@@ -97,6 +103,7 @@ Here are some example datasets for you to try with the synthesizers:
 
 #### Sequential datasets
 - [Stock data](https://github.com/ydataai/ydata-synthetic/tree/master/data)
+- [FCC MBA data](https://github.com/ydataai/ydata-synthetic/tree/master/data)
 
 ## Project Resources
 
@@ -115,6 +122,7 @@ In this repository you can find the several GAN architectures that are used to c
 
 ### Sequential data
   - [TimeGAN](https://papers.nips.cc/paper/2019/file/c9efe5f26cd17ba6216bbe2a7d26d490-Paper.pdf)
+  - [DoppelGANger](https://dl.acm.org/doi/pdf/10.1145/3419394.3423643)
 
 ## Contributing
 We are open to collaboration! If you want to start contributing you only need to:
@@ -123,7 +131,10 @@ We are open to collaboration! If you want to start contributing you only need to
   3. We would review every PRs and either accept or ask for revisions.
 
 ## Support
-For support in using this library, please join our Discord server. Our Discord community is very friendly and great about quickly answering questions about the use and development of the library. [Click here to join our Discord community!](https://discord.com/invite/mw7xjJ7b7s)
+For support in using this library, please join our Discord server. Our Discord community is very friendly and great about quickly answering questions about the use and development of the library. [Click here to join our Discord community!](https://tiny.ydata.ai/dcai-ydata-synthetic)
+
+## FAQs
+Have a question? Check out the [Frequently Asked Questions](https://ydata.ai/resources/10-most-asked-questions-on-ydata-synthetic) about `ydata-synthetic`. If you feel something is missing, feel free to [book a beary informal chat with us](https://meetings.hubspot.com/fabiana-clemente).
 
 ## License
 [MIT License](https://github.com/ydataai/ydata-synthetic/blob/master/LICENSE)

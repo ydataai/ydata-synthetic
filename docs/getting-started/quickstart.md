@@ -35,23 +35,30 @@ The following example showcases how to synthesize the [Yahoo Stock Price](https:
     ```python
         # Import the necessary modules
         import pandas as pd
-        from ydata_synthetic.synthesizers import ModelParameters
-        from ydata_synthetic.synthesizers.timeseries import TimeGAN
-        from ydata_synthetic.preprocessing.timeseries.utils import real_data_loading
+        from ydata_synthetic.synthesizers.timeseries import TimeSeriesSynthesizer
+        from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
 
-        # Load and preprocess data
-        stock_data_df = pd.read_csv("stock_data.csv")
-        processed_data = real_data_loading(stock_data_df.values, seq_len=24)
-       
-        # Define model and training parameters
-        gan_args = ModelParameters(batch_size=128, lr=5e-4, noise_dim=128, layers_dim=128)
-        synth = TimeGAN(model_parameters=gan_args, hidden_dim=24, seq_len=24, n_seq=6, gamma=1)
+        # Define model parameters
+        gan_args = ModelParameters(batch_size=128,
+                                lr=5e-4,
+                                noise_dim=32,
+                                layers_dim=128,
+                                latent_dim=24,
+                                gamma=1)
 
-        # Train the generator model
-        synth.train(data=processed_data, train_steps=50000)
+        train_args = TrainParameters(epochs=50000,
+                                    sequence_length=24,
+                                    number_sequences=6)
 
-        # Generate new synthetic data
-        synth_data = synth.sample(len(stock_data_df))
+        # Read the data
+        stock_data = pd.read_csv("stock_data.csv")
+
+        # Training the TimeGAN synthesizer
+        synth = TimeSeriesSynthesizer(modelname='timegan', model_parameters=gan_args)
+        synth.fit(stock_data, train_args, num_cols=list(stock_data.columns))
+
+        # Generating new synthetic samples
+        synth_data = synth.sample(n_samples=500)
     ```
 
 ## Running the Streamlit App
