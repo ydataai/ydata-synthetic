@@ -53,7 +53,7 @@ setup(name='ydata-synthetic',
               "streamlit==1.29.0",
               "typing-extensions>=3.10.0",
               "streamlit_pandas_profiling==0.1.3",
-              "ydata-profiling==4.0.0",
+              "ydata-profiling==4.6.3",
               "ydata-sdk>=0.2.1"
           ],
       },
