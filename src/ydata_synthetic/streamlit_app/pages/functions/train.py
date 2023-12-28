@@ -5,7 +5,7 @@ from enum import Enum
 import streamlit as st
 
 from ydata_synthetic.synthesizers.regular import RegularSynthesizer
-from ydata_synthetic.synthesizers.timeseries import TimeGAN
+from ydata_synthetic.synthesizers.timeseries.timegan.model import TimeGAN
 from ydata_synthetic.synthesizers import ModelParameters
 
 __MODEL_MAPPING = {'tabular': RegularSynthesizer, 'timeseries': TimeGAN}
