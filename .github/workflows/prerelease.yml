@@ -46,12 +46,12 @@ jobs:
     needs: package
 
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: built-artifacts
         path: dist/
 
-    - uses: AButler/upload-release-assets@v3.0
+    - uses: AButler/upload-release-assets@v2.0
       with:
         files: 'dist/*'
         repo-token: ${{ secrets.ACCESS_TOKEN }}
@@ -64,7 +64,7 @@ jobs:
     needs: package
 
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: built-artifacts
         path: dist/
