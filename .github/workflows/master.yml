@@ -15,7 +15,7 @@ jobs:
       release_notes: ${{ steps.semantic.outputs.new_release_notes }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         token: ${{ secrets.ACCESS_TOKEN }}
 
