@@ -33,7 +33,7 @@ jobs:
       run: make package version=${{ steps.version.outputs.value }}
 
     - name: Upload Pipeline Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         retention-days: 1
         name: built-artifacts
@@ -51,7 +51,7 @@ jobs:
         name: built-artifacts
         path: dist/
 
-    - uses: AButler/upload-release-assets@v3.0
+    - uses: AButler/upload-release-assets@v2.0
       with:
         files: 'dist/*'
         repo-token: ${{ secrets.ACCESS_TOKEN }}
