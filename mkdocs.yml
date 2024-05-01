@@ -34,6 +34,7 @@ nav:
     - Help & Troubleshooting: 'support/help-troubleshooting.md'
     - Contribution Guidelines: 'support/contribute.md'
     - Contribution Guidelines: 'support/contribute.md'
+    - Analytics: 'support/analytics.md'
   - Reference:
       - Changelog: 'reference/changelog.md'
       - API:
