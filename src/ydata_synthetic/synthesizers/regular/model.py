@@ -17,6 +17,10 @@ from ydata_synthetic.synthesizers.regular.dragan.model import DRAGAN
 from ydata_synthetic.synthesizers.regular.ctgan.model import CTGAN
 from ydata_synthetic.synthesizers.regular.gmm.model import GMM
 
+from ydata_synthetic.utils.logger import SynthesizersLogger
+
+logger = SynthesizersLogger(name='regularsynthesizer.logger')
+logger.setLevel(logging.INFO)
 
 @unique
 class Model(Enum):
@@ -54,6 +58,8 @@ class RegularSynthesizer():
             model=Model(modelname).function(**kwargs)
         else:
             model=Model(modelname).function(model_parameters, **kwargs)
+
+        logger.info_def_report(model=modelname)
         return model
 
     @staticmethod

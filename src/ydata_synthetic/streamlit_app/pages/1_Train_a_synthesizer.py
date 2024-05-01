@@ -6,12 +6,16 @@ import streamlit as st
 from ydata.sdk.synthesizers import RegularSynthesizer
 from ydata.sdk.common.client import get_client
 
+from ydata_synthetic.utils.logger import SynthesizersLogger
 from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
 from ydata_synthetic.synthesizers.regular.model import Model
 
 from ydata_synthetic.streamlit_app.pages.functions.load_data import upload_file
 from ydata_synthetic.streamlit_app.pages.functions.train import DataType, __CONDITIONAL_MODELS
 from ydata_synthetic.streamlit_app.pages.functions.train import init_synth, advanced_setttings, training_parameters
+
+logger = SynthesizersLogger(name='streamlitSynthesizer.logger')
+logger.setLevel(logging.INFO)
 
 def get_available_models(type: Union[str, DataType]):
 
@@ -114,6 +118,8 @@ def run():
             
             st.subheader("3. Train your synthesizer")
             if st.button('Click here to start the training process', disabled=not valid_token):
+
+                logger.info_def_report(model='ydatafabric')
                 model = RegularSynthesizer()
                 with st.spinner("Please wait while your synthesizer trains..."):
                     dtypes = {}
