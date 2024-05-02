@@ -1,3 +1,8 @@
-/config.local
-/tmp
-/cache
+# config.local file path
+config_local_path = '/config.local'
+
+# Temporary files directory
+tmp_path = '/tmp'
+
+# Cache directory
+cache_path = '/cache'
