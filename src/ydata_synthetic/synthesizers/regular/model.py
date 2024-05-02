@@ -1,11 +1,11 @@
 """
-    Main synthesizer class
+Main synthesizer class
 """
 from enum import Enum, unique
+from joblib import load, dump
+from typing import Any, Dict, Union
 
-from joblib import load
-
-from tensorflow import config as tfconfig
+import tensorflow as tf
 
 from ydata_synthetic.synthesizers.regular.vanillagan.model import VanilllaGAN
 from ydata_synthetic.synthesizers.regular.cgan.model import CGAN
@@ -22,8 +22,8 @@ from ydata_synthetic.synthesizers.regular.gmm.model import GMM
 class Model(Enum):
     VANILLA = 'gan'
     CONDITIONAL = 'cgan'
-    WASSERTEIN =  'wgan'
-    WASSERTEINGP ='wgangp'
+    WASSERTEIN = 'wgan'
+    WASSERTEINGP = 'wgangp'
     CWASSERTEINGP = 'cwgangp'
     CRAMER = 'cramer'
     DEEPREGRET = 'dragan'
@@ -31,7 +31,7 @@ class Model(Enum):
     FAST = 'fast'
 
     __MAPPING__ = {
-        VANILLA : VanilllaGAN,
+        VANILLA: VanilllaGAN,
         CONDITIONAL: CGAN,
         WASSERTEIN: WGAN,
         WASSERTEINGP: WGAN_GP,
@@ -47,32 +47,57 @@ class Model(Enum):
         return self.__MAPPING__[self.value]
 
 class RegularSynthesizer():
-    "Abstraction class "
-    def __new__(cls, modelname: str, model_parameters =None, **kwargs):
-        model = None
+    """
+    Abstraction class for synthetic data generation.
+    """
+    def __init__(self, modelname: str, model_parameters: Union[Dict[str, Any], None] = None, **kwargs):
+        """
+        Initializes the synthesizer object.
+
+        Args:
+            modelname (str): Name of the synthesizer model.
+            model_parameters (Dict[str, Any], optional): Model parameters. Defaults to None.
+            **kwargs: Additional keyword arguments.
+        """
+        self.modelname = modelname
+        self.model_parameters = model_parameters
+        self.model = None
         if Model(modelname) == Model.FAST:
-            model=Model(modelname).function(**kwargs)
+            self.model = Model(modelname).function(**kwargs)
         else:
-            model=Model(modelname).function(model_parameters, **kwargs)
-        return model
+            self.model = Model(modelname).function(model_parameters, **kwargs)
+
+    def __new__(cls, modelname: str, model_parameters: Union[Dict[str, Any], None] = None, **kwargs):
+        return super().__new__(cls)
+
+    def save(self, path: str):
+        """
+        Saves the synthesizer object to a pickle file.
+
+        Args:
+            path (str): Path to save the synthesizer pickle.
+        """
+        dump(self.__dict__, path)
 
     @staticmethod
-    def load(path):
+    def load(path: str):
         """
-        ### Description:
         Loads a saved synthesizer from a pickle.
 
-        ### Args:
-        `path` (str): Path to read the synthesizer pickle from.
+        Args:
+            path (str): Path to read the synthesizer pickle from.
+
+        Returns:
+            Union[RegularSynthesizer, CTGAN]: The loaded synthesizer object.
         """
-        gpu_devices = tfconfig.list_physical_devices('GPU')
+        gpu_devices = tf.config.list_physical_devices('GPU')
         if len(gpu_devices) > 0:
             try:
-                tfconfig.experimental.set_memory_growth(gpu_devices[0], True)
+                tf.config.experimental.set_memory_growth(gpu_devices[0], True)
             except (ValueError, RuntimeError):
                 # Invalid device or cannot modify virtual devices once initialized.
                 pass
         synth = load(path)
-        if isinstance(synth, dict):
-            return CTGAN.load(synth)
-        return synth
+        if isinstance(synth, dict) and Model(list(synth.keys())[0]) == Model.FAST:
+            return GMM.load(synth)
+        return RegularSynthesizer(**synth)
