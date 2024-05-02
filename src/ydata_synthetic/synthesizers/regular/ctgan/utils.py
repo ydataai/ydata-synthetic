@@ -1,7 +1,6 @@
 import tensorflow as tf
 import numpy as np
 
-
 class RealDataSampler:
     """
     Class used to sample from real data.
@@ -13,7 +12,7 @@ class RealDataSampler:
     def __init__(self, data, metadata):
         super(RealDataSampler, self).__init__()
         self._data = data
-        self._active_bits = []
+        self._active_bits = []  # List to store active bits for discrete columns
         self._n_rows = len(data)
 
         for col_md in metadata:
@@ -45,7 +44,6 @@ class RealDataSampler:
             idx.append(np.random.choice(self._active_bits[col][opt]))
         return self._data[idx]
 
-
 class ConditionalSampler:
     """
     Class used to sample conditional vectors.
@@ -58,7 +56,7 @@ class ConditionalSampler:
     def __init__(self, data=None, metadata=None, log_frequency=None):
         if data is None:
             return
-        self._active_bits = []
+        self._active_bits = []  # List to store active bits for discrete columns
         max_interval = 0
         counter = 0
 
@@ -68,7 +66,7 @@ class ConditionalSampler:
                 self._active_bits.append(np.argmax(data[:, col_md.start_idx:col_md.end_idx], axis=-1))
                 counter += 1
 
-        self._interval = []
+        self._interval = []  # List to store the intervals for each discrete column
         self._n_col = 0
         self._n_opt = 0
         self._probabilities = np.zeros((counter, max_interval))
@@ -84,7 +82,7 @@ class ConditionalSampler:
                 self._n_opt += col_md.output_dim
                 self._n_col += 1
 
-        self._interval = np.asarray(self._interval)        
+        self._interval = np.asarray(self._interval)  # Convert the interval list to a numpy array
 
     @property
     def output_dimensions(self):
@@ -103,7 +101,7 @@ class ConditionalSampler:
         """
         if self._n_col == 0:
             return None
-        
+
         col_idx = np.random.choice(np.arange(self._n_col), batch_size)
         cond_vector = np.zeros((batch_size, self._n_opt), dtype='float32')
 
@@ -121,7 +119,7 @@ class ConditionalSampler:
         opt = self._interval[col_idx, 0] + opt_idx
         cond_vector[np.arange(batch_size), opt] = 1
         return cond_vector, mask, col_idx, opt_idx
-    
+
 class ConditionalLoss:
     """
     Conditional loss utils.
