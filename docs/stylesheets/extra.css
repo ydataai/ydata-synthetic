@@ -1,14 +1,19 @@
+/* Sets the style for annotation index numbers, displaying their corresponding data-md-annotation-id attribute */
 .md-typeset .md-annotation__index > ::before {
     content: attr(data-md-annotation-id);
 }
+
+/* Removes any transformations applied to the annotation index numbers when the element is focused */
 .md-typeset :focus-within > .md-annotation__index > ::before {
     transform: none;
 }
 
+/* Sets the primary color for the content area */
 .md-content {
   --md-typeset-a-color: #002b9e;
 }
 
+/* Applies specific styles when the .md-button--ydata class is used */
 @media {
   .md-button--ydata {
       --md-primary-fg-color: #E32212;
@@ -16,6 +21,7 @@
   }
 }
 
+/* Sets the default color shades for the primary and accent colors, as well as code blocks, footer, and YouTube elements */
 :root {
     /* Primary color shades */
     --md-primary-fg-color: #040404;
@@ -32,12 +38,13 @@
     --md-accent-bg-color--light: hsla(0, 0%, 100%, 0.7);
   }
 
+  /* Applies specific styles for code blocks */
   :root > * {
     /* Code block color shades */
     --md-code-bg-color: hsla(0, 0%, 96%, 1);
     --md-code-fg-color: hsla(200, 18%, 26%, 1);
 
-    /* Footer */
+    /* Footer styles */
     --md-footer-bg-color: #040404;
     --md-footer-bg-color--dark: hsla(0, 0%, 0%, 0.32);
     --md-footer-fg-color: hsla(0, 0%, 100%, 1);
@@ -45,6 +52,7 @@
     --md-footer-fg-color--lighter: hsla(0, 0%, 100%, 0.3);
   }
 
+/* Sets the color for YouTube elements */
 .youtube {
   color: #EE0F0F;
 }
