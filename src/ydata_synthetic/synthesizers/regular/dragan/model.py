@@ -1,9 +1,5 @@
-"""
-    DRAGAN model architecture implementation
-"""
 import os
 from os import path
-
 from typing import Optional, NamedTuple
 import tensorflow as tf
 import tqdm
@@ -11,12 +7,11 @@ from keras import Model, initializers
 from keras.layers import Dense, Dropout, Input
 from keras.optimizers import Adam
 
-#Import ydata synthetic classes
+# Import ydata synthetic classes
 from ....synthesizers.base import BaseGANModel
 from ....synthesizers.loss import Mode, gradient_penalty
 
 class DRAGAN(BaseGANModel):
-
     __MODEL__='DRAGAN'
 
     def __init__(self, model_parameters, n_discriminator, gradient_penalty_weight=10):
@@ -27,7 +22,6 @@ class DRAGAN(BaseGANModel):
             n_discriminator:
             gradient_penalty_weight (int, optional): Defaults to 10.
         """
-        # As recommended in DRAGAN paper - https://arxiv.org/abs/1705.07215
         self.n_discriminator = n_discriminator
         self.gradient_penalty_weight = gradient_penalty_weight
         super().__init__(model_parameters)
@@ -42,12 +36,8 @@ class DRAGAN(BaseGANModel):
             (generator_optimizer, discriminator_optimizer): Generator and discriminator optimizers
         """
         # define generator/discriminator
-        self.generator = Generator(self.batch_size). \
-            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,
-                        activation_info=col_transform_info, tau = self.tau)
-
-        self.discriminator = Discriminator(self.batch_size). \
-            build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
+        self.generator = Generator(self.batch_size, self.noise_dim, self.layers_dim, self.data_dim, col_transform_info, self.tau).build_model()
+        self.discriminator = Discriminator(self.batch_size, self.layers_dim).build_model(self.data_dim)
 
         g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2, clipvalue=0.001)
         d_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2, clipvalue=0.001)
@@ -55,7 +45,7 @@ class DRAGAN(BaseGANModel):
 
     def gradient_penalty(self, real, fake):
         """Compute gradient penalty.
-        
+
         Args:
             real: real event.
             fake: fake event.
@@ -153,7 +143,6 @@ class DRAGAN(BaseGANModel):
             data batch.
         """
         buffer_size = len(train)
-        #tensor_data = pd.concat([x_train, y_train], axis=1)
         train_loader = tf.data.Dataset.from_tensor_slices(train) \
             .batch(batch_size).shuffle(buffer_size)
         return train_loader
@@ -197,75 +186,88 @@ class DRAGAN(BaseGANModel):
                     batch_data = tf.cast(batch_data, dtype=tf.float32)
                     d_loss, g_loss = self.train_step(batch_data, optimizers)
 
-                print(
-                    "Epoch: {} | disc_loss: {} | gen_loss: {}".format(
-                        epoch, d_loss, g_loss
-                    ))
+                    print(
+                        "Epoch: {} | disc_loss: {} | gen_loss: {}".format(
+                            epoch, d_loss, g_loss
+                        ))
 
-                if epoch % train_arguments.sample_interval == 0:
-                    # Test here data generation step
-                    # save model checkpoints
-                    if path.exists('./cache') is False:
-                        os.mkdir('./cache')
-                    model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
-                    self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
-                    self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
-
+                    if epoch % train_arguments.sample_interval == 0:
+                        # Test here data generation step
+                        # save model checkpoints
+                        if path.exists('./cache') is False:
+                            os.mkdir('./cache')
+                        model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
+                        self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
+                        self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
 
 class Discriminator(Model):
-    def __init__(self, batch_size):
+    def __init__(self, batch_size, dim):
         """Simple discriminator with dense feedforward layers.
 
         Args:
             batch_size (int): batch size
+            dim (int): hidden layers size.
         """
+        super().__init__()
         self.batch_size = batch_size
+        self.dense1 = Dense(dim * 4, kernel_initializer=initializers.TruncatedNormal(mean=0., stddev=0.5), activation='relu')
+        self.dense2 = Dense(dim * 2, activation='relu')
+        self.dense3 = Dense(dim, activation='relu')
+        self.dense4 = Dense(1, activation='sigmoid')
 
-    def build_model(self, input_shape, dim):
+    def build_model(self, input_shape):
         """Create model components.
 
         Args:
             input_shape: input dimensionality.
-            dim: hidden layers size.
 
         Returns:
             Discriminator model
         """
         input = Input(shape=input_shape, batch_size=self.batch_size)
-        x = Dense(dim * 4, kernel_initializer=initializers.TruncatedNormal(mean=0., stddev=0.5), activation='relu')(input)
+        x = self.dense1(input)
         x = Dropout(0.1)(x)
-        x = Dense(dim * 2, activation='relu')(x)
+        x = self.dense2(x)
         x = Dropout(0.1)(x)
-        x = Dense(dim, activation='relu')(x)
-        x = Dense(1, activation='sigmoid')(x)
+        x = self.dense3(x)
+        x = self.dense4(x)
         return Model(inputs=input, outputs=x)
 
 class Generator(Model):
-    def __init__(self, batch_size):
+    def __init__(self, batch_size, noise_dim, dim, data_dim, activation_info=None, tau=None):
         """Simple generator with dense feedforward layers.
 
         Args:
             batch_size (int): batch size
-        """
-        self.batch_size = batch_size
-
-    def build_model(self, input_shape, dim, data_dim, activation_info: NamedTuple = None, tau: Optional[float] = None):
-        """Create model components.
-
-        Args:
-            input_shape: input dimensionality.
-            dim: hidden layers dimensions.
-            data_dim: Output dimensionality.
+            noise_dim (int): noise dimensionality.
+            dim (int): hidden layers dimensions.
+            data_dim (int): Output dimensionality.
             activation_info (Optional[NamedTuple]): Defaults to None
             tau (Optional[float]): Gumbel-Softmax non-negative temperature. Defaults to None
+        """
+        super().__init__()
+        self.batch_size = batch_size
+        self.noise_dim = noise_dim
+        self.dim = dim
+        self.data_dim = data_dim
+        self.dense1 = Dense(dim * 4, kernel_initializer=initializers.TruncatedNormal(mean=0., stddev=0.5), activation='relu')
+        self.dense2 = Dense(dim * 2, activation='relu')
+        self.dense3 = Dense(dim, activation='relu')
+        self.dense4 = Dense(data_dim)
+        self.activation_info = activation_info
+        self.tau = tau
+
+    def build_model(self):
+        """Create model components.
+
         Returns:
             Generator model
         """
-        input = Input(shape=input_shape, batch_size = self.batch_size)
-        x = Dense(dim, kernel_initializer=initializers.TruncatedNormal(mean=0., stddev=0.5), activation='relu')(input)
-        x = Dense(dim * 2, activation='relu')(x)
-        x = Dense(dim * 4, activation='relu')(x)
-        x = Dense(data_dim)(x)
-        #if activation_info:
-        #    x = GumbelSoftmaxActivation(activation_info, tau=tau)(x)
+        input = Input(shape=(self.noise_dim,), batch_size=self.batch_size)
+        x = self.dense1(input)
+        x = self.dense2(x)
+        x = self.dense3(x)
+        x = self.dense4(x)
+        if self.activation_info:
+            x = GumbelSoftmaxActivation(self.activation_info, tau=self.tau)(x)
         return Model(inputs=input, outputs=x)
