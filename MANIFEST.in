@@ -1,9 +1,11 @@
+# Include all text and markdown files, as well as the LICENSE and VERSION files
 include *.txt
 include *.md
 include LICENSE
 include VERSION
 
+# Exclude specific files and directories
 exclude .gitignore
 exclude .releaserc.json
 exclude .dvcignore
-exclude .dvc
+exclude .dvc/
