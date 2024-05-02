@@ -1,6 +1,8 @@
 from typing import Union
 import os
 import json
+import logging
+
 import streamlit as st
 
 from ydata.sdk.synthesizers import RegularSynthesizer
@@ -119,7 +121,7 @@ def run():
             st.subheader("3. Train your synthesizer")
             if st.button('Click here to start the training process', disabled=not valid_token):
 
-                logger.info_def_report(model='ydatafabric')
+                logger.info_def_report(model='fabric')
                 model = RegularSynthesizer()
                 with st.spinner("Please wait while your synthesizer trains..."):
                     dtypes = {}

@@ -32,7 +32,7 @@ In your notebook or script make sure to set YDATA_SYNTHETIC_NO_ANALYTICS environ
 ````python
     import os
     
-    os.environ['YDATA_SYNTHETIC_NO_ANALYTICS']=True
+    os.environ['YDATA_SYNTHETIC_NO_ANALYTICS']='True'
 ````
 
 

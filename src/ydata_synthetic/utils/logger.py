@@ -7,7 +7,7 @@ import logging
 
 import pandas as pd
 
-from ydata_profiling.utils.common import analytics_features
+from ydata_synthetic.utils.utils import analytics_features
 
 class SynthesizersLogger(logging.Logger):
     def __init__(self, name, level=logging.INFO):

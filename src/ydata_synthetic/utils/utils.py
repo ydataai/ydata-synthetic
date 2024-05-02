@@ -1,10 +1,15 @@
 """
     Utility functions that are common to ydata-synthetic project
 """
+import os
+import subprocess
+import platform
+
+from ydata_synthetic.version import __version__
 def analytics_features(model: str):
     endpoint= "https://packages.ydata.ai/ydata-synthetic?"
 
-    if os.getenv("YDATA_SYNTHETIC_NO_ANALYTICS") != True:
+    if bool(os.getenv("YDATA_SYNTHETIC_NO_ANALYTICS"))!= True:
         package_version = __version__
         try:
             subprocess.check_output("nvidia-smi")
@@ -21,6 +26,7 @@ def analytics_features(model: str):
                                  f"&os={platform.system()}" \
                                  f"&gpu={str(gpu_present)}"
 
-            requests.get(request_message)
+            #requests.get(request_message)
+            print(request_message)
         except Exception:
             pass

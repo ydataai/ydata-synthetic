@@ -2,6 +2,7 @@
     Main synthesizer class
 """
 from enum import Enum, unique
+import logging
 
 from joblib import load
 

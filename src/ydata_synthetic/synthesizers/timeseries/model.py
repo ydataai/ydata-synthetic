@@ -3,6 +3,7 @@
 """
 from enum import Enum, unique
 import os
+import logging
 from joblib import load
 
 from tensorflow import config as tfconfig
