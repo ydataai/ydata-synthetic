@@ -1,10 +1,9 @@
 import streamlit as st
 import json
 import os
-
+import urllib.request
 from ydata.sdk.synthesizers import RegularSynthesizer
 from ydata.sdk.common.client import get_client
-
 from ydata_synthetic.streamlit_app.pages.functions.train import DataType
 from ydata_synthetic.streamlit_app.pages.functions.generate import load_model, generate_profile
 
@@ -18,11 +17,15 @@ def run():
         input_path = st.text_input("Provide the path to a trained model", value="trained_synth.pkl")
         # Try to load as a JSON as SDK
         try: 
-            f = open(input_path)
-            model_data = json.load(f)
+            if input_path.startswith("http"):
+                model_data = json.load(urllib.request.urlopen(input_path))
+            else:
+                with open(input_path, "r") as f:
+                    model_data = json.load(f)
             from_SDK = True
-        except:
-            pass
+        except Exception as e:
+            st.error(f"Error loading the model file: {e}")
+            model_data = {}
 
         if from_SDK:
             token = st.text_input("SDK Token", type="password", value=model_data.get('token'))
@@ -39,8 +42,8 @@ def run():
                 get_client()
                 st.text('✅ Valid')
                 valid_token = True
-            except Exception:
-                st.text('❌ Invalid')
+            except Exception as e:
+                st.error(f"Invalid token: {e}")
     
     if from_SDK and 'token' in model_data and not valid_token:
         st.warning("The token used during training is not valid anymore. Please, use a new token.")
@@ -54,7 +57,7 @@ def run():
 
     col1, col2 = st.columns([4,2])
     with col1:
-        n_samples = st.number_input("Number of samples to generate", min_value=0, value=1000)
+        n_samples = st.number_input("Number of samples to generate", min_value=0, value=1000, step=100)
         profile = st.checkbox("Generate synthetic data profiling?", value=False)
     with col2:
         sample_path = st.text_input("Synthetic samples file path", value='synthetic.csv')
@@ -75,7 +78,11 @@ def run():
         st.write(synth_data)
 
         #save the synthetic data samples to a given path
-        synth_data.to_csv(sample_path)
+        if sample_path.startswith("http"):
+            with urllib.request.urlopen(sample_path, "w") as f:
+                synth_data.to_csv(f)
+        else:
+            synth_data.to_csv(sample_path)
 
         if profile:
             generate_profile(df=synth_data)
