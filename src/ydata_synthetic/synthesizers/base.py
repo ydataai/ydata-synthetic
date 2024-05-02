@@ -1,97 +1,99 @@
 "Implements a GAN BaseModel synthesizer, not meant to be directly instantiated."
-from abc import ABC, abstractmethod
-from collections import namedtuple
-from typing import List, Optional, Union
-
+import abc
+import numpy as np
 import pandas as pd
-import tqdm
+import tensorflow as tf
+from typing import Any, List, NamedTuple, Optional, Union
 
-from numpy import array, vstack, ndarray
+from joblib import dump, load
 from numpy.random import normal
 from pandas.api.types import is_float_dtype, is_integer_dtype
 from pandas import DataFrame
 from pandas import concat
-
-from joblib import dump, load
-
-import tensorflow as tf
-
 from tensorflow import config as tfconfig
 from tensorflow import data as tfdata
 from tensorflow import random
 from typeguard import typechecked
 
-from ydata_synthetic.preprocessing.regular.processor import (
-    RegularDataProcessor, RegularModels)
-from ydata_synthetic.preprocessing.timeseries.timeseries_processor import (
-    TimeSeriesDataProcessor, TimeSeriesModels)
-from ydata_synthetic.preprocessing.regular.ctgan_processor import CTGANDataProcessor
-from ydata_synthetic.preprocessing.timeseries.doppelganger_processor import DoppelGANgerProcessor
-from ydata_synthetic.synthesizers.saving_keras import make_keras_picklable
+class ModelParameters(NamedTuple):
+    batch_size: int
+    lr: Union[float, List[float]]
+    betas: Optional[List[float]]
+    layers_dim: List[int]
+    noise_dim: int
+    n_cols: Optional[List[str]]
+    seq_len: Optional[int]
+    condition: Optional[Any]
+    n_critic: int
+    n_features: Optional[int]
+    tau_gs: float
+    generator_dims: List[int]
+    critic_dims: List[int]
+    l2_scale: float
+    latent_dim: int
+    gp_lambda: float
+    pac: bool
+    gamma: float
+    tanh: bool
 
-_model_parameters = ['batch_size', 'lr', 'betas', 'layers_dim', 'noise_dim',
-                     'n_cols', 'seq_len', 'condition', 'n_critic', 'n_features', 
-                     'tau_gs', 'generator_dims', 'critic_dims', 'l2_scale', 
-                     'latent_dim', 'gp_lambda', 'pac', 'gamma', 'tanh']
-_model_parameters_df = [128, 1e-4, (None, None), 128, 264,
-                        None, None, None, 1, None, 0.2, [256, 256], 
-                        [256, 256], 1e-6, 128, 10.0, 10, 1, False]
+class TrainParameters:
+    cache_prefix: str
+    label_dim: Optional[int]
+    epochs: int
+    sample_interval: int
+    labels: Optional[List[str]]
+    n_clusters: int
+    epsilon: float
+    log_frequency: int
+    measurement_cols: Optional[List[str]]
+    sequence_length: Optional[int]
+    number_sequences: int
+    sample_length: int
+    rounds: int
 
-_train_parameters = ['cache_prefix', 'label_dim', 'epochs', 'sample_interval', 
-                     'labels', 'n_clusters', 'epsilon', 'log_frequency', 
-                     'measurement_cols', 'sequence_length', 'number_sequences', 
-                     'sample_length', 'rounds']
-
-ModelParameters = namedtuple('ModelParameters', _model_parameters, defaults=_model_parameters_df)
-TrainParameters = namedtuple('TrainParameters', _train_parameters, defaults=('', None, 300, 50, None, 10, 0.005, True, None, 1, 1, 1, 1))
-
-@typechecked
-class BaseModel(ABC):
+class BaseModel(abc.ABC):
     """
-    Abstract class for synthetic data generation nmodels
+    Abstract class for synthetic data generation models.
 
     The main methods are train (for fitting the synthesizer), save/load and sample (generating synthetic records).
 
     """
     __MODEL__ = None
 
-    @abstractmethod
-    def fit(self, data: Union[DataFrame, array],
+    @abc.abstractmethod
+    def fit(self, data: Union[DataFrame, np.ndarray],
                   num_cols: Optional[List[str]] = None,
                   cat_cols: Optional[List[str]] = None):
         """
-        ### Description:
         Trains and fit a synthesizer model to a given input dataset.
 
-        ### Args:
-        `data` (Union[DataFrame, array]): Training data
-        `num_cols` (Optional[List[str]]) : List with the names of the categorical columns
-        `cat_cols` (Optional[List[str]]): List of names of categorical columns
+        Args:
+            data (Union[DataFrame, np.ndarray]): Training data
+            num_cols (Optional[List[str]]) : List with the names of the categorical columns
+            cat_cols (Optional[List[str]]): List of names of categorical columns
 
-        ### Returns:
-        **self:** *object*
-            Fitted synthesizer
+        Returns:
+            self: Fitted synthesizer
         """
         ...
-    @abstractmethod
-    def sample(self, n_samples:int) -> pd.DataFrame:
-        assert n_samples>0, "Please insert a value bigger than 0 for n_samples parameter."
+
+    @abc.abstractmethod
+    def sample(self, n_samples: int) -> pd.DataFrame:
         ...
 
     @classmethod
     def load(cls, path: str):
         ...
 
-    @abstractmethod
+    @abc.abstractmethod
     def save(self, path: str):
         ...
 
-# pylint: disable=R0902
-@typechecked
 class BaseGANModel(BaseModel):
     """
     Base class of GAN synthesizer models.
     The main methods are train (for fitting the synthesizer), save/load and sample (obtain synthetic records).
+
     Args:
         model_parameters (ModelParameters):
             Set of architectural parameters for model definition.
@@ -107,45 +109,34 @@ class BaseGANModel(BaseModel):
             except (ValueError, RuntimeError):
                 # Invalid device or cannot modify virtual devices once initialized.
                 pass
-        #Validate the provided model parameters
-        if model_parameters.betas is not None:
-            assert len(model_parameters.betas) == 2, "Please provide the betas information as a tuple."
-
-        self.batch_size = model_parameters.batch_size
-        self._set_lr(model_parameters.lr)
-        self.beta_1 = model_parameters.betas[0]
-        self.beta_2 = model_parameters.betas[1]
-        self.noise_dim = model_parameters.noise_dim
+        self.model_parameters = model_parameters
+        self.batch_size = self.model_parameters.batch_size
+        self._set_lr(self.model_parameters.lr)
+        self.beta_1 = self.model_parameters.betas[0]
+        self.beta_2 = self.model_parameters.betas[1]
+        self.noise_dim = self.model_parameters.noise_dim
         self.data_dim = None
-        self.layers_dim = model_parameters.layers_dim
+        self.layers_dim = self.model_parameters.layers_dim
 
         # Additional parameters for the CTGAN
-        self.generator_dims = model_parameters.generator_dims
-        self.critic_dims = model_parameters.critic_dims
-        self.l2_scale = model_parameters.l2_scale
-        self.latent_dim = model_parameters.latent_dim
-        self.gp_lambda = model_parameters.gp_lambda
-        self.pac = model_parameters.pac
+        self.generator_dims = self.model_parameters.generator_dims
+        self.critic_dims = self.model_parameters.critic_dims
+        self.l2_scale = self.model_parameters.l2_scale
+        self.latent_dim = self.model_parameters.latent_dim
+        self.gp_lambda = self.model_parameters.gp_lambda
+        self.pac = self.model_parameters.pac
 
-        self.use_tanh = model_parameters.tanh
-        self.processor=None
-        if self.__MODEL__ in RegularModels.__members__ or \
-            self.__MODEL__ == CTGANDataProcessor.SUPPORTED_MODEL:
-            self.tau = model_parameters.tau_gs
+        self.use_tanh = self.model_parameters.tanh
+        self.processor = None
 
-    # pylint: disable=E1101
-    def __call__(self, inputs, **kwargs):
-        return self.model(inputs=inputs, **kwargs)
-
-    # pylint: disable=C0103
     def _set_lr(self, lr):
         if isinstance(lr, float):
-            self.g_lr=lr
-            self.d_lr=lr
-        elif isinstance(lr,(list, tuple)):
-            assert len(lr)==2, "Please provide a two values array for the learning rates or a float."
-            self.g_lr=lr[0]
-            self.d_lr=lr[1]
+            self.g_lr = lr
+            self.d_lr = lr
+        elif isinstance(lr, (list, tuple)):
+            assert len(lr) == 2, "Please provide the betas information as a tuple."
+            self.g_lr = lr[0]
+            self.d_lr = lr[1]
 
     def define_gan(self):
         """Define the trainable model components.
@@ -153,43 +144,25 @@ class BaseGANModel(BaseModel):
         Optionally validate model structure with mock inputs and initialize optimizers."""
         raise NotImplementedError
 
-    @property
-    def model_parameters(self):
-        "Returns the parameters of the model."
-        return self._model_parameters
-
-    @property
-    def model_name(self):
-        "Returns the model (class) name."
-        return self.__class__.__name__
-
     def fit(self,
-              data: Union[DataFrame, array],
+              data: Union[DataFrame, np.ndarray],
               num_cols: Optional[List[str]] = None,
               cat_cols: Optional[List[str]] = None,
-              train_arguments: Optional[TrainParameters] = None) -> Union[DataFrame, array]:
-        """
-        Trains and fit a synthesizer model to a given input dataset.
-
-        Args:
-            data (Union[DataFrame, array]): Training data
-            num_cols (Optional[List[str]]) : List with the names of the categorical columns
-            cat_cols (Optional[List[str]]): List of names of categorical columns
-            train_arguments (Optional[TrainParameters]): Training parameters
-
-        Returns:
-            Fitted synthesizer
-        """
-        if self.__MODEL__ in RegularModels.__members__:
+              train_arguments: Optional[TrainParameters] = None) -> Union[DataFrame, np.ndarray]:
+        if num_cols is None:
+            num_cols = []
+        if cat_cols is None:
+            cat_cols = []
+        if self.__MODEL__ in ['RegularGAN', 'CTGAN']:
             self.processor = RegularDataProcessor(num_cols=num_cols, cat_cols=cat_cols).fit(data)
-        elif self.__MODEL__ in TimeSeriesModels.__members__:
+        elif self.__MODEL__ == 'TimeSeriesGAN':
             self.processor = TimeSeriesDataProcessor(num_cols=num_cols, cat_cols=cat_cols).fit(data)
-        elif self.__MODEL__ == CTGANDataProcessor.SUPPORTED_MODEL:
+        elif self.__MODEL__ == 'CTGAN':
             n_clusters = train_arguments.n_clusters
             epsilon = train_arguments.epsilon
-            self.processor = CTGANDataProcessor(n_clusters=n_clusters, epsilon=epsilon, 
+            self.processor = CTGANDataProcessor(n_clusters=n_clusters, epsilon=epsilon,
                                                 num_cols=num_cols, cat_cols=cat_cols).fit(data)
-        elif self.__MODEL__ == DoppelGANgerProcessor.SUPPORTED_MODEL:
+        elif self.__MODEL__ == 'DoppelGANger':
             measurement_cols = train_arguments.measurement_cols
             sequence_length = train_arguments.sequence_length
             sample_length = train_arguments.sample_length
@@ -199,41 +172,33 @@ class BaseGANModel(BaseModel):
                                                    sample_length=sample_length,
                                                    normalize_tanh=self.use_tanh).fit(data)
         else:
-            print(f'A DataProcessor is not available for the {self.__MODEL__}.')
+            raise ValueError(f'A DataProcessor is not available for the {self.__MODEL__}.')
 
-    def sample(self, n_samples: int):
-        """
-        Generates samples from the trained synthesizer.
-
-        Args:
-            n_samples (int): Number of rows to generated.
-
-        Returns:
-            synth_sample (pandas.DataFrame): generated synthetic samples.
-        """
+    def sample(self, n_samples: int) -> pd.DataFrame:
+        assert n_samples > 0, "Please insert a value bigger than 0 for n_samples parameter."
         steps = n_samples // self.batch_size + 1
         data = []
-        for _ in tqdm.trange(steps, desc='Synthetic data generation'):
+        for _ in range(steps):
             z = random.uniform([self.batch_size, self.noise_dim], dtype=tf.dtypes.float32)
             records = self.generator(z, training=False).numpy()
             data.append(records)
-        return self.processor.inverse_transform(array(vstack(data)))
+        return self.processor.inverse_transform(np.vstack(data))
 
-    def save(self, path):
+    def save(self, path: str):
         """
         Saves a synthesizer as a pickle.
 
         Args:
             path (str): Path to write the synthesizer as a pickle object.
         """
-        #Save only the generator?
-        if self.__MODEL__=='WGAN' or self.__MODEL__=='WGAN_GP' or self.__MODEL__=='CWGAN_GP':
+        # Save only the generator?
+        if self.__MODEL__ == 'WGAN' or self.__MODEL__ == 'WGAN_GP' or self.__MODEL__ == 'CWGAN_GP':
             del self.critic
         make_keras_picklable()
         dump(self, path)
 
     @classmethod
-    def load(cls, path):
+    def load(cls, path: str):
         """
         Loads a saved synthesizer from a pickle.
 
@@ -249,7 +214,6 @@ class BaseGANModel(BaseModel):
                 pass
         synth = load(path)
         return synth
-
 
 class ConditionalModel(BaseModel):
 
@@ -299,21 +263,26 @@ class ConditionalModel(BaseModel):
                                                 .batch(self.batch_size)
                                                 .repeat())
 
-    def sample(self, condition: DataFrame) -> ndarray:
+    def sample(self, condition: Union[DataFrame, np.ndarray]) -> np.ndarray:
         """
             Method to generate synthetic samples from a conditional synth previsously trained.
         Args:
-            condition (pandas.DataFrame): A dataframe with the shape (n_cols, nrows) where n_cols=number of columns used to condition the training
+            condition (Union[DataFrame, np.ndarray]): A dataframe or numpy array with the shape (n_cols, nrows) where n_cols=number of columns used to condition the training
             n_samples (int): Number of synthetic samples to be generated
 
         Returns:
-            sample (pandas.DataFrame): A dataframe with the generated synthetic records.
+            sample (np.ndarray): A numpy array with the generated synthetic records.
         """
-        ##Validate here if the cond_vector=label_dim
+        if not isinstance(condition, DataFrame) and not isinstance(condition, np.ndarray):
+            raise ValueError("The condition argument should be a pandas DataFrame or a numpy array.")
+        if condition.shape[0] != self.batch_size:
+            raise ValueError("The number of rows in the condition argument should match the batch size.")
+        if not isinstance(condition.values, np.ndarray):
+            raise ValueError("The condition argument should be a pandas DataFrame or a numpy array.")
         condition = condition.reset_index(drop=True)
         n_samples = len(condition)
         z_dist = random.uniform(shape=(n_samples, self.noise_dim))
         records = self.generator([z_dist, condition], training=False)
-        data = self.processor.inverse_transform(array(records))
-        data = concat([condition, data], axis=1)
-        return data[self._col_order]
+        data = self.processor.inverse_transform(records)
+        data = np.hstack((condition.values, data))
+        return data
