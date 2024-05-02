@@ -3,50 +3,56 @@
 """
 import os
 from os import path
-from typing import List, Optional, NamedTuple
-
-from tqdm import trange
+from typing import Optional, NamedTuple, List, Tuple, Dict, Any
 
 import numpy as np
-from numpy import hstack
-from pandas import DataFrame
+import tensorflow as tf
+from tensorflow.keras import Model
+from tensorflow.keras.layers import (Dense, Dropout, Input, concatenate)
+from tensorflow.keras.optimizers import Adam
 
-from tensorflow import random
-from tensorflow import data as tfdata
-from tensorflow import dtypes
-from keras import Model
-from keras.layers import (Dense, Dropout, Input, concatenate)
-from keras.optimizers import Adam
-
-#Import ydata synthetic classes
+# Import ydata synthetic classes
 from ....synthesizers import TrainParameters
 from ....synthesizers.base import ConditionalModel
 
 class CGAN(ConditionalModel):
-    "CGAN model for discrete conditions"
+    """
+    CGAN model for discrete conditions
+    """
 
-    __MODEL__='CGAN'
+    __MODEL__ = 'CGAN'
 
-    def __init__(self, model_parameters):
+    def __init__(self, model_parameters: Dict[str, Any]):
+        """
+        Initialize the CGAN model
+
+        Args:
+            model_parameters: Model parameters
+        """
         self._col_order = None
         super().__init__(model_parameters)
 
     def define_gan(self, activation_info: Optional[NamedTuple] = None):
-        """Define the trainable model components.
-        
-        Args:
-            activation_info (Optional[NamedTuple]): Defaults to None
         """
-        self.generator = Generator(self.batch_size). \
-            build_model(input_shape=(self.noise_dim,),
-                        label_shape=(self.label_dim),
-                        dim=self.layers_dim, data_dim=self.data_dim,
-                        activation_info = activation_info, tau = self.tau)
+        Define the trainable model components.
 
-        self.discriminator = Discriminator(self.batch_size). \
-            build_model(input_shape=(self.data_dim,),
-                        label_shape=(self.label_dim,),
-                        dim=self.layers_dim)
+        Args:
+            activation_info (Optional[NamedTuple]): Activation information
+        """
+        self.generator = Generator(self.batch_size).build_model(
+            input_shape=(self.noise_dim,),
+            label_shape=(self.label_dim,),
+            dim=self.layers_dim,
+            data_dim=self.data_dim,
+            activation_info=activation_info,
+            tau=self.tau
+        )
+
+        self.discriminator = Discriminator(self.batch_size).build_model(
+            input_shape=(self.data_dim,),
+            label_shape=(self.label_dim,),
+            dim=self.layers_dim
+        )
 
         g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
         d_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
@@ -72,130 +78,31 @@ class CGAN(ConditionalModel):
         self._model = Model([noise, label], validity)
         self._model.compile(loss='binary_crossentropy', optimizer=g_optimizer)
 
-    def _generate_noise(self):
-        """Gaussian noise for the generator input."""
-        while True:
-            yield random.uniform(shape=(self.noise_dim,))
-
-    def get_batch_noise(self):
-        """Create a batch iterator for the generator gaussian noise input."""
-        return iter(tfdata.Dataset.from_generator(self._generate_noise, output_types=dtypes.float32)
-                                .batch(self.batch_size)
-                                .repeat())
-
-    def get_data_batch(self, data, batch_size, seed=0):
-        """Produce real data batches from the passed data object.
-
-        Args:
-            data: real data.
-            batch_size: batch size.
-            seed (int, optional): Defaults to 0.
-
-        Returns:
-            data batch.
-        """
-        start_i = (batch_size * seed) % len(data)
-        stop_i = start_i + batch_size
-        shuffle_seed = (batch_size * seed) // len(data)
-        np.random.seed(shuffle_seed)
-        data_ix = np.random.choice(data.shape[0], replace=False, size=len(data))  # wasteful to shuffle every time
-        return data[data_ix[start_i: stop_i]]
-
-    def fit(self,
-            data: DataFrame,
-            label_cols: List[str],
-            train_arguments: TrainParameters,
-            num_cols: List[str],
-            cat_cols: List[str]):
-        """Trains and fit a synthesizer model to a given input dataset.
-
-        Args:
-            data: A pandas DataFrame with the data to be synthesized
-            label_cols: The name of the column to be used as a label and condition for the training
-            train_arguments: GAN training arguments.
-            num_cols: List of columns of the data object to be handled as numerical
-            cat_cols: List of columns of the data object to be handled as categorical
-        """
-        data, label = self._prep_fit(data,label_cols,num_cols,cat_cols)
-
-        processed_data = self.processor.transform(data)
-        self.data_dim = processed_data.shape[1]
-        self.label_dim = len(label_cols)
-
-        # Init the GAN model and optimizers
-        self.define_gan(self.processor.col_transform_info)
-
-        # Merging labels with processed data
-        processed_data = hstack([processed_data, label])
-
-        noise_batches = self.get_batch_noise()
-
-        iterations = int(abs(processed_data.shape[0] / self.batch_size) + 1)
-        # Adversarial ground truths
-        valid = np.ones((self.batch_size, 1))
-        fake = np.zeros((self.batch_size, 1))
-
-        for epoch in trange(train_arguments.epochs):
-            for _ in range(iterations):
-                # ---------------------
-                #  Train Discriminator
-                # ---------------------
-                batch_x = self.get_data_batch(processed_data, self.batch_size)  # Batches are retrieved with labels
-                batch_x, label = batch_x[:, :-1], batch_x[:, -1]  # Separate labels from batch
-                noise = next(noise_batches)
-
-                # Generate a batch of new records
-                gen_records = self.generator([noise, label], training=True)
-
-                # Train the discriminator
-                d_loss_real = self.discriminator.train_on_batch([batch_x, label], valid)  # Separate labels
-                d_loss_fake = self.discriminator.train_on_batch([gen_records, label], fake)  # Separate labels
-                d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
-
-                # ---------------------
-                #  Train Generator
-                # ---------------------
-                noise = next(noise_batches)
-                # Train the generator (to have the discriminator label samples as valid)
-                g_loss = self._model.train_on_batch([noise, label], valid)
-
-            # Plot the progress
-            print("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100 * d_loss[1], g_loss))
-
-            # If at save interval => save model state and generated image samples
-            if epoch % train_arguments.sample_interval == 0:
-                self._run_checkpoint(train_arguments, epoch, label)
-
-    def _run_checkpoint(self, train_arguments, epoch, label):
-        """Run checkpoint and store model state and generated samples.
-
-        Args:
-            train_arguments:  GAN training arguments.
-            epoch: training epoch
-            label: deprecated
-        """
-        if path.exists('./cache') is False:
-            os.mkdir('./cache')
-        model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
-        self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
-        self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
-
-# pylint: disable=R0903
 class Generator():
-    "Standard discrete conditional generator."
+    """
+    Standard discrete conditional generator.
+    """
     def __init__(self, batch_size):
+        """
+        Initialize the generator
+
+        Args:
+            batch_size: Batch size
+        """
         self.batch_size = batch_size
 
-    def build_model(self, input_shape, label_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None):
-        """Create model components.
+    def build_model(self, input_shape, label_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None) -> Model:
+        """
+        Create model components.
 
         Args:
-            input_shape: input dimensionality.
-            label_shape: label dimensionality.
-            dim: hidden layers dimensions.
-            data_dim: Output dimensionality.
-            activation_info (Optional[NamedTuple]): Defaults to None
-            tau (Optional[float]): Gumbel-Softmax non-negative temperature. Defaults to None
+            input_shape: Input shape
+            label_shape: Label shape
+            dim: Hidden layers dimensions
+            data_dim: Output dimensionality
+            activation_info (Optional[NamedTuple]): Activation information
+            tau (Optional[float]): Gumbel-Softmax non-negative temperature
+
         Returns:
             Generator model
         """
@@ -206,24 +113,33 @@ class Generator():
         x = Dense(dim * 2, activation='relu')(x)
         x = Dense(dim * 4, activation='relu')(x)
         x = Dense(data_dim)(x)
-        #if activation_info:
-        #    x = GumbelSoftmaxActivation(activation_info, tau=tau)(x)
+
+        if activation_info:
+            x = GumbelSoftmaxActivation(activation_info, tau=tau)(x)
+
         return Model(inputs=[noise, label_v], outputs=x)
 
-
-# pylint: disable=R0903
 class Discriminator():
-    "Standard discrete conditional discriminator."
+    """
+    Standard discrete conditional discriminator.
+    """
     def __init__(self, batch_size):
-        self.batch_size = batch_size
-
-    def build_model(self, input_shape, label_shape, dim):
-        """Create model components.
+        """
+        Initialize the discriminator
 
         Args:
-            input_shape: input dimensionality.
-            label_shape: labels dimenstionality.
-            dim: hidden layers size.
+            batch_size: Batch size
+        """
+        self.batch_size = batch_size
+
+    def build_model(self, input_shape, label_shape, dim) -> Model:
+        """
+        Create model components.
+
+        Args:
+            input_shape: Input shape
+            label_shape: Label shape
+            dim: Hidden layers dimensions
 
         Returns:
             Discriminator model
@@ -237,4 +153,83 @@ class Discriminator():
         x = Dropout(0.1)(x)
         x = Dense(dim, activation='relu')(x)
         x = Dense(1, activation='sigmoid')(x)
+
         return Model(inputs=[events, label], outputs=x)
+
+# Gumbel-Softmax activation layer
+class GumbelSoftmaxActivation(tf.keras.layers.Layer):
+    """
+    Gumbel-Softmax activation layer
+    """
+    def __init__(self, activation_info: NamedTuple, tau: Optional[float] = None, **kwargs):
+        """
+        Initialize the Gumbel-Softmax activation layer
+
+        Args:
+            activation_info: Activation information
+            tau (Optional[float]): Non-negative temperature
+            **kwargs: Additional keyword arguments
+        """
+        self.activation = activation_info.activation
+        self.tau = tau
+        super().__init__(**kwargs)
+
+    def build(self, input_shape):
+        """
+        Build the layer
+
+        Args:
+            input_shape: Input shape
+        """
+        super().build(input_shape)
+
+    def call(self, inputs, training=None, **kwargs):
+        """
+        Call the layer
+
+        Args:
+            inputs: Input tensor
+            training (bool, optional): Training flag
+            **kwargs: Additional keyword arguments
+
+        Returns:
+            Output tensor
+        """
+        if self.tau is None:
+            self.tau = tf.constant(1.0, dtype=tf.float32)
+
+        uniform_noise = tf.random.uniform(tf.shape(inputs), minval=0, maxval=1)
+        gumbel_noise = -tf.math.log(-tf.math.log(uniform_noise + 1e-20))
+        y = (inputs + gumbel_noise) / self.tau
+        y = tf.nn.softmax(y, axis=-1)
+
+        if self.activation is not None:
+            y = self.activation(y)
+
+        return y
+
+    def compute_output_shape(self, input_shape):
+        """
+        Compute the output shape
+
+        Args:
+            input_shape: Input shape
+
+        Returns:
+            Output shape
+        """
+        return input_shape[0], input_shape[1], np.prod(input_shape[2:])
+
+    def get_config(self):
+        """
+        Get the layer configuration
+
+        Returns:
+            Layer configuration dictionary
+        """
+        config = {
+            'activation': self.activation,
+            'tau': self.tau
+        }
+        base_config = super().get_config()
+        return {**base_config, **config}

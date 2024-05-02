@@ -1,23 +1,8 @@
-"""Gumbel-Softmax layer implementation.
-Reference: https://arxiv.org/pdf/1611.04051.pdf"""
-from re import search
+import tensorflow as tf
+from tensorflow.keras import layers
 from typing import NamedTuple, Optional
 
-# pylint: disable=E0401
-import tensorflow as tf
-from tensorflow import (Tensor, TensorShape, concat, one_hot, split, squeeze,
-                        stop_gradient)
-from keras.layers import Activation, Layer
-
-TOL = 1e-20
-
-def gumbel_noise(shape: TensorShape) -> Tensor:
-    """Create a single sample from the standard (loc = 0, scale = 1) Gumbel distribution."""
-    uniform_sample = tf.random.uniform(shape, seed=0)
-    return -tf.math.log(-tf.math.log(uniform_sample + TOL) + TOL)
-
-@tf.keras.utils.register_keras_serializable(package='Custom', name='GumbelSoftmaxLayer')
-class GumbelSoftmaxLayer(Layer):
+class GumbelSoftmaxLayer(layers.Layer):
     """A Gumbel-Softmax layer implementation that should be stacked on top of a categorical feature logits.
 
     Arguments:
@@ -29,12 +14,13 @@ class GumbelSoftmaxLayer(Layer):
         super().__init__(name=name, **kwargs)
         self.tau = tau
 
-    # pylint: disable=W0221, E1120
-    def call(self, _input):
+    def call(self, inputs):
         """Computes Gumbel-Softmax for the logits output of a particular categorical feature."""
-        noised_input = _input + gumbel_noise(_input.shape)
-        soft_sample = tf.nn.softmax(noised_input/self.tau, -1)
-        hard_sample = stop_gradient(squeeze(one_hot(tf.random.categorical(tf.math.log(soft_sample), 1), _input.shape[-1]), 1))
+        noise = gumbel_noise(tf.shape(inputs))
+        logits = inputs + noise
+        soft_sample = tf.nn.softmax(logits / self.tau, axis=-1)
+        hard_sample = tf.stop_gradient(tf.argmax(logits, axis=-1, output_type=tf.int32))
+        hard_sample = tf.cast(hard_sample, tf.float32)
         return hard_sample, soft_sample
 
     def get_config(self):
@@ -42,8 +28,7 @@ class GumbelSoftmaxLayer(Layer):
         config.update({'tau': self.tau})
         return config
 
-@tf.keras.utils.register_keras_serializable(package='Custom', name='GumbelSoftmaxActivation')
-class GumbelSoftmaxActivation(Layer):
+class GumbelSoftmaxActivation(layers.Layer):
     """An interface layer connecting different parts of an incoming tensor to adequate activation functions.
     The tensor parts are qualified according to the passed processor object.
     Processed categorical features are sent to specific Gumbel-Softmax layers.
@@ -54,7 +39,7 @@ class GumbelSoftmaxActivation(Layer):
         processor's pipelines in/out feature maps. For simplicity this object can be taken directly from the data \
         processor col_transform_info."""
 
-    def __init__(self, activation_info: NamedTuple, name: Optional[str] = None, tau: Optional[float] = None, **kwargs):
+    def __init__(self, activation_info: NamedTuple, tau: Optional[float] = None, name: Optional[str] = None, **kwargs):
         """Arguments:
             col_map (NamedTuple): Defines each of the processor pipelines input/output features.
             name (Optional[str]): Name of the GumbelSoftmaxActivation layer
@@ -69,20 +54,24 @@ bigger than 0."
         self.cat_feats = activation_info.categorical
         self.num_feats = activation_info.numerical
 
-        self._cat_lens = [len([col for col in self.cat_feats.feat_names_out if search(f'^{cat_feat}_.*$', col)]) \
+        self._cat_lens = [len([col for col in self.cat_feats.feat_names_out if col.startswith(f'{cat_feat}_')]) \
             for cat_feat in self.cat_feats.feat_names_in]
         self._num_lens = len(self.num_feats.feat_names_out)
 
-    def call(self, _input):  # pylint: disable=W0221
-        num_cols, cat_cols = split(_input, [self._num_lens, -1], 1, name='split_num_cats')
-        cat_cols = split(cat_cols, self._cat_lens if self._cat_lens else [0], 1, name='split_cats')
+    def call(self, inputs):  # pylint: disable=W0221
+        num_cols, cat_cols = tf.split(inputs, [self._num_lens, -1], axis=-1)
+        cat_cols = tf.split(cat_cols, self._cat_lens if self._cat_lens else [1], axis=-1)
 
-        num_cols = [Activation('tanh', name='num_cols_activation')(num_cols)]
-        cat_cols = [GumbelSoftmaxLayer(tau=self.tau, name=name)(col)[0] for name, col in \
-            zip(self.cat_feats.feat_names_in, cat_cols)]
-        return concat(num_cols+cat_cols, 1)
+        num_cols = layers.Activation('tanh')(num_cols)
+        cat_cols = [GumbelSoftmaxLayer(tau=self.tau)(col)[0] for col in cat_cols]
+        return tf.concat([num_cols] + cat_cols, axis=-1)
 
     def get_config(self):
         config = super().get_config().copy()
-        config.update({'activation_info': self._activation_info})
+        config.update({'activation_info': self._activation_info, 'tau': self.tau})
         return config
+
+def gumbel_noise(shape: tf.TensorShape) -> tf.Tensor:
+    """Create a single sample from the standard (loc = 0, scale = 1) Gumbel distribution."""
+    uniform_sample = tf.random.uniform(shape, seed=0)
+    return -tf.math.log(-tf.math.log(uniform_sample + 1e-20) + 1e-20)

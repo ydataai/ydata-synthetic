@@ -1,15 +1,19 @@
+# site information
 site_name: YData-Synthetic
 repo_url: https://github.com/ydataai/ydata-synthetic
 repo_name: ydataai/ydata-synthetic
 edit_uri: ""
 dev_addr: 0.0.0.0:1234
 site_dir: "static/docs"
+
+# navigation structure
 nav:
   - Getting started:
-    - 'index.md'
-    - Overview: 'index.md'
-    - Installation: 'getting-started/installation.md'
-    - Quickstart: 'getting-started/quickstart.md'
+      - 'index.md'
+      - Overview: 'index.md'
+      - Installation: 'getting-started/installation.md'
+      - Quickstart: 'getting-started/quickstart.md'
+
   - Synthetic Data Generation:
       - "synthetic_data/index.md"
       - UI interface - Streamlit app: "synthetic_data/streamlit_app.md"
@@ -28,12 +32,14 @@ nav:
       - Generate Multiple Tables:
           - Fabric Multi-Table **: "synthetic_data/multi_table/fabric_multitable.md"
       - Frequently Asked Questions: "synthetic_data/faqs.md"
+
   - Integrations:
       - Great Expectations: "integrations/gx_integration.md"
-  - Support: 
+
+  - Support:
     - Help & Troubleshooting: 'support/help-troubleshooting.md'
     - Contribution Guidelines: 'support/contribute.md'
-    - Contribution Guidelines: 'support/contribute.md'
+
   - Reference:
       - Changelog: 'reference/changelog.md'
       - API:
@@ -56,6 +62,8 @@ nav:
               - Regular:
                   - RegularDataProcessor: 'reference/api/preprocessing/regular/preprocessor.md'
                   - CTGANDataProcessor: 'reference/api/preprocessing/regular/ctgan_preprocessor.md'
+
+# theme and appearance
 theme:
   name: material
   language: en
@@ -91,6 +99,8 @@ theme:
       bug: octicons/bug-16
       example: octicons/beaker-16
       quote: octicons/quote-16
+
+# markdown extensions and settings
 markdown_extensions:
   - def_list
   - meta
@@ -123,7 +133,8 @@ markdown_extensions:
       alternate_style: true
   - pymdownx.arithmatex:
       generic: true
-  - tables
+
+# additional CSS, JavaScript, and settings
 extra_css:
   - stylesheets/extra.css
 extra_javascript:
@@ -136,5 +147,7 @@ extra:
   version:
     provider: mike
   generator: false
+
+# plugins
 plugins:
   - mkdocstrings

@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-from typing import List, Optional
-from typeguard import typechecked
-from dataclasses import dataclass
 import pandas as pd
 import numpy as np
 from sklearn.exceptions import NotFittedError, ConvergenceWarning
 from sklearn.utils._testing import ignore_warnings
 from sklearn.mixture import BayesianGaussianMixture
 from sklearn.preprocessing import OneHotEncoder
-
+from typeguard import typechecked
+from dataclasses import dataclass
 from ydata_synthetic.preprocessing.base_processor import BaseProcessor
 
 @dataclass
@@ -17,13 +15,13 @@ class ColumnMetadata:
     """
     Dataclass that stores the metadata of each column.
     """
-    start_idx: int
-    end_idx: int
-    discrete: bool
-    output_dim: int
-    model: any
-    components: list
-    name: str
+    start_idx: int  # Index where the column starts in the transformed data
+    end_idx: int  # Index where the column ends in the transformed data
+    discrete: bool  # Whether the column is discrete or continuous
+    output_dim: int  # Number of dimensions the column occupies in the transformed data
+    model: any  # Model used for transforming the column
+    components: list  # Components used for transforming the column
+    name: str  # Name of the column
 
 
 @typechecked
@@ -53,14 +51,14 @@ class CTGANDataProcessor(BaseProcessor):
         self._metadata = None
         self._dtypes = None
         self._output_dimensions = None
-    
+
     @property
     def metadata(self) -> list[ColumnMetadata]:
         """
         Returns the metadata for each column.
         """
         return self._metadata
-    
+
     @property
     def output_dimensions(self) -> int:
         """

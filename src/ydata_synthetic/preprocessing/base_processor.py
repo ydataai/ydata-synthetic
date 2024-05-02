@@ -1,16 +1,15 @@
 "Base class of Data Preprocessors, do not instantiate this class directly."
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from types import SimpleNamespace
-from typing import List, Optional
+import abc
+import types
+from typing import List, Optional, SimpleNamespace, Series, Ndarray
 
-from numpy import ndarray
-from pandas import DataFrame, Series
+import numpy as np
+import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.exceptions import NotFittedError
 from typeguard import typechecked
-
 
 # pylint: disable=R0902
 @typechecked
@@ -24,13 +23,16 @@ class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
             List of names of categorical columns.
     """
     def __init__(self, num_cols: Optional[List[str]] = None, cat_cols: Optional[List[str]] = None):
+        # Initialize the numerical and categorical columns as empty lists if not provided
         self.num_cols = [] if num_cols is None else num_cols
         self.cat_cols = [] if cat_cols is None else cat_cols
 
+        # Initialize the numerical and categorical pipelines as None
         self._num_pipeline = None  # To be overriden by child processors
         self._cat_pipeline = None  # To be overriden by child processors
 
-        self._col_transform_info = None  # Metadata object mapping inputs/outputs of each pipeline
+        # Initialize the metadata object mapping inputs/outputs of each pipeline
+        self._col_transform_info = None  # To be overriden by child processors
 
     @property
     def num_pipeline(self) -> BaseEstimator:
@@ -45,7 +47,10 @@ class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
     @property
     def types(self) -> Series:
         """Returns a Series with the dtypes of each column in the fitted DataFrame."""
-        return self._types
+        self._check_is_fitted()
+        if self._col_transform_info is None:
+            self._col_transform_info = self.__create_metadata_synth()
+        return self._col_transform_info.numerical.feat_names_out
 
     @property
     def col_transform_info(self) -> SimpleNamespace:
@@ -87,7 +92,7 @@ class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
 
     # pylint: disable=C0103
     @abstractmethod
-    def fit(self, X: DataFrame) -> BaseProcessor:
+    def fit(self, X: pd.DataFrame) -> BaseProcessor:
         """Fits the DataProcessor to a passed DataFrame.
         Args:
             X (DataFrame):
@@ -100,7 +105,7 @@ class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
 
     # pylint: disable=C0103
     @abstractmethod
-    def transform(self, X: DataFrame) -> ndarray:
+    def transform(self, X: pd.DataFrame) -> Ndarray:
         """Transforms the passed DataFrame with the fit DataProcessor.
         Args:
             X (DataFrame):
@@ -113,7 +118,7 @@ class BaseProcessor(ABC, BaseEstimator, TransformerMixin):
 
     # pylint: disable=C0103
     @abstractmethod
-    def inverse_transform(self, X: ndarray) -> DataFrame:
+    def inverse_transform(self, X: Ndarray) -> pd.DataFrame:
         """Inverts the data transformation pipelines on a passed DataFrame.
         Args:
             X (ndarray):

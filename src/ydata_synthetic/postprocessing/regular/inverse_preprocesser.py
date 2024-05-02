@@ -1,14 +1,13 @@
 # Inverts all preprocessing pipelines provided in the preprocessing examples
-from typing import Union
-
 import pandas as pd
+import numpy as np
+from typing import Union
 
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import PowerTransformer, OneHotEncoder, StandardScaler
+from sklearn.preprocessing import PowerTransformer, OneHotEncoder, StandardScaler, FunctionTransformer
 
-
-def inverse_transform(data: pd.DataFrame, processor: Union[Pipeline, ColumnTransformer, PowerTransformer, OneHotEncoder, StandardScaler]) -> pd.DataFrame:
+def inverse_transform(data: pd.DataFrame, processor: Union[Pipeline, ColumnTransformer, BaseEstimator]) -> pd.DataFrame:
     """Inverts data transformations taking place in a standard sklearn processor.
     Supported processes are sklearn pipelines, column transformers or base estimators like standard scalers.
 
@@ -22,24 +21,12 @@ def inverse_transform(data: pd.DataFrame, processor: Union[Pipeline, ColumnTrans
     if isinstance(processor, (PowerTransformer, OneHotEncoder, StandardScaler, Pipeline)):
         inv_data = pd.DataFrame(processor.inverse_transform(data), columns=processor.feature_names_in_)
     elif isinstance(processor, ColumnTransformer):
-        output_indices = processor.output_indices_
-        assert isinstance(data, pd.DataFrame), "The data to be inverted from a ColumnTransformer has to be a Pandas DataFrame."
-        for t_name, t, t_cols in processor.transformers_[::-1]:
-            slice_ = output_indices[t_name]
-            t_indices = list(range(slice_.start, slice_.stop, 1 if slice_.step is None else slice_.step))
-            if t == 'drop':
+        for t_name, t in processor.transformers_:
+            if t_name == 'drop':
                 continue
-            elif t == 'passthrough':
-                inv_cols = pd.DataFrame(data.iloc[:,t_indices].values, columns = t_cols, index = data.index)
-                inv_col_names = inv_cols.columns
+            elif t_name == 'passthrough':
+                inv_data[t[1]] = data[t[1]]
             else:
-                inv_cols = pd.DataFrame(t.inverse_transform(data.iloc[:,t_indices].values), columns = t_cols, index = data.index)
-                inv_col_names = inv_cols.columns
-            if set(inv_col_names).issubset(set(inv_data.columns)):
-                inv_data[inv_col_names] = inv_cols[inv_col_names]
-            else:
-                inv_data = pd.concat([inv_data, inv_cols], axis=1)
-    else:
-        print('The provided data processor is not supported and cannot be inverted with this method.')
-        return None
-    return inv_data[processor.feature_names_in_]
+                t_data = data.iloc[:, processor.get_feature_names_out()[processor.transformers_[::-1].index((t_name, t))[0][1]:processor.transformers_[::-1].index((t_name, t))[0][1] + len(t[1])]]
+                if isinstance(t[0], FunctionTransformer):
+                    inv_data.iloc[:, processor.transformers_[::-1].index((t_name, t))[0][1]:processor.transformers_[::-

@@ -1,29 +1,26 @@
 from __future__ import annotations
 
-from typing import List, Optional
-from dataclasses import dataclass
+import numpy as np
+import pandas as pd
+from typing import Any, List, Optional, Tuple
 
 from numpy import concatenate, ndarray, zeros, ones, expand_dims, reshape, sum as npsum, repeat, array_split, asarray, amin, amax, stack
 from pandas import DataFrame
-from typeguard import typechecked
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 
 from ydata_synthetic.preprocessing.base_processor import BaseProcessor
 
-
-@dataclass
 class ColumnMetadata:
     """
     Dataclass that stores the metadata of each column.
     """
-    discrete: bool
-    output_dim: int
-    name: str
-    real: bool = True
+    def __init__(self, discrete: bool, output_dim: int, name: str, real: bool = True):
+        self.discrete = discrete
+        self.output_dim = output_dim
+        self.name = name
+        self.real = real
 
-
-@typechecked
 class DoppelGANgerProcessor(BaseProcessor):
     """
     Main class for class the DoppelGANger preprocessing.
@@ -31,6 +28,8 @@ class DoppelGANgerProcessor(BaseProcessor):
     Args:
         num_cols (list of strings):
             List of names of numerical columns.
+        cat_cols (list of strings):
+            List of categorical columns.
         measurement_cols (list of strings):
             List of measurement columns.
         sequence_length (int):
@@ -46,23 +45,11 @@ class DoppelGANgerProcessor(BaseProcessor):
                  normalize_tanh: Optional[bool] = None):
         super().__init__(num_cols, cat_cols)
 
-        if num_cols is None:
-            num_cols = []
-        if cat_cols is None:
-            cat_cols = []
-        if measurement_cols is None:
-            measurement_cols = []
-        if normalize_tanh is None:
-            normalize_tanh = False
-
-        self._col_order_ = None
         self.sequence_length = sequence_length
         self.sample_length = sample_length
         self.normalize_tanh = normalize_tanh
 
-        if self.sequence_length is not None and self.sample_length is not None:
-            if self.sequence_length % self.sample_length != 0:
-                raise ValueError("The sequence length must be a multiple of the sample length.")
+        self._validate_input_data()
 
         self._measurement_num_cols = [c for c in self.num_cols if c in measurement_cols]
         self._measurement_cat_cols = [c for c in self.cat_cols if c in measurement_cols]
@@ -75,39 +62,10 @@ class DoppelGANgerProcessor(BaseProcessor):
         self._has_attributes = bool(self._attribute_num_cols or self._attribute_cat_cols)
         self._eps = 1e-4
 
-    @property
-    def measurement_cols_metadata(self):
-        return self._measurement_cols_metadata
+    def _validate_input_data(self):
+        if self.num_cols is None or self.cat_cols is None:
+            raise ValueError("Both num_cols and cat_cols cannot be None.")
 
-    @property
-    def attribute_cols_metadata(self):
-        return self._attribute_cols_metadata
-
-    def add_gen_flag(self, data_features: ndarray, sample_len: int):
-        num_sample = data_features.shape[0]
-        length = data_features.shape[1]
-        data_gen_flag = ones((num_sample, length))
-        data_gen_flag = expand_dims(data_gen_flag, 2)
-        shift_gen_flag = concatenate(
-            [data_gen_flag[:, 1:, :],
-            zeros((data_gen_flag.shape[0], 1, 1))],
-            axis=1)
-        data_gen_flag_t = reshape(
-            data_gen_flag,
-            [num_sample, int(length / sample_len), sample_len])
-        data_gen_flag_t = npsum(data_gen_flag_t, 2)
-        data_gen_flag_t = data_gen_flag_t > 0.5
-        data_gen_flag_t = repeat(data_gen_flag_t, sample_len, axis=1)
-        data_gen_flag_t = expand_dims(data_gen_flag_t, 2)
-        data_features = concatenate(
-            [data_features,
-            shift_gen_flag,
-            (1 - shift_gen_flag) * data_gen_flag_t],
-            axis=2)
-
-        return data_features
-
-    # pylint: disable=W0106
     def fit(self, X: DataFrame) -> DoppelGANgerProcessor:
         """Fits the data processor to a passed DataFrame.
         Args:
@@ -140,7 +98,7 @@ class DoppelGANgerProcessor(BaseProcessor):
 
         return self
 
-    def transform(self, X: DataFrame) -> tuple[ndarray, ndarray]:
+    def transform(self, X: DataFrame) -> Tuple[ndarray, ndarray]:
         """Transforms the passed DataFrame with the fit DataProcessor.
         Args:
             X (DataFrame):
@@ -213,54 +171,3 @@ class DoppelGANgerProcessor(BaseProcessor):
         self._measurement_cols_metadata += [ColumnMetadata(discrete=True, output_dim=2, name="gen_flags")]
         return data_features, data_attributes
 
-    def inverse_transform(self, X_features: ndarray, X_attributes: ndarray, gen_flags: ndarray) -> list[DataFrame]:
-        """Inverts the data transformation pipelines on a passed DataFrame.
-        Args:
-            X_features (ndarray):
-                Numpy array with the measurement data to be brought back to the original format.
-            X_attributes (ndarray):
-                Numpy array with the attribute data to be brought back to the original format.
-            gen_flags (ndarray):
-                Numpy array with the flags indicating the activation of features.
-        Returns:
-            result (DataFrame):
-                DataFrame with all performed transformations inverted.
-        """
-        self._check_is_fitted()
-
-        addi_cols_idx = addi_cols_idx_start = sum([c.output_dim for c in self._attribute_cols_metadata if c.real])
-        for m_col_ix in range(len(self._measurement_num_cols)):
-            max_plus_min = X_attributes[:, addi_cols_idx]
-            max_minus_min = X_attributes[:, addi_cols_idx + 1]
-            max_val = expand_dims(max_plus_min + max_minus_min, axis=1)
-            min_val = expand_dims(max_plus_min - max_minus_min, axis=1)
-            if self.normalize_tanh:
-                X_features[:, :, m_col_ix] = (X_features[:, :, m_col_ix] + 1.0) / 2.0
-            X_features[:, :, m_col_ix] = X_features[:, :, m_col_ix] * (max_val - min_val) + min_val
-            addi_cols_idx += 2
-
-        X_features = X_features * expand_dims(gen_flags, axis=2)
-        X_attributes = X_attributes[:, :addi_cols_idx_start]
-
-        num_samples = X_attributes.shape[0]
-        if self._has_attributes:
-            X_attributes = repeat(X_attributes.reshape((num_samples, 1, X_attributes.shape[1])), repeats=X_features.shape[1], axis=1)
-            generated_data = concatenate((X_features, X_attributes), axis=2)
-        else:
-            generated_data = X_features
-        output_cols = self._measurement_num_cols + self._measurement_one_hot_cat_cols + self._attribute_num_cols + self._attribute_one_hot_cat_cols
-        one_hot_cat_cols = self._measurement_one_hot_cat_cols + self._attribute_one_hot_cat_cols
-
-        samples = []
-        for i in range(num_samples):
-            df = DataFrame(generated_data[i], columns=output_cols)
-            df_num_feat = df[self._measurement_num_cols].to_numpy()
-            df_num_attr = self._num_pipeline.inverse_transform(df[self._attribute_num_cols]) if self._attribute_num_cols else zeros([len(df), 0])
-            df_cat = self._cat_pipeline.inverse_transform(df[one_hot_cat_cols]) if self.cat_cols else zeros([len(df), 0])
-            df = DataFrame(concatenate((df_num_feat, df_num_attr, df_cat), axis=1), columns=self._measurement_num_cols+self._attribute_num_cols+self.cat_cols)
-            df = df.loc[:, self._col_order_]
-            for col in df.columns:
-                df[col] = df[col].astype(self._types[col])
-            samples.append(df)
-
-        return samples

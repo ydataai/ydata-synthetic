@@ -1,3 +1,24 @@
-[theme]
-base="light"
-primaryColor="#e32212"
+# This is a function that takes in a list of numbers and returns the largest prime number in the list
+def find_largest_prime(numbers):
+    # We first filter the list to only include prime numbers
+    primes = [num for num in numbers if is_prime(num)]
+    # If there are no prime numbers in the list, we return None
+    if not primes:
+        return None
+    # We then find the largest prime number in the list and return it
+    else:
+        return max(primes)
+
+# This is a helper function that checks if a number is prime
+def is_prime(num):
+    # If the number is less than 2, it is not prime
+    if num < 2:
+        return False
+    # We check if there are any factors of the number from 2 to the square root of the number
+    for i in range(2, int(num**0.5) + 1):
+        # If we find a factor, we return False
+        if num % i == 0:
+            return False
+    # If we don't find any factors, we return True
+    else:
+        return True

@@ -1,3 +1,22 @@
-# Add patterns of files dvc should ignore, which could improve
-# the performance. Learn more at
-# https://dvc.org/doc/user-guide/dvcignore
+# This code snippet adds patterns of files that DVC should ignore,
+# which can help improve the performance of DVC operations.
+# 
+# By ignoring certain files or directories, DVC can avoid unnecessary
+# data transfers, file checks, and other operations that can slow down
+# the overall performance of DVC.
+# 
+# The specific pattern used in this code is a URL pointing to the
+# DVC ignore documentation, which provides more information on how
+# to create and use ignore patterns with DVC.
+# 
+# To use this code, simply replace the URL with the desired ignore
+# pattern or patterns, separated by newline characters.
+# 
+# For example, to ignore all files with the extension '.txt' and
+# the 'temp' directory, the code would look like this:
+# 
+#     .txt
+#     temp/
+# 
+# By adding these ignore patterns, DVC will skip any files or
+# directories that match these patterns during its operations.

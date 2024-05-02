@@ -1,30 +1,26 @@
-"""
-    Vanilla GAN architecture model implementation
-"""
 import os
-from os import path
-from typing import List, Optional, NamedTuple
-
 import numpy as np
-from tqdm import trange
+from typing import List, Optional, NamedTuple
+from dataclasses import dataclass
 
 import tensorflow as tf
-from keras.layers import Input, Dense, Dropout
-from keras import Model
-from keras.optimizers import Adam
+from tensorflow.keras.layers import Input, Dense, Dropout
+from tensorflow.keras import Model
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.models import save_model, load_model
 
-#Import ydata synthetic classes
+# Import ydata synthetic classes
 from ....synthesizers.base import BaseGANModel
 from ....synthesizers import TrainParameters
 
-class VanilllaGAN(BaseGANModel):
-
+class VanillaGAN(BaseGANModel):
     __MODEL__='GAN'
 
-    def __init__(self, model_parameters):
+    def __init__(self, model_parameters: dict):
         super().__init__(model_parameters)
 
-    def define_gan(self, activation_info: Optional[NamedTuple]):
+    def define_gan(self, activation_info: Optional[NamedTuple] = None):
         """Define the trainable model components.
 
         Args:
@@ -33,11 +29,8 @@ class VanilllaGAN(BaseGANModel):
         Returns:
             (generator_optimizer, critic_optimizer): Generator and critic optimizers
         """
-        self.generator = Generator(self.batch_size).\
-            build_model(input_shape=(self.noise_dim,), dim=self.layers_dim, data_dim=self.data_dim,)
-
-        self.discriminator = Discriminator(self.batch_size).\
-            build_model(input_shape=(self.data_dim,), dim=self.layers_dim)
+        self.generator = Generator(self.batch_size, self.noise_dim, self.data_dim, self.layers_dim).build_model()
+        self.discriminator = Discriminator(self.batch_size, self.data_dim, self.layers_dim).build_model()
 
         g_optimizer = Adam(self.g_lr, beta_1=self.beta_1, beta_2=self.beta_2)
         d_optimizer = Adam(self.d_lr, beta_1=self.beta_1, beta_2=self.beta_2)
@@ -73,18 +66,11 @@ class VanilllaGAN(BaseGANModel):
         Returns:
             data batch
         """
-        # # random sampling - some samples will have excessively low or high sampling, but easy to implement
-        # np.random.seed(seed)
-        # x = train.loc[ np.random.choice(train.index, batch_size) ].values
-        # iterate through shuffled indices, so every sample gets covered evenly
-
+        np.random.seed(seed)
+        data_indices = np.random.permutation(len(train))
         start_i = (batch_size * seed) % len(train)
         stop_i = start_i + batch_size
-        shuffle_seed = (batch_size * seed) // len(train)
-        np.random.seed(shuffle_seed)
-        train_ix = np.random.choice(train.shape[0], replace=False, size=len(train))  # wasteful to shuffle every time
-        train_ix = list(train_ix) + list(train_ix)  # duplicate to cover ranges past the end of the set
-        return train[train_ix[start_i: stop_i]]
+        return train.iloc[data_indices[start_i: stop_i]]
 
     def fit(self, data, train_arguments: TrainParameters, num_cols: List[str], cat_cols: List[str]):
         """Fit a synthesizer model to a given input dataset.
@@ -107,7 +93,7 @@ class VanilllaGAN(BaseGANModel):
         valid = np.ones((self.batch_size, 1))
         fake = np.zeros((self.batch_size, 1))
 
-        for epoch in trange(train_arguments.epochs):
+        for epoch in range(train_arguments.epochs):
             for _ in range(iterations):
                 # ---------------------
                 #  Train Discriminator
@@ -119,7 +105,7 @@ class VanilllaGAN(BaseGANModel):
                 gen_data = self.generator(noise, training=True)
 
                 # Train the discriminator
-                d_loss_real = self.discriminator.train_on_batch(batch_data, valid)
+                d_loss_real = self.discriminator.train_on_batch(batch_data.values, valid)
                 d_loss_fake = self.discriminator.train_on_batch(gen_data, fake)
                 d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
 
@@ -131,76 +117,87 @@ class VanilllaGAN(BaseGANModel):
                 g_loss = self._model.train_on_batch(noise, valid)
 
             # Plot the progress
-            print("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100 * d_loss[1], g_loss))
+            print(f"Epoch {epoch + 1}/{train_arguments.epochs} \
+                  [D loss: {d_loss[0]:.4f}, acc.: {100 * d_loss[1]:.2f}%] \
+                  [G loss: {g_loss:.4f}]")
 
             # If at save interval => save generated events
-            if epoch % train_arguments.sample_interval == 0:
-                #Test here data generation step
+            if (epoch + 1) % train_arguments.sample_interval == 0:
+                # Test here data generation step
                 # save model checkpoints
-                if path.exists('./cache') is False:
+                if not os.path.exists('./cache'):
                     os.mkdir('./cache')
-                model_checkpoint_base_name = './cache/' + train_arguments.cache_prefix + '_{}_model_weights_step_{}.h5'
-                self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
-                self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator', epoch))
+                model_checkpoint_base_name = f'./cache/{train_arguments.cache_prefix}_{self.__MODEL__}_model_weights_step_{epoch}.h5'
+                self.generator.save_weights(model_checkpoint_base_name.format('generator'))
+                self.discriminator.save_weights(model_checkpoint_base_name.format('discriminator'))
 
-                #Here is generating the data
+                # Generate and save synthetic data
                 z = tf.random.normal((432, self.noise_dim))
                 gen_data = self.generator(z)
-                print('generated_data')
+                self.save_synthetic_data(gen_data)
 
+@dataclass
+class GeneratorParameters:
+    batch_size: int
+    noise_dim: int
+    data_dim: int
+    layers_dim: List[int]
+
+@dataclass
+class DiscriminatorParameters:
+    batch_size: int
+    data_dim: int
+    layers_dim: List[int]
 
 class Generator(tf.keras.Model):
-    def __init__(self, batch_size):
-        """Simple generator with dense feedforward layers.
+    def __init__(self, batch_size, noise_dim, data_dim, layers_dim):
+        super().__init__()
+        self.batch_size = batch_size
+        self.noise_dim = noise_dim
+        self.data_dim = data_dim
+        self.layers_dim = layers_dim
 
-        Args:
-            batch_size (int): batch size
-        """
-        self.batch_size=batch_size
+        self.dense1 = Dense(layers_dim[0], activation='relu')
+        self.dense2 = Dense(layers_dim[1], activation='relu')
+        self.dense3 = Dense(layers_dim[2], activation='relu')
+        self.dense4 = Dense(data_dim)
 
-    def build_model(self, input_shape, dim, data_dim, activation_info: Optional[NamedTuple] = None, tau: Optional[float] = None):
+    def build_model(self):
         """Create model components.
 
-        Args:
-            input_shape: input dimensionality.
-            dim: hidden layers dimensions.
-            data_dim: Output dimensionality.
-            activation_info (Optional[NamedTuple]): Defaults to None
-            tau (Optional[float]): Gumbel-Softmax non-negative temperature. Defaults to None
         Returns:
             Generator model
         """
-        input= Input(shape=input_shape, batch_size=self.batch_size)
-        x = Dense(dim, activation='relu')(input)
-        x = Dense(dim * 2, activation='relu')(x)
-        x = Dense(dim * 4, activation='relu')(x)
-        x = Dense(data_dim)(x)
-        return Model(inputs=input, outputs=x)
+        input = Input(shape=(self.noise_dim,), batch_size=self.batch_size)
+        x = self.dense1(input)
+        x = self.dense2(x)
+        x = self.dense3(x)
+        output = self.dense4(x)
+        return Model(inputs=input, outputs=output)
 
 class Discriminator(tf.keras.Model):
-    def __init__(self,batch_size):
-        """Simple discriminator with dense feedforward and dropout layers.
+    def __init__(self, batch_size, data_dim, layers_dim):
+        super().__init__()
+        self.batch_size = batch_size
+        self.data_dim = data_dim
+        self.layers_dim = layers_dim
 
-        Args:
-            batch_size (int): batch size
-        """
-        self.batch_size=batch_size
+        self.dense1 = Dense(layers_dim[0], activation='relu')
+        self.dense2 = Dense(layers_dim[1], activation='relu')
+        self.dense3 = Dense(layers_dim[2], activation='relu')
+        self.dense4 = Dense(1, activation='sigmoid')
 
-    def build_model(self, input_shape, dim):
+    def build_model(self):
         """Create model components.
-
-        Args:
-            input_shape: input dimensionality.
-            dim: hidden layers size.
 
         Returns:
             Discriminator model
         """
-        input = Input(shape=input_shape, batch_size=self.batch_size)
-        x = Dense(dim * 4, activation='relu')(input)
+        input = Input(shape=(self.data_dim,), batch_size=self.batch_size)
+        x = self.dense1(input)
         x = Dropout(0.1)(x)
-        x = Dense(dim * 2, activation='relu')(x)
+        x = self.dense2(x)
         x = Dropout(0.1)(x)
-        x = Dense(dim, activation='relu')(x)
-        x = Dense(1, activation='sigmoid')(x)
-        return Model(inputs=input, outputs=x)
+        x = self.dense3(x)
+        output = self.dense4(x)
+        return Model(inputs=input, outputs=output)
