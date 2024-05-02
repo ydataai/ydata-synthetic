@@ -4,6 +4,7 @@
 import os
 import subprocess
 import platform
+import requests
 
 from ydata_synthetic.version import __version__
 def analytics_features(model: str):
@@ -26,7 +27,7 @@ def analytics_features(model: str):
                                  f"&os={platform.system()}" \
                                  f"&gpu={str(gpu_present)}"
 
-            #requests.get(request_message)
+            requests.get(request_message)
             print(request_message)
         except Exception:
             pass
