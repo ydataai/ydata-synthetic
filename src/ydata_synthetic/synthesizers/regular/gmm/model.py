@@ -1,13 +1,13 @@
 """
     GMM based synthetic data generation model
 """
-from typing import List, Optional, Union
 
+import typing
 from joblib import dump, load
 from tqdm import tqdm
 
-from pandas import DataFrame
-from numpy import (array, arange)
+import pandas as pd
+import numpy as np
 
 from sklearn.mixture import GaussianMixture
 from sklearn.metrics import silhouette_score
@@ -16,23 +16,37 @@ from ydata_synthetic.synthesizers.base import BaseModel
 from ydata_synthetic.preprocessing import RegularDataProcessor
 
 class GMM(BaseModel):
+    """
+    Gaussian Mixture Model (GMM) based synthetic data generation model.
+    """
 
     def __init__(self,
                  covariance_type:str="full",
                  random_state:int=0):
+        """
+        Initialize the GMM model with the specified covariance type and random state.
+
+        Args:
+            covariance_type (str): Type of covariance to be used in the GMM. Default is 'full'.
+            random_state (int): Seed for random number generator. Default is 0.
+        """
         self.covariance_type = covariance_type
         self.random_state = random_state
         self.__MODEL__ = GaussianMixture(covariance_type=covariance_type,
                                          random_state=random_state)
         self.processor = RegularDataProcessor
 
-    def __optimize(self, prep_data: array):
+    def __optimize(self, prep_data: np.ndarray):
         """
-        Auxiliary method to optimize the number of components to be considered for the Gaussian or Bayesian Mixture
+        Auxiliary method to optimize the number of components to be considered for the Gaussian or Bayesian Mixture.
+
+        Args:
+            prep_data (np.ndarray): Preprocessed data.
+
         Returns:
-            n_components (int): Optimal number of components calculated based on Silhouette score
+            n_components (int): Optimal number of components calculated based on Silhouette score.
         """
-        c = arange(2, 40, 5)
+        c = np.arange(2, 40, 5)
         n_components=2
         max_silhouette=0
         for n in tqdm(c, desc="Hyperparameter search"):
@@ -45,7 +59,7 @@ class GMM(BaseModel):
                     max_silhouette=s
         return n_components
 
-    def fit(self, data: Union[DataFrame, array],
+    def fit(self, data: Union[pd.DataFrame, np.ndarray],
                 num_cols: Optional[List[str]] = None,
                 cat_cols: Optional[List[str]] = None,):
         """
