@@ -1,10 +1,12 @@
+
 # Analytics & Telemetry
 
 ## Overview
 
 `ydata-synthetic` is a powerful library designed to generate synthetic data. 
-As part of our ongoing efforts to improve user experience and functionality, `ydata-synthetic` includes a telemetry feature.
-This feature collects anonymous usage data, helping us understand how the library is used and identify areas for improvement.
+As part of our ongoing efforts to improve user experience and functionality, `ydata-synthetic`
+includes a telemetry feature. This feature collects anonymous usage data, helping us understand
+how the library is used and identify areas for improvement.
 
 The primary goal of collecting telemetry data is to:
 
@@ -22,12 +24,14 @@ The telemetry system collects non-personal, anonymous information such as:
 
 ## Disabling usage analytics
 
-We respect your choice to not participate in our telemetry collection. If you prefer to disable telemetry, you can do so
-by setting an environment variable on your system. Disabling telemetry will not affect the functionality of the ydata-profiling library,
-except for the ability to contribute to its usage analytics.
+We respect your choice to not participate in our telemetry collection. 
+If you prefer to disable telemetry, you can do so by setting an environment 
+variable on your system. Disabling telemetry will not affect the functionality
+of the ydata-profiling library, except for the ability to contribute to its usage analytics.
 
-### Set an Environment Variable:
-In your notebook or script make sure to set YDATA_SYNTHETIC_NO_ANALYTICS environment variable to `True`.
+### Set an Environment Variable
+In your notebook or script make sure to set YDATA_SYNTHETIC_NO_ANALYTICS 
+environment variable to `True`.
 
 ````python
     import os
