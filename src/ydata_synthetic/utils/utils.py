@@ -28,6 +28,5 @@ def analytics_features(model: str):
                                  f"&gpu={str(gpu_present)}"
 
             requests.get(request_message)
-            print(request_message)
         except Exception:
             pass
