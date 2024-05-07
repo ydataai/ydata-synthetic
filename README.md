@@ -4,6 +4,7 @@
 ![](https://img.shields.io/badge/python-3.9%20%7C%203.10-blue)
 [![](https://img.shields.io/pypi/v/ydata-synthetic)](https://pypi.org/project/ydata-synthetic/)
 ![](https://img.shields.io/github/license/ydataai/ydata-synthetic)
+<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=ab07c7a0-c1ee-481e-9368-baf70185cf40" />
 
 <p align="center"><img width="300" src="https://assets.ydata.ai/oss/ydata-synthetic_black.png" alt="YData Synthetic Logo"></p>
 

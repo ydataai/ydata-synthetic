@@ -104,4 +104,4 @@ And use the following code to view an HTML representation of the Validation resu
 context.view_validation_result(checkpoint_result)
 ```
 
-
+<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=dd69a9f9-0901-4cb4-9e56-b1e69877dca1" />

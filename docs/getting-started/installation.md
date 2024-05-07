@@ -42,3 +42,5 @@ pip install "ydata-synthetic[streamlit]"
 
 Note that Jupyter or Colab Notebooks are not yet supported, so use it in your Python environment.
 
+<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=dd69a9f9-0901-4cb4-9e56-b1e69877dca1" />
+
