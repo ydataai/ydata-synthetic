@@ -18,3 +18,5 @@ For the commit messages, if you could please read this [commit-message guideline
 If you need help figuring out where to start or want to learn what other contributors are doing, go to the [Data-Centric AI community Discord](https://discord.com/invite/mw7xjJ7b7s) channel and introduce yourself in the #ydata-synthetic channel.
 
 If you can't find an issue that interests you and wants to add an improvement or change, create a new one. 
+
+<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=dd69a9f9-0901-4cb4-9e56-b1e69877dca1" />

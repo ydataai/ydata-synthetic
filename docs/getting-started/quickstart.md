@@ -74,3 +74,5 @@ Once the package is [installed](installation.md) with the "streamlit" extra, the
 The console will then output the URL from which the app can be accessed.
 
 :fontawesome-brands-youtube:{ style="color: #EE0F0F" } Here's a [quick example](https://www.youtube.com/watch?v=6Lzi26szKNo&t=4s) of how to synthesize data with the Streamlit App  – :octicons-clock-24: 5min
+
+<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=dd69a9f9-0901-4cb4-9e56-b1e69877dca1" />

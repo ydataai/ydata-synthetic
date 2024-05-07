@@ -39,6 +39,6 @@ environment variable to `True`.
     os.environ['YDATA_SYNTHETIC_NO_ANALYTICS']='True'
 ````
 
-
+<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=dd69a9f9-0901-4cb4-9e56-b1e69877dca1" />
 
 
