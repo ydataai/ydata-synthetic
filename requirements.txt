@@ -9,4 +9,4 @@ easydict==1.10
 pmlb==1.0.*
 tqdm<5.0
 typeguard==4.2.*
-pytest==7.4.*
+pytest==8.3.*
