@@ -6,7 +6,7 @@ from typing import List, Optional, Union
 import pandas as pd
 import tqdm
 
-from numpy import array, vstack, ndarray
+from numpy import array, ndarray, concatenate
 from numpy.random import normal
 from pandas.api.types import is_float_dtype, is_integer_dtype
 from pandas import DataFrame
@@ -30,16 +30,16 @@ from ydata_synthetic.preprocessing.timeseries.doppelganger_processor import Dopp
 from ydata_synthetic.synthesizers.saving_keras import make_keras_picklable
 
 _model_parameters = ['batch_size', 'lr', 'betas', 'layers_dim', 'noise_dim',
-                     'n_cols', 'seq_len', 'condition', 'n_critic', 'n_features', 
-                     'tau_gs', 'generator_dims', 'critic_dims', 'l2_scale', 
+                     'n_cols', 'seq_len', 'condition', 'n_critic', 'n_features',
+                     'tau_gs', 'generator_dims', 'critic_dims', 'l2_scale',
                      'latent_dim', 'gp_lambda', 'pac', 'gamma', 'tanh']
 _model_parameters_df = [128, 1e-4, (None, None), 128, 264,
-                        None, None, None, 1, None, 0.2, [256, 256], 
+                        None, None, None, 1, None, 0.2, [256, 256],
                         [256, 256], 1e-6, 128, 10.0, 10, 1, False]
 
-_train_parameters = ['cache_prefix', 'label_dim', 'epochs', 'sample_interval', 
-                     'labels', 'n_clusters', 'epsilon', 'log_frequency', 
-                     'measurement_cols', 'sequence_length', 'number_sequences', 
+_train_parameters = ['cache_prefix', 'label_dim', 'epochs', 'sample_interval',
+                     'labels', 'n_clusters', 'epsilon', 'log_frequency',
+                     'measurement_cols', 'sequence_length', 'number_sequences',
                      'sample_length', 'rounds']
 
 ModelParameters = namedtuple('ModelParameters', _model_parameters, defaults=_model_parameters_df)
@@ -74,8 +74,8 @@ class BaseModel(ABC):
         """
         ...
     @abstractmethod
-    def sample(self, n_samples:int) -> pd.DataFrame:
-        assert n_samples>0, "Please insert a value bigger than 0 for n_samples parameter."
+    def sample(self, n_samples: int) -> pd.DataFrame:
+        assert n_samples > 0, "Please insert a value bigger than 0 for n_samples parameter."
         ...
 
     @classmethod
@@ -107,7 +107,7 @@ class BaseGANModel(BaseModel):
             except (ValueError, RuntimeError):
                 # Invalid device or cannot modify virtual devices once initialized.
                 pass
-        #Validate the provided model parameters
+        # Validate the provided model parameters
         if model_parameters.betas is not None:
             assert len(model_parameters.betas) == 2, "Please provide the betas information as a tuple."
 
@@ -128,7 +128,7 @@ class BaseGANModel(BaseModel):
         self.pac = model_parameters.pac
 
         self.use_tanh = model_parameters.tanh
-        self.processor=None
+        self.processor = None
         if self.__MODEL__ in RegularModels.__members__ or \
             self.__MODEL__ == CTGANDataProcessor.SUPPORTED_MODEL:
             self.tau = model_parameters.tau_gs
@@ -140,12 +140,12 @@ class BaseGANModel(BaseModel):
     # pylint: disable=C0103
     def _set_lr(self, lr):
         if isinstance(lr, float):
-            self.g_lr=lr
-            self.d_lr=lr
-        elif isinstance(lr,(list, tuple)):
-            assert len(lr)==2, "Please provide a two values array for the learning rates or a float."
-            self.g_lr=lr[0]
-            self.d_lr=lr[1]
+            self.g_lr = lr
+            self.d_lr = lr
+        elif isinstance(lr, (list, tuple)):
+            assert len(lr) == 2, "Please provide a two values array for the learning rates or a float."
+            self.g_lr = lr[0]
+            self.d_lr = lr[1]
 
     def define_gan(self):
         """Define the trainable model components.
@@ -187,7 +187,7 @@ class BaseGANModel(BaseModel):
         elif self.__MODEL__ == CTGANDataProcessor.SUPPORTED_MODEL:
             n_clusters = train_arguments.n_clusters
             epsilon = train_arguments.epsilon
-            self.processor = CTGANDataProcessor(n_clusters=n_clusters, epsilon=epsilon, 
+            self.processor = CTGANDataProcessor(n_clusters=n_clusters, epsilon=epsilon,
                                                 num_cols=num_cols, cat_cols=cat_cols).fit(data)
         elif self.__MODEL__ == DoppelGANgerProcessor.SUPPORTED_MODEL:
             measurement_cols = train_arguments.measurement_cols
@@ -211,13 +211,17 @@ class BaseGANModel(BaseModel):
         Returns:
             synth_sample (pandas.DataFrame): generated synthetic samples.
         """
-        steps = n_samples // self.batch_size + 1
+        steps = n_samples // self.batch_size + \
+            (1 if n_samples % self.batch_size != 0 else 0)
         data = []
         for _ in tqdm.trange(steps, desc='Synthetic data generation'):
             z = random.uniform([self.batch_size, self.noise_dim], dtype=tf.dtypes.float32)
             records = self.generator(z, training=False).numpy()
             data.append(records)
-        return self.processor.inverse_transform(array(vstack(data)))
+
+        data = concatenate(data, axis=0)
+        data = data[:n_samples]
+        return self.processor.inverse_transform(data)
 
     def save(self, path):
         """
@@ -226,8 +230,8 @@ class BaseGANModel(BaseModel):
         Args:
             path (str): Path to write the synthesizer as a pickle object.
         """
-        #Save only the generator?
-        if self.__MODEL__=='WGAN' or self.__MODEL__=='WGAN_GP' or self.__MODEL__=='CWGAN_GP':
+        # Save only the generator?
+        if self.__MODEL__ == 'WGAN' or self.__MODEL__ == 'WGAN_GP' or self.__MODEL__ == 'CWGAN_GP':
             del self.critic
         make_keras_picklable()
         dump(self, path)
@@ -309,7 +313,7 @@ class ConditionalModel(BaseModel):
         Returns:
             sample (pandas.DataFrame): A dataframe with the generated synthetic records.
         """
-        ##Validate here if the cond_vector=label_dim
+        # Validate here if the cond_vector=label_dim
         condition = condition.reset_index(drop=True)
         n_samples = len(condition)
         z_dist = random.uniform(shape=(n_samples, self.noise_dim))

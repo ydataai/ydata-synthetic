@@ -10,7 +10,7 @@ from keras import Model
 import tensorflow_probability as tfp
 from ydata_synthetic.synthesizers.regular.ctgan.utils \
     import ConditionalLoss, RealDataSampler, ConditionalSampler
- 
+
 from ydata_synthetic.synthesizers.loss import gradient_penalty, Mode as ModeGP
 from ydata_synthetic.synthesizers.base import BaseGANModel, ModelParameters, TrainParameters
 from ydata_synthetic.preprocessing.regular.ctgan_processor import CTGANDataProcessor
@@ -79,12 +79,12 @@ class CTGAN(BaseGANModel):
                     logits = data[:, col_md.start_idx+1:col_md.end_idx]
                     data_transformed.append(_gumbel_softmax(logits, tau=tau))
             return data, tf.concat(data_transformed, axis=1)
-            
+
         x = Dense(data_dim, kernel_initializer="random_uniform",
-                  bias_initializer="random_uniform", 
+                  bias_initializer="random_uniform",
                   activation=_generator_activation)(x)
         return Model(inputs=input, outputs=x)
-    
+
     @staticmethod
     def _create_critic_model(input_dim, critic_dims, pac):
         """
@@ -130,11 +130,11 @@ class CTGAN(BaseGANModel):
 
         self._real_data_sampler = RealDataSampler(train_data, metadata)
         self._conditional_sampler = ConditionalSampler(train_data, metadata, train_arguments.log_frequency)
-        
+
         gen_input_dim = self.latent_dim + self._conditional_sampler.output_dimensions
         self._generator_model = self._create_generator_model(
             gen_input_dim, self.generator_dims, data_dim, metadata, self.tau)
-        
+
         crt_input_dim = data_dim + self._conditional_sampler.output_dimensions
         self._critic_model = self._create_critic_model(crt_input_dim, self.critic_dims, self.pac)
 
@@ -173,7 +173,7 @@ class CTGAN(BaseGANModel):
                     mask = tf.convert_to_tensor(mask)
                     fake_z = tf.concat([fake_z, cond], axis=1)
                     generator_loss = self._train_generator_step(fake_z, cond, mask, metadata)
-            
+
             print(f"Epoch: {epoch} | critic_loss: {critic_loss} | generator_loss: {generator_loss}")
 
     def _train_critic_step(self, real, fake):
@@ -255,7 +255,8 @@ class CTGAN(BaseGANModel):
         if n_samples <= 0:
             raise ValueError("Invalid number of samples.")
 
-        steps = n_samples // self.batch_size + 1
+        steps = n_samples // self.batch_size +\
+            (1 if n_samples % self.batch_size != 0 else 0)
         data = []
         for _ in tf.range(steps):
             fake_z = tf.random.normal([self.batch_size, self.latent_dim])
@@ -270,7 +271,7 @@ class CTGAN(BaseGANModel):
         data = np.concatenate(data, 0)
         data = data[:n_samples]
         return self.processor.inverse_transform(data)
-    
+
     def save(self, path):
         """
         Save the CTGAN model in a pickle file.
@@ -314,9 +315,9 @@ class CTGAN(BaseGANModel):
         new_instance.processor.__dict__ = class_dict["processor"]
 
         new_instance._generator_model = new_instance._create_generator_model(
-            class_dict["gen_input_dim"], class_dict["generator_dims"], 
+            class_dict["gen_input_dim"], class_dict["generator_dims"],
             class_dict["data_dim"], class_dict["metadata"], class_dict["tau"])
-        
+
         new_instance._generator_model.build((class_dict["batch_size"], class_dict["gen_input_dim"]))
         new_instance._generator_model.set_weights(class_dict['generator_model_weights'])
         return new_instance
