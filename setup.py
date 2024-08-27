@@ -50,7 +50,7 @@ setup(name='ydata-synthetic',
       install_requires=requirements,
       extras_require={
           "streamlit": [
-              "streamlit==1.29.0",
+              "streamlit==1.38.0",
               "typing-extensions>=3.10.0",
               "streamlit_pandas_profiling==0.1.3",
               "ydata-profiling<5",
