@@ -36,8 +36,8 @@ class BaseModel(ABC):
                   cat_cols: Optional[List[str]] = None,
                   **kwargs):
         warn(
-            f"{self.__class__.__name__} is deprecated. Please leverage ydata-sdk RegularSynthesizer or TimeSeriesSynthesizer instead. For more information, "
-            f"check ydata-sdk documentation:  https://docs.fabric.ydata.ai/latest/sdk/examples/synthesize_tabular_data/.",
+            f"{self.__class__.__name__} is deprecated. Please leverage ydata-sdk **RegularSynthesizer** or **TimeSeriesSynthesizer** instead. For more information, "
+            f"check ydata-sdk documentation:  https://docs.fabric.ydata.ai/latest/sdk/examples/.",
             DeprecationWarning,
             stacklevel=2
         )
