@@ -1,6 +1,7 @@
 """
     Doppelganger implementation file
 """
+from ydata_synthetic.synthesizers.base import BaseModel
 
 class DoppelGANgerNetwork(BaseModel):
     """

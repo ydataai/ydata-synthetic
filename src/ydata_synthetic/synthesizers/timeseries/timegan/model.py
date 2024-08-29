@@ -1,6 +1,7 @@
 """
     TimeGAN file definition
 """
+from ydata_synthetic.synthesizers.base import BaseModel
 
 class TimeGAN(BaseModel):
     """
