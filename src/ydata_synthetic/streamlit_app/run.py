@@ -1,15 +1,12 @@
 """
     Logic to run streamlit app from python code
 """
-import os
-from streamlit import config as _config
-from streamlit.web import bootstrap
+from warnings import warn
 
 def run():
-    dir_path = os.path.dirname(__file__)
-    file_path = os.path.join(dir_path, "About.py")
-
-    _config.set_option("server.headless", True)
-    args = []
-
-    bootstrap.run(file_path,'',args, flag_options={})
+    warn(
+        "`import ydata_synthetic.streamllit_app` is deprecated. Please use **YData Fabric** instead."
+        "For more information check https://docs.fabric.ydata.ai/latest/. To start today go to http://ydata.ai/register.",
+        DeprecationWarning,
+        stacklevel=2,
+    )

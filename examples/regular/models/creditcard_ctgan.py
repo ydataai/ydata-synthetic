@@ -1,5 +1,5 @@
 """
-    CTGAN architecture example file
+    ctgan architecture example file
 """
 import pandas as pd
 from sklearn import cluster
@@ -35,7 +35,7 @@ fraud_w_classes = train_data.copy()
 fraud_w_classes['Class'] = labels
 
 #----------------------------
-#    CTGAN Training
+#    ctgan Training
 #----------------------------
 
 batch_size = 500
@@ -53,10 +53,10 @@ train_args = TrainParameters(epochs=epochs)
 # Create a bining
 fraud_w_classes['Amount'] = pd.cut(fraud_w_classes['Amount'], 5).cat.codes
 
-# Init the CTGAN
+# Init the ctgan
 synth = RegularSynthesizer(modelname='ctgan', model_parameters=ctgan_args)
 
-#Training the CTGAN
+#Training the ctgan
 synth.fit(data=fraud_w_classes, train_arguments=train_args, num_cols=num_cols, cat_cols=cat_cols)
 
 # Saving the synthesizer

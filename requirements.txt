@@ -1,12 +1,1 @@
-requests>=2.28, <2.31
-pandas<3
-numpy<2
-scikit-learn<2
-matplotlib<4
-tensorflow==2.15.*
-tensorflow-probability[tf]
-easydict==1.10
-pmlb==1.0.*
-tqdm<5.0
-typeguard==4.2.*
-pytest==7.4.*
+ydata-sdk
