@@ -1,5 +1,11 @@
 # Synthesize time-series data
 
+!!! note "Outdated"
+    Note that this example won't work with the latest version of `ydata-synthetic`. 
+
+    Please check `ydata-sdk` to see [how to generate synthetic time-series data](https://docs.fabric.ydata.ai/latest/sdk/examples/synthesize_timeseries_data/).
+
+
 **Using *DoppelGANger* to generate synthetic time-series data:**
 
 Although tabular data may be the most frequently discussed type of data, a great number of real-world domains — from traffic and daily trajectories to stock prices and energy consumption patterns — produce **time-series data** which introduces several aspects of complexity to synthetic data generation.

@@ -9,10 +9,9 @@ nav:
     - 'index.md'
     - Overview: 'index.md'
     - Installation: 'getting-started/installation.md'
-    - Quickstart: 'getting-started/quickstart.md'
-  - Synthetic Data Generation:
+    - Synthetic Data Generation:
       - "synthetic_data/index.md"
-      - UI interface - Streamlit app: "synthetic_data/streamlit_app.md"
+      - UI interface - YData Fabric: "synthetic_data/ydata_fabric_app.md"
       - Generate Single Table:
         - GMM: "synthetic_data/single_table/gmm_example.md"
         - CGAN: "synthetic_data/single_table/cgan_example.md"
@@ -32,31 +31,6 @@ nav:
       - Great Expectations: "integrations/gx_integration.md"
   - Support: 
     - Help & Troubleshooting: 'support/help-troubleshooting.md'
-    - Contribution Guidelines: 'support/contribute.md'
-    - Contribution Guidelines: 'support/contribute.md'
-    - Analytics: 'support/analytics.md'
-  - Reference:
-      - Changelog: 'reference/changelog.md'
-      - API:
-          - Synthesizers:
-              - GAN: 'reference/api/synthesizers/regular/gan.md'
-              - Regular:
-                  - CGAN: 'reference/api/synthesizers/regular/cgan.md'
-                  - CRAMERGAN: 'reference/api/synthesizers/regular/cramergan.md'
-                  - CTGAN: 'reference/api/synthesizers/regular/ctgan.md'
-                  - CWGANGP: 'reference/api/synthesizers/regular/cwgangp.md'
-                  - DRAGAN: 'reference/api/synthesizers/regular/dragan.md'
-                  - VANILLAGAN: 'reference/api/synthesizers/regular/vanillagan.md'
-                  - WGAN_GP: 'reference/api/synthesizers/regular/wgan_gp.md'
-                  - WGAN: 'reference/api/synthesizers/regular/wgan.md'
-              - Timeseries:
-                  - TimeGAN: 'reference/api/synthesizers/timeseries/timegan.md'
-                  - DoppelGANger: 'reference/api/synthesizers/timeseries/doppelganger.md'
-          - Preprocessing:
-              - BaseProcessor: 'reference/api/preprocessing/base.md'
-              - Regular:
-                  - RegularDataProcessor: 'reference/api/preprocessing/regular/preprocessor.md'
-                  - CTGANDataProcessor: 'reference/api/preprocessing/regular/ctgan_preprocessor.md'
 theme:
   name: material
   language: en

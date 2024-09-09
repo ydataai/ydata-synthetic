@@ -15,6 +15,9 @@ Great Expectations renders Expectations to clean, human-readable documentation c
 
 ## Validating your Synthetic Data with Great Expectations
 
+!!! note `Outdated`
+    From ydata-synthetic vx onwards this example will no longer work. Please check `ydata-sdk` and [synthetic data generation examples](https://docs.fabric.ydata.ai/latest/sdk/examples/synthesize_tabular_data/).
+
 #### 1. Install the required libraries:
 We recommend you create a virtual environment and install ydata-synthetic and great-expectations by running the following command on your terminal.
 

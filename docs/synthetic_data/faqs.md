@@ -7,28 +7,6 @@ Depending on your use case, the downstream application of your synthetic data, a
 
     For a use-case oriented UI experience, try [YData Fabric](https://ydata.ai/ydata-fabric-free-trial). From an interactive and complete data profiling to an efficient synthetization, your data preparation process will be seamlessly adjusted to your data characteristics.
 
-## How can I run the Streamlit app?
-
-To try `ydata-synthetic` using the streamlit app, you need to install it using the `[]` notation that encodes the extras that the package incorporates. In this case, you can simply create your virtual environment and install `ydata-synthetic` as:
-
-```bash
-pip install ydata-synthetic[streamlit]
-```
-
-Note that Jupyter or Colab Notebooks are not yet supported, so you need to work it out in your Python environment. Once the package is installed, you can use the following snippet to start the app:
-
-```python
-from ydata_synthetic import streamlit_app
-
-streamlit_app.run()
-```
-
-And that's it! After running the command, the console will output the URL from which you can access the app!
-
-!!! example
-    For a step-by-step installation guide, [check this 5-min video](https://www.youtube.com/watch?v=jj9X1_cKRwI&t=2s) that will help you get started!
-
-
 ## What is the best way to evaluate the quality of my synthetic data?
 The most appropriate metrics to evaluate the quality of your synthetic data are also dependent on the goal for which synthetic data will be used. Nevertheless, we may define three essential pillars for synthetic data quality: privacy, fidelity, and utility:
 
@@ -51,7 +29,7 @@ Most issues with installations are usually associated with unsupported Python ve
 Let’s see how you can get both right:
 
 ### Python Versions
-Note that `ydata-synthetic` currently requires Python >=3.9, < 3.11 so if you're trying to run our code in Google Colab, then you need to [update your Google Colab’s Python version](https://stackoverflow.com/questions/68657341/how-can-i-update-google-colabs-python-version/68658479#68658479) accordingly. The same goes for your development environment.
+Note that `ydata-sdk` currently requires Python >=3.9, < 3.13 so if you're trying to run our code in Google Colab, then you need to [update your Google Colab’s Python version](https://stackoverflow.com/questions/68657341/how-can-i-update-google-colabs-python-version/68658479#68658479) accordingly. The same goes for your development environment.
 
 ### Virtual Environments
 A lot of troubleshooting arises due to misalignments between environments and package requirements.
@@ -60,9 +38,9 @@ Virtual Environments isolate your installations from the "global" environment so
 Using conda, creating a new environment is as easy as running this on your shell:
 
 ```
-conda create --name synth-env python==3.9 pip
+conda create --name synth-env python==3.12 pip
 conda activate synth-env
-pip install ydata-synthetic
+pip install ydata-sdk
 ```
 
 Now you can open up your Python editor or Jupyter Lab and use the synth-env as your development environment, without having to worry about conflicting versions or packages between projects!
