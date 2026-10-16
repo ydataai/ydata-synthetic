@@ -52,6 +52,7 @@ You can use this one-liner to find all affected files:
  
 ```bash
 grep -r "ydata_synthetic" . --include="*.py"
+```
   
 ## Synthetic data
 ### What is synthetic data?

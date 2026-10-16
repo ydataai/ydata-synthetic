@@ -12,5 +12,5 @@ Here’s an example of how to synthetize tabular data with CWGAN-GP using the [C
 
 
 ```python
---8<-- "examples/regular/models/creditcard_cramergan.py"
+--8<-- "examples/regular/models/creditcard_cwgangp.py"
 ```
