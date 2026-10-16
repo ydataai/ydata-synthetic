@@ -9,10 +9,10 @@ Depending on your use case, the downstream application of your synthetic data, a
 
 ## How can I run the Streamlit app?
 
-To try `ydata-synthetic` using the streamlit app, you need to install it using the `[]` notation that encodes the extras that the package incorporates. In this case, you can simply create your virtual environment and install `ydata-synthetic` as:
+To try `fg-data-synthetic` using the streamlit app, you need to install it using the `[]` notation that encodes the extras that the package incorporates. In this case, you can simply create your virtual environment and install `fg-data-synthetic` as:
 
 ```bash
-pip install ydata-synthetic[streamlit]
+pip install fg-data-synthetic[streamlit]
 ```
 
 Note that Jupyter or Colab Notebooks are not yet supported, so you need to work it out in your Python environment. Once the package is installed, you can use the following snippet to start the app:
@@ -51,7 +51,7 @@ Most issues with installations are usually associated with unsupported Python ve
 Let’s see how you can get both right:
 
 ### Python Versions
-Note that `ydata-synthetic` currently requires Python >=3.9, < 3.11 so if you're trying to run our code in Google Colab, then you need to [update your Google Colab’s Python version](https://stackoverflow.com/questions/68657341/how-can-i-update-google-colabs-python-version/68658479#68658479) accordingly. The same goes for your development environment.
+Note that `fg-data-synthetic` currently requires Python >=3.9, < 3.12 so if you're trying to run our code in Google Colab, then you need to [update your Google Colab’s Python version](https://stackoverflow.com/questions/68657341/how-can-i-update-google-colabs-python-version/68658479#68658479) accordingly. The same goes for your development environment.
 
 ### Virtual Environments
 A lot of troubleshooting arises due to misalignments between environments and package requirements.
@@ -62,7 +62,7 @@ Using conda, creating a new environment is as easy as running this on your shell
 ```
 conda create --name synth-env python==3.9 pip
 conda activate synth-env
-pip install ydata-synthetic
+pip install fg-data-synthetic
 ```
 
 Now you can open up your Python editor or Jupyter Lab and use the synth-env as your development environment, without having to worry about conflicting versions or packages between projects!

@@ -1,6 +1,6 @@
 # The UI guided experience for Synthetic Data generation
 
-´ydata-synthetic´ offers a UI interface to guide you through the steps and inputs to generate structure tabular data. 
+´fg-data-synthetic´ offers a UI interface to guide you through the steps and inputs to generate structure tabular data. 
 The streamlit app is available from *v1.0.0* onwards, and supports the following flows:
 
 - Train a synthesizer model for a single table dataset
@@ -12,7 +12,7 @@ The streamlit app is available from *v1.0.0* onwards, and supports the following
 
 ## Installation
 
-pip install ydata-synthetic[streamlit]
+pip install fg-data-synthetic[streamlit]
 
 ## Quickstart
 
@@ -28,7 +28,7 @@ Use the code snippet below in a python file:
     streamlit_app.run()
 ```
 
-Or use the file streamlit_app.py that can be found in the [examples folder]().
+Or use the file streamlit_app.py that can be found in the [examples folder](https://github.com/Data-Centric-AI-Community/fg-data-synthetic/blob/dev/examples/streamlit_app.py).
 
 ``` py
     python -m streamlit_app

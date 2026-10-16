@@ -16,10 +16,10 @@ Great Expectations renders Expectations to clean, human-readable documentation c
 ## Validating your Synthetic Data with Great Expectations
 
 #### 1. Install the required libraries:
-We recommend you create a virtual environment and install ydata-synthetic and great-expectations by running the following command on your terminal.
+We recommend you create a virtual environment and install fg-data-synthetic and great-expectations by running the following command on your terminal.
 
 ```bash
-pip install ydata-synthetic great-expectations
+pip install fg-data-synthetic great-expectations
 ```
 
 #### 2. Generate your Synthetic Data:

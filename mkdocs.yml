@@ -46,7 +46,7 @@ nav:
                   - CTGAN: 'reference/api/synthesizers/regular/ctgan.md'
                   - CWGANGP: 'reference/api/synthesizers/regular/cwgangp.md'
                   - DRAGAN: 'reference/api/synthesizers/regular/dragan.md'
-                  - VANILLAGAN: 'reference/api/synthesizers/regular/vanillagan.md'
+                  - VANILLAGAN: 'reference/api/synthesizers/regular/vanilllagan.md'
                   - WGAN_GP: 'reference/api/synthesizers/regular/wgan_gp.md'
                   - WGAN: 'reference/api/synthesizers/regular/wgan.md'
               - Timeseries:
